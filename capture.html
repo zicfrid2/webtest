@@ -1,0 +1,535 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Capture</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #0f1115;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app {
+            position: relative;
+            width: 100%;
+            max-width: 430px;
+            height: 100dvh;
+            background: #11151c;
+            overflow: hidden;
+        }
+
+        .topbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0));
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
+        .camera-wrap {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        video, .captured-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        video {
+            transform: scaleX(-1);
+        }
+
+        .captured-preview {
+            display: none;
+        }
+
+        .face-guide {
+            position: absolute;
+            left: 50%;
+            top: 44%;
+            transform: translate(-50%, -50%);
+            width: 64%;
+            aspect-ratio: 0.78 / 1;
+            border: 2px solid rgba(255,255,255,0.28);
+            border-radius: 48% 48% 45% 45% / 38% 38% 58% 58%;
+            background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.18), 0 0 20px rgba(255,255,255,0.08) inset;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .guide-text {
+            position: absolute;
+            left: 50%;
+            top: calc(44% + 28%);
+            transform: translateX(-50%);
+            z-index: 6;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.4;
+            width: 86%;
+            pointer-events: none;
+        }
+
+        .bottom-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+            background: linear-gradient(to top, rgba(0,0,0,0.80), rgba(0,0,0,0.35), rgba(0,0,0,0));
+            z-index: 30;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 110px;
+            transition: 0.18s ease;
+        }
+
+            button:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+        .btn-primary {
+            background: #4da3ff;
+            color: #fff;
+        }
+
+        .btn-stop {
+            background: #ff5d73;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+
+        .btn-save {
+            background: #34c759;
+            color: #fff;
+        }
+
+        .status {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.82);
+            min-height: 18px;
+        }
+
+        .hidden-canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="topbar">표정 촬영</div>
+
+        <div class="camera-wrap">
+            <video id="video" playsinline autoplay muted></video>
+            <img id="capturedPreview" class="captured-preview" alt="captured" />
+            <div class="face-guide" id="faceGuide"></div>
+            <div class="guide-text" id="guideText">얼굴을 중앙 가이드에 맞춘 뒤 Start를 누르세요</div>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="button-row">
+                <button id="startBtn" class="btn-primary">Start</button>
+                <button id="stopBtn" class="btn-stop" style="display:none;">Stop</button>
+                <button id="uploadBtn" class="btn-secondary">이미지 업로드</button>
+                <button id="saveBtn" class="btn-save" disabled>파일로 저장</button>
+                <button id="analysisBtn" class="btn-secondary" disabled>표정분석보기</button>
+            </div>
+            <div class="status" id="statusText">카메라 대기 중...</div>
+        </div>
+
+        <input id="fileInput" type="file" accept="image/*" style="display:none;" />
+        <canvas id="workCanvas" class="hidden-canvas"></canvas>
+    </div>
+
+    <script>
+        const TARGET_WIDTH = 2208;
+        const TARGET_HEIGHT = 3306;
+        const DB_NAME = 'faceCaptureDB';
+        const STORE_NAME = 'images';
+        const IMAGE_KEY = 'latestCapture';
+
+        const video = document.getElementById('video');
+        const capturedPreview = document.getElementById('capturedPreview');
+        const faceGuide = document.getElementById('faceGuide');
+        const guideText = document.getElementById('guideText');
+        const workCanvas = document.getElementById('workCanvas');
+
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const analysisBtn = document.getElementById('analysisBtn');
+        const fileInput = document.getElementById('fileInput');
+        const statusText = document.getElementById('statusText');
+
+        let mediaStream = null;
+        let isCameraOn = false;
+        let lastSavedBlob = null;
+        let lastSavedFileName = '';
+
+        function isMobile() {
+            return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        }
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, 1);
+
+                req.onupgradeneeded = function (e) {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+
+                req.onsuccess = function () {
+                    resolve(req.result);
+                };
+
+                req.onerror = function () {
+                    reject(req.error || new Error('IndexedDB open failed'));
+                };
+            });
+        }
+
+        async function saveBlobToDB(blob) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.put(blob, IMAGE_KEY);
+
+                req.onsuccess = () => resolve(true);
+                req.onerror = () => reject(req.error || new Error('Blob save failed'));
+            });
+        }
+
+        async function initCamera() {
+            try {
+                statusText.textContent = '카메라를 준비하는 중...';
+
+                if (mediaStream) {
+                    stopCameraTracks();
+                }
+
+                const mobile = isMobile();
+
+                const constraints = {
+                    audio: false,
+                    video: {
+                        facingMode: mobile ? { ideal: 'user' } : 'user',
+                        width: { ideal: 4096 },
+                        height: { ideal: 4096 }
+                    }
+                };
+
+                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = mediaStream;
+
+                await video.play();
+
+                isCameraOn = true;
+                statusText.textContent = '카메라 준비 완료';
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = '카메라를 열 수 없습니다. 브라우저 권한을 확인하세요.';
+            }
+        }
+
+        function stopCameraTracks() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            isCameraOn = false;
+        }
+
+        function dataURLFromBlob(blob) {
+            return new Promise((resolve, reject) => {
+                const fr = new FileReader();
+                fr.onload = () => resolve(fr.result);
+                fr.onerror = () => reject(fr.error);
+                fr.readAsDataURL(blob);
+            });
+        }
+
+        function loadImageFromFile(file) {
+            return new Promise((resolve, reject) => {
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    resolve(img);
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        function captureCurrentVideoFrameToImage() {
+            const tempCanvas = document.createElement('canvas');
+            const vw = video.videoWidth;
+            const vh = video.videoHeight;
+
+            if (!vw || !vh) {
+                throw new Error('비디오 프레임 크기를 가져올 수 없습니다.');
+            }
+
+            tempCanvas.width = vw;
+            tempCanvas.height = vh;
+
+            const ctx = tempCanvas.getContext('2d', { alpha: false });
+
+            ctx.translate(vw, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, vw, vh);
+
+            return new Promise((resolve, reject) => {
+                tempCanvas.toBlob(blob => {
+                    if (!blob) {
+                        reject(new Error('프레임 Blob 생성 실패'));
+                        return;
+                    }
+                    const img = new Image();
+                    img.onload = () => {
+                        URL.revokeObjectURL(img.src);
+                        resolve(img);
+                    };
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(blob);
+                }, 'image/jpeg', 0.98);
+            });
+        }
+
+        async function make2208x3306BlobFromImage(img) {
+            workCanvas.width = TARGET_WIDTH;
+            workCanvas.height = TARGET_HEIGHT;
+
+            const ctx = workCanvas.getContext('2d', { alpha: false });
+            ctx.clearRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+
+            const srcW = img.naturalWidth || img.width;
+            const srcH = img.naturalHeight || img.height;
+
+            if (!srcW || !srcH) {
+                throw new Error('원본 이미지 크기 없음');
+            }
+
+            const scale = TARGET_WIDTH / srcW;
+            const scaledW = TARGET_WIDTH;
+            const scaledH = srcH * scale;
+            const drawY = (TARGET_HEIGHT - scaledH) / 2;
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+            ctx.drawImage(img, 0, drawY, scaledW, scaledH);
+
+            return new Promise((resolve, reject) => {
+                workCanvas.toBlob(blob => {
+                    if (!blob) {
+                        reject(new Error('최종 Blob 생성 실패'));
+                        return;
+                    }
+                    resolve(blob);
+                }, 'image/jpeg', 0.92);
+            });
+        }
+
+        function makeFileName() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            const ss = String(d.getSeconds()).padStart(2, '0');
+            return `face_2208x3306_${y}${m}${day}_${hh}${mm}${ss}.jpg`;
+        }
+
+        function saveBlobAsFile(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        async function processAndSaveImageFromSourceImage(img) {
+            statusText.textContent = '2208 × 3306 이미지로 변환 중...';
+
+            const finalBlob = await make2208x3306BlobFromImage(img);
+            await saveBlobToDB(finalBlob);
+
+            lastSavedBlob = finalBlob;
+            lastSavedFileName = makeFileName();
+
+            const previewUrl = await dataURLFromBlob(finalBlob);
+
+            capturedPreview.src = previewUrl;
+            capturedPreview.style.display = 'block';
+            video.style.display = 'none';
+            faceGuide.style.display = 'none';
+            guideText.style.display = 'none';
+
+            saveBtn.disabled = false;
+            analysisBtn.disabled = false;
+            statusText.textContent = '2208 × 3306 이미지 저장 완료';
+        }
+
+        async function startCameraFlow() {
+            capturedPreview.style.display = 'none';
+            capturedPreview.src = '';
+            video.style.display = 'block';
+            faceGuide.style.display = 'block';
+            guideText.style.display = 'block';
+            saveBtn.disabled = !lastSavedBlob;
+            analysisBtn.disabled = !lastSavedBlob;
+
+            await initCamera();
+
+            if (isCameraOn) {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                statusText.textContent = '촬영 중... Stop을 누르면 저장됩니다';
+            }
+        }
+
+        async function stopAndCaptureFlow() {
+            try {
+                if (!isCameraOn) {
+                    statusText.textContent = '카메라가 켜져 있지 않습니다.';
+                    return;
+                }
+
+                statusText.textContent = '현재 프레임 캡처 중...';
+                const img = await captureCurrentVideoFrameToImage();
+
+                stopCameraTracks();
+                stopBtn.style.display = 'none';
+                startBtn.style.display = 'inline-block';
+
+                await processAndSaveImageFromSourceImage(img);
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = '이미지 저장에 실패했습니다.';
+            }
+        }
+
+        startBtn.addEventListener('click', async () => {
+            await startCameraFlow();
+        });
+
+        stopBtn.addEventListener('click', async () => {
+            await stopAndCaptureFlow();
+        });
+
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            try {
+                stopCameraTracks();
+                stopBtn.style.display = 'none';
+                startBtn.style.display = 'inline-block';
+
+                const img = await loadImageFromFile(file);
+                await processAndSaveImageFromSourceImage(img);
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = '업로드 이미지 처리에 실패했습니다.';
+            } finally {
+                fileInput.value = '';
+            }
+        });
+
+        saveBtn.addEventListener('click', () => {
+            if (!lastSavedBlob) {
+                statusText.textContent = '저장할 이미지가 없습니다.';
+                return;
+            }
+
+            try {
+                saveBlobAsFile(lastSavedBlob, lastSavedFileName || makeFileName());
+                statusText.textContent = '파일 저장이 시작되었습니다.';
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = '파일 저장에 실패했습니다.';
+            }
+        });
+
+        analysisBtn.addEventListener('click', () => {
+            location.href = 'analysis.html';
+        });
+
+        window.addEventListener('beforeunload', () => {
+            stopCameraTracks();
+        });
+    </script>
+</body>
+</html>
