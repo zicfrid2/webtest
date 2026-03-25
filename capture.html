@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Capture</title>
     <style>
         * {
@@ -211,8 +212,11 @@
     </div>
 
     <script>
-        const TARGET_W = 2208;
-        const TARGET_H = 3306;
+        const MIN_KEEP_W = 2208;
+        const MIN_KEEP_H = 3076;
+
+        const UPSCALE_TARGET_W = 2208;
+        const UPSCALE_TARGET_H = 3306;
 
         const DB_NAME = "CaptureImageDB";
         const STORE_NAME = "images";
@@ -426,52 +430,83 @@
             };
         }
 
-        async function renderToTargetBlob() {
-            const { bitmap, sourceType, rawWidth, rawHeight } = await getHighResSourceBitmap();
-
-            const canvas = workCanvas;
-            const ctx = canvas.getContext("2d", { alpha: false });
-
-            canvas.width = TARGET_W;
-            canvas.height = TARGET_H;
-
-            ctx.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            const scale = TARGET_W / rawWidth;
-            const scaledH = rawHeight * scale;
-            const dy = (TARGET_H - scaledH) * 0.5;
-
-            /*
-              화면은 이미 flip horizontal 로 보이므로
-              저장되는 최종 이미지도 화면과 동일하게 보이게
-              캔버스에 좌우반전해서 그린다.
-            */
-            ctx.save();
-            ctx.translate(TARGET_W, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(bitmap, 0, dy, TARGET_W, scaledH);
-            ctx.restore();
-
-            bitmap.close();
-
-            const blob = await new Promise((resolve, reject) => {
+        async function canvasToBlob(canvas, quality = 0.96) {
+            return new Promise((resolve, reject) => {
                 canvas.toBlob(
                     (b) => {
                         if (b) resolve(b);
                         else reject(new Error("canvas.toBlob failed"));
                     },
                     "image/jpeg",
-                    0.96
+                    quality
                 );
             });
+        }
+
+        async function renderToTargetBlob() {
+            const { bitmap, sourceType, rawWidth, rawHeight } = await getHighResSourceBitmap();
+
+            const canvas = workCanvas;
+            const ctx = canvas.getContext("2d", { alpha: false });
+
+            const keepOriginal = rawWidth >= MIN_KEEP_W && rawHeight >= MIN_KEEP_H;
+
+            if (keepOriginal) {
+                canvas.width = rawWidth;
+                canvas.height = rawHeight;
+                ctx.clearRect(0, 0, rawWidth, rawHeight);
+
+                /*
+                  화면이 좌우반전으로 보이므로
+                  저장 파일도 화면과 동일하게 좌우반전 저장
+                */
+                ctx.save();
+                ctx.translate(rawWidth, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(bitmap, 0, 0, rawWidth, rawHeight);
+                ctx.restore();
+
+                bitmap.close();
+
+                const blob = await canvasToBlob(canvas);
+
+                return {
+                    blob,
+                    sourceType,
+                    rawWidth,
+                    rawHeight,
+                    finalWidth: rawWidth,
+                    finalHeight: rawHeight,
+                    isOriginal: true
+                };
+            }
+
+            canvas.width = UPSCALE_TARGET_W;
+            canvas.height = UPSCALE_TARGET_H;
+            ctx.clearRect(0, 0, UPSCALE_TARGET_W, UPSCALE_TARGET_H);
+
+            const scale = UPSCALE_TARGET_W / rawWidth;
+            const scaledH = rawHeight * scale;
+            const dy = (UPSCALE_TARGET_H - scaledH) * 0.5;
+
+            ctx.save();
+            ctx.translate(UPSCALE_TARGET_W, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(bitmap, 0, dy, UPSCALE_TARGET_W, scaledH);
+            ctx.restore();
+
+            bitmap.close();
+
+            const blob = await canvasToBlob(canvas);
 
             return {
                 blob,
                 sourceType,
                 rawWidth,
                 rawHeight,
-                finalWidth: TARGET_W,
-                finalHeight: TARGET_H
+                finalWidth: UPSCALE_TARGET_W,
+                finalHeight: UPSCALE_TARGET_H,
+                isOriginal: false
             };
         }
 
@@ -502,10 +537,17 @@
                 saveBtn.classList.remove("hidden");
                 analyzeBtn.classList.remove("hidden");
 
-                setStatus(
-                    `촬영 완료\n원본 ${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → 최종 ${result.finalWidth} x ${result.finalHeight}`
-                );
-                setInfo(`표시중\n${result.finalWidth} x ${result.finalHeight}`);
+                if (result.isOriginal) {
+                    setStatus(
+                        `원본 그대로 저장됨\n${result.rawWidth} x ${result.rawHeight} (${result.sourceType})`
+                    );
+                    setInfo(`원본 유지\n${result.finalWidth} x ${result.finalHeight}`);
+                } else {
+                    setStatus(
+                        `리사이즈 적용\n${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → ${result.finalWidth} x ${result.finalHeight}`
+                    );
+                    setInfo(`리사이즈됨\n${result.finalWidth} x ${result.finalHeight}`);
+                }
             } catch (err) {
                 console.error(err);
                 setStatus("이미지 저장에 실패했습니다.");
@@ -547,7 +589,6 @@
                 a.remove();
 
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
-
                 setStatus(`파일 저장 완료\n${fileName}`);
             } catch (err) {
                 console.error(err);
@@ -562,6 +603,11 @@
                     setStatus("저장된 이미지가 없습니다.");
                     return;
                 }
+
+                /*
+                  analysis.html 에서는 이 Blob을 그대로 읽어서 써야 함.
+                  여기서는 추가 리사이즈 없이 그대로 전달.
+                */
                 window.location.href = "analysis.html";
             } catch (err) {
                 console.error(err);
