@@ -12,11 +12,11 @@
         html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
             background: #0f1115;
             color: #fff;
             font-family: Arial, sans-serif;
-            width: 100%;
-            height: 100%;
             overflow: hidden;
         }
 
@@ -28,9 +28,8 @@
 
         .app {
             position: relative;
-            width: 100%;
-            max-width: 430px;
-            height: 100dvh;
+            width: min(100vw, 430px);
+            height: 100vh;
             background: #11151c;
             overflow: hidden;
         }
@@ -39,82 +38,77 @@
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            height: 62px;
+            width: 100%;
+            height: 58px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
             z-index: 20;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0));
             font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 0.3px;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
         }
 
         .camera-wrap {
             position: absolute;
             inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: #000;
-            overflow: hidden;
         }
 
-        video, .captured-preview {
-            position: absolute;
-            inset: 0;
+        video,
+        img#capturedImage {
             width: 100%;
             height: 100%;
             object-fit: cover;
             background: #000;
         }
 
+        /* 보이는 화면은 항상 좌우반전 */
         video {
             transform: scaleX(-1);
         }
 
-        .captured-preview {
-            display: none;
+        img#capturedImage {
+            transform: scaleX(-1);
         }
 
         .face-guide {
             position: absolute;
-            left: 50%;
-            top: 44%;
-            transform: translate(-50%, -50%);
-            width: 64%;
-            aspect-ratio: 0.78 / 1;
-            border: 2px solid rgba(255,255,255,0.28);
-            border-radius: 48% 48% 45% 45% / 38% 38% 58% 58%;
-            background: rgba(255,255,255,0.06);
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.18), 0 0 20px rgba(255,255,255,0.08) inset;
+            width: 68%;
+            aspect-ratio: 3 / 4;
+            border: 2px dashed rgba(255,255,255,0.28);
+            border-radius: 48% 48% 42% 42% / 38% 38% 56% 56%;
+            z-index: 10;
             pointer-events: none;
-            z-index: 5;
-        }
-
-        .guide-text {
-            position: absolute;
-            left: 50%;
-            top: calc(44% + 28%);
-            transform: translateX(-50%);
-            z-index: 6;
-            color: rgba(255,255,255,0.8);
-            font-size: 14px;
-            text-align: center;
-            line-height: 1.4;
-            width: 86%;
-            pointer-events: none;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.28);
+            opacity: 0.8;
         }
 
         .bottom-panel {
             position: absolute;
             left: 0;
-            right: 0;
             bottom: 0;
-            padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
-            background: linear-gradient(to top, rgba(0,0,0,0.80), rgba(0,0,0,0.35), rgba(0,0,0,0));
+            width: 100%;
+            padding: 18px 16px 22px;
+            background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.2), rgba(0,0,0,0));
             z-index: 30;
         }
 
-        .button-row {
+        .status {
+            min-height: 22px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 13px;
+            color: #d0d7e2;
+            opacity: 0.95;
+            white-space: pre-line;
+        }
+
+        .btn-row {
             display: flex;
             gap: 10px;
             justify-content: center;
@@ -123,128 +117,162 @@
         }
 
         button {
+            appearance: none;
             border: none;
             border-radius: 14px;
-            padding: 14px 16px;
+            padding: 14px 18px;
             font-size: 15px;
             font-weight: 700;
             cursor: pointer;
-            min-width: 110px;
-            transition: 0.18s ease;
+            min-width: 120px;
+            transition: transform 0.08s ease, opacity 0.2s ease;
         }
 
-            button:disabled {
-                opacity: 0.45;
-                cursor: not-allowed;
+            button:active {
+                transform: scale(0.98);
             }
 
-        .btn-primary {
-            background: #4da3ff;
+        .primary {
+            background: #4c8dff;
             color: #fff;
         }
 
-        .btn-stop {
-            background: #ff5d73;
+        .danger {
+            background: #ff5d5d;
             color: #fff;
         }
 
-        .btn-secondary {
+        .secondary {
             background: rgba(255,255,255,0.12);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
-        .btn-save {
-            background: #34c759;
+        .save {
+            background: #17b26a;
             color: #fff;
         }
 
-        .status {
-            margin-top: 12px;
-            text-align: center;
-            font-size: 13px;
-            color: rgba(255,255,255,0.82);
-            min-height: 18px;
+        button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
         }
 
-        .hidden-canvas {
+        .hidden {
+            display: none !important;
+        }
+
+        .info-badge {
+            position: absolute;
+            right: 12px;
+            top: 70px;
+            z-index: 22;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.45);
+            font-size: 12px;
+            line-height: 1.4;
+            color: #e7edf7;
+            white-space: pre-line;
+            backdrop-filter: blur(8px);
+        }
+
+        canvas {
             display: none;
         }
     </style>
 </head>
 <body>
     <div class="app">
-        <div class="topbar">표정 촬영</div>
+        <div class="topbar">얼굴 촬영</div>
 
         <div class="camera-wrap">
             <video id="video" playsinline autoplay muted></video>
-            <img id="capturedPreview" class="captured-preview" alt="captured" />
-            <div class="face-guide" id="faceGuide"></div>
-            <div class="guide-text" id="guideText">얼굴을 중앙 가이드에 맞춘 뒤 Start를 누르세요</div>
+            <img id="capturedImage" class="hidden" alt="captured result" />
+            <div id="faceGuide" class="face-guide"></div>
         </div>
+
+        <div id="infoBadge" class="info-badge">카메라 준비중...</div>
 
         <div class="bottom-panel">
-            <div class="button-row">
-                <button id="startBtn" class="btn-primary">Start</button>
-                <button id="stopBtn" class="btn-stop" style="display:none;">Stop</button>
-                <button id="uploadBtn" class="btn-secondary">이미지 업로드</button>
-                <button id="saveBtn" class="btn-save" disabled>파일로 저장</button>
-                <button id="analysisBtn" class="btn-secondary" disabled>표정분석보기</button>
+            <div id="status" class="status">고해상도 카메라를 요청합니다.</div>
+
+            <div class="btn-row">
+                <button id="startBtn" class="primary">Start</button>
+                <button id="stopBtn" class="danger hidden">Stop</button>
+
+                <button id="retakeBtn" class="secondary hidden">다시 촬영</button>
+                <button id="saveBtn" class="save hidden">파일 저장</button>
+                <button id="analyzeBtn" class="primary hidden">표정분석보기</button>
             </div>
-            <div class="status" id="statusText">카메라 대기 중...</div>
         </div>
 
-        <input id="fileInput" type="file" accept="image/*" style="display:none;" />
-        <canvas id="workCanvas" class="hidden-canvas"></canvas>
+        <canvas id="workCanvas"></canvas>
     </div>
 
     <script>
-        const TARGET_WIDTH = 2208;
-        const TARGET_HEIGHT = 3306;
-        const DB_NAME = 'faceCaptureDB';
-        const STORE_NAME = 'images';
-        const IMAGE_KEY = 'latestCapture';
+        const TARGET_W = 2208;
+        const TARGET_H = 3306;
 
-        const video = document.getElementById('video');
-        const capturedPreview = document.getElementById('capturedPreview');
-        const faceGuide = document.getElementById('faceGuide');
-        const guideText = document.getElementById('guideText');
-        const workCanvas = document.getElementById('workCanvas');
+        const DB_NAME = "CaptureImageDB";
+        const STORE_NAME = "images";
+        const IMAGE_KEY = "capturedImage";
 
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const analysisBtn = document.getElementById('analysisBtn');
-        const fileInput = document.getElementById('fileInput');
-        const statusText = document.getElementById('statusText');
+        const video = document.getElementById("video");
+        const capturedImage = document.getElementById("capturedImage");
+        const workCanvas = document.getElementById("workCanvas");
 
-        let mediaStream = null;
-        let isCameraOn = false;
+        const statusEl = document.getElementById("status");
+        const infoBadge = document.getElementById("infoBadge");
+        const faceGuide = document.getElementById("faceGuide");
+
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const retakeBtn = document.getElementById("retakeBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+
+        let stream = null;
+        let imageCapture = null;
+        let currentPreviewUrl = null;
         let lastSavedBlob = null;
-        let lastSavedFileName = '';
 
         function isMobile() {
             return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
         }
 
+        function setStatus(msg) {
+            statusEl.textContent = msg;
+        }
+
+        function setInfo(msg) {
+            infoBadge.textContent = msg;
+        }
+
+        function revokePreviewUrl() {
+            if (currentPreviewUrl) {
+                URL.revokeObjectURL(currentPreviewUrl);
+                currentPreviewUrl = null;
+            }
+        }
+
         function openDB() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_NAME, 1);
+                const request = indexedDB.open(DB_NAME, 1);
 
-                req.onupgradeneeded = function (e) {
-                    const db = e.target.result;
+                request.onupgradeneeded = function (event) {
+                    const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
                         db.createObjectStore(STORE_NAME);
                     }
                 };
 
-                req.onsuccess = function () {
-                    resolve(req.result);
+                request.onsuccess = function () {
+                    resolve(request.result);
                 };
 
-                req.onerror = function () {
-                    reject(req.error || new Error('IndexedDB open failed'));
+                request.onerror = function () {
+                    reject(request.error || new Error("IndexedDB open failed"));
                 };
             });
         }
@@ -252,283 +280,304 @@
         async function saveBlobToDB(blob) {
             const db = await openDB();
             return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const tx = db.transaction(STORE_NAME, "readwrite");
                 const store = tx.objectStore(STORE_NAME);
                 const req = store.put(blob, IMAGE_KEY);
 
-                req.onsuccess = () => resolve(true);
-                req.onerror = () => reject(req.error || new Error('Blob save failed'));
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error || new Error("IndexedDB save failed"));
             });
         }
 
-        async function initCamera() {
-            try {
-                statusText.textContent = '카메라를 준비하는 중...';
+        async function getBlobFromDB() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.get(IMAGE_KEY);
 
-                if (mediaStream) {
-                    stopCameraTracks();
-                }
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => reject(req.error || new Error("IndexedDB read failed"));
+            });
+        }
 
-                const mobile = isMobile();
+        function stopTracks() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            stream = null;
+            imageCapture = null;
+            video.srcObject = null;
+        }
 
-                const constraints = {
+        function getRequestedConstraints() {
+            if (isMobile()) {
+                return {
                     audio: false,
                     video: {
-                        facingMode: mobile ? { ideal: 'user' } : 'user',
+                        facingMode: { ideal: "user" },
                         width: { ideal: 4096 },
-                        height: { ideal: 4096 }
+                        height: { ideal: 3072 }
                     }
                 };
+            }
 
-                mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = mediaStream;
+            return {
+                audio: false,
+                video: {
+                    facingMode: { ideal: "user" },
+                    width: { ideal: 2560 },
+                    height: { ideal: 1440 }
+                }
+            };
+        }
 
+        async function startCamera() {
+            try {
+                setStatus("카메라를 시작하는 중...");
+                setInfo("카메라 연결중...");
+                revokePreviewUrl();
+                stopTracks();
+                lastSavedBlob = null;
+
+                const constraints = getRequestedConstraints();
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                video.srcObject = stream;
                 await video.play();
 
-                isCameraOn = true;
-                statusText.textContent = '카메라 준비 완료';
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings ? track.getSettings() : {};
+                const capabilities = track.getCapabilities ? track.getCapabilities() : null;
+
+                if (window.ImageCapture) {
+                    try {
+                        imageCapture = new ImageCapture(track);
+                    } catch (e) {
+                        imageCapture = null;
+                    }
+                } else {
+                    imageCapture = null;
+                }
+
+                const previewW = video.videoWidth || settings.width || 0;
+                const previewH = video.videoHeight || settings.height || 0;
+
+                let capText = `미리보기 ${previewW} x ${previewH}`;
+                if (settings.width && settings.height) {
+                    capText += `\ntrack ${settings.width} x ${settings.height}`;
+                }
+                if (capabilities && capabilities.width && capabilities.height) {
+                    capText += `\nmax ${capabilities.width.max || "-"} x ${capabilities.height.max || "-"}`;
+                }
+                setInfo(capText);
+
+                setStatus(
+                    imageCapture
+                        ? "고해상도 촬영 준비 완료\nStop을 누르면 촬영 후 화면에 표시합니다."
+                        : "ImageCapture 미지원 환경입니다.\n현재 비디오 프레임으로 촬영합니다."
+                );
+
+                video.classList.remove("hidden");
+                capturedImage.classList.add("hidden");
+                faceGuide.classList.remove("hidden");
+
+                startBtn.classList.add("hidden");
+                stopBtn.classList.remove("hidden");
+
+                retakeBtn.classList.add("hidden");
+                saveBtn.classList.add("hidden");
+                analyzeBtn.classList.add("hidden");
             } catch (err) {
                 console.error(err);
-                statusText.textContent = '카메라를 열 수 없습니다. 브라우저 권한을 확인하세요.';
+                setStatus("카메라를 열 수 없습니다.\n브라우저 권한과 HTTPS 환경을 확인하세요.");
+                setInfo("카메라 실패");
             }
         }
 
-        function stopCameraTracks() {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                mediaStream = null;
-            }
-            isCameraOn = false;
-        }
-
-        function dataURLFromBlob(blob) {
-            return new Promise((resolve, reject) => {
-                const fr = new FileReader();
-                fr.onload = () => resolve(fr.result);
-                fr.onerror = () => reject(fr.error);
-                fr.readAsDataURL(blob);
-            });
-        }
-
-        function loadImageFromFile(file) {
-            return new Promise((resolve, reject) => {
-                const url = URL.createObjectURL(file);
-                const img = new Image();
-                img.onload = () => {
-                    URL.revokeObjectURL(url);
-                    resolve(img);
-                };
-                img.onerror = reject;
-                img.src = url;
-            });
-        }
-
-        function captureCurrentVideoFrameToImage() {
-            const tempCanvas = document.createElement('canvas');
-            const vw = video.videoWidth;
-            const vh = video.videoHeight;
-
-            if (!vw || !vh) {
-                throw new Error('비디오 프레임 크기를 가져올 수 없습니다.');
+        async function getHighResSourceBitmap() {
+            if (!stream) {
+                throw new Error("No active camera stream");
             }
 
-            tempCanvas.width = vw;
-            tempCanvas.height = vh;
+            const track = stream.getVideoTracks()[0];
 
-            const ctx = tempCanvas.getContext('2d', { alpha: false });
-
-            ctx.translate(vw, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0, vw, vh);
-
-            return new Promise((resolve, reject) => {
-                tempCanvas.toBlob(blob => {
-                    if (!blob) {
-                        reject(new Error('프레임 Blob 생성 실패'));
-                        return;
-                    }
-                    const img = new Image();
-                    img.onload = () => {
-                        URL.revokeObjectURL(img.src);
-                        resolve(img);
+            if (imageCapture) {
+                try {
+                    const photoBlob = await imageCapture.takePhoto();
+                    const bitmap = await createImageBitmap(photoBlob);
+                    return {
+                        bitmap,
+                        sourceType: "photo",
+                        rawWidth: bitmap.width,
+                        rawHeight: bitmap.height
                     };
-                    img.onerror = reject;
-                    img.src = URL.createObjectURL(blob);
-                }, 'image/jpeg', 0.98);
-            });
-        }
-
-        async function make2208x3306BlobFromImage(img) {
-            workCanvas.width = TARGET_WIDTH;
-            workCanvas.height = TARGET_HEIGHT;
-
-            const ctx = workCanvas.getContext('2d', { alpha: false });
-            ctx.clearRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
-
-            const srcW = img.naturalWidth || img.width;
-            const srcH = img.naturalHeight || img.height;
-
-            if (!srcW || !srcH) {
-                throw new Error('원본 이미지 크기 없음');
+                } catch (e) {
+                    console.warn("takePhoto failed, fallback to video frame", e);
+                }
             }
 
-            const scale = TARGET_WIDTH / srcW;
-            const scaledW = TARGET_WIDTH;
-            const scaledH = srcH * scale;
-            const drawY = (TARGET_HEIGHT - scaledH) / 2;
+            const bitmap = await createImageBitmap(video);
+            return {
+                bitmap,
+                sourceType: "video",
+                rawWidth: bitmap.width,
+                rawHeight: bitmap.height
+            };
+        }
 
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
-            ctx.drawImage(img, 0, drawY, scaledW, scaledH);
+        async function renderToTargetBlob() {
+            const { bitmap, sourceType, rawWidth, rawHeight } = await getHighResSourceBitmap();
 
-            return new Promise((resolve, reject) => {
-                workCanvas.toBlob(blob => {
-                    if (!blob) {
-                        reject(new Error('최종 Blob 생성 실패'));
-                        return;
-                    }
-                    resolve(blob);
-                }, 'image/jpeg', 0.92);
+            const canvas = workCanvas;
+            const ctx = canvas.getContext("2d", { alpha: false });
+
+            canvas.width = TARGET_W;
+            canvas.height = TARGET_H;
+
+            ctx.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            const scale = TARGET_W / rawWidth;
+            const scaledH = rawHeight * scale;
+            const dy = (TARGET_H - scaledH) * 0.5;
+
+            /*
+              화면은 이미 flip horizontal 로 보이므로
+              저장되는 최종 이미지도 화면과 동일하게 보이게
+              캔버스에 좌우반전해서 그린다.
+            */
+            ctx.save();
+            ctx.translate(TARGET_W, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(bitmap, 0, dy, TARGET_W, scaledH);
+            ctx.restore();
+
+            bitmap.close();
+
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob(
+                    (b) => {
+                        if (b) resolve(b);
+                        else reject(new Error("canvas.toBlob failed"));
+                    },
+                    "image/jpeg",
+                    0.96
+                );
             });
+
+            return {
+                blob,
+                sourceType,
+                rawWidth,
+                rawHeight,
+                finalWidth: TARGET_W,
+                finalHeight: TARGET_H
+            };
         }
 
-        function makeFileName() {
-            const d = new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            const hh = String(d.getHours()).padStart(2, '0');
-            const mm = String(d.getMinutes()).padStart(2, '0');
-            const ss = String(d.getSeconds()).padStart(2, '0');
-            return `face_2208x3306_${y}${m}${day}_${hh}${mm}${ss}.jpg`;
-        }
-
-        function saveBlobAsFile(blob, fileName) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        async function processAndSaveImageFromSourceImage(img) {
-            statusText.textContent = '2208 × 3306 이미지로 변환 중...';
-
-            const finalBlob = await make2208x3306BlobFromImage(img);
-            await saveBlobToDB(finalBlob);
-
-            lastSavedBlob = finalBlob;
-            lastSavedFileName = makeFileName();
-
-            const previewUrl = await dataURLFromBlob(finalBlob);
-
-            capturedPreview.src = previewUrl;
-            capturedPreview.style.display = 'block';
-            video.style.display = 'none';
-            faceGuide.style.display = 'none';
-            guideText.style.display = 'none';
-
-            saveBtn.disabled = false;
-            analysisBtn.disabled = false;
-            statusText.textContent = '2208 × 3306 이미지 저장 완료';
-        }
-
-        async function startCameraFlow() {
-            capturedPreview.style.display = 'none';
-            capturedPreview.src = '';
-            video.style.display = 'block';
-            faceGuide.style.display = 'block';
-            guideText.style.display = 'block';
-            saveBtn.disabled = !lastSavedBlob;
-            analysisBtn.disabled = !lastSavedBlob;
-
-            await initCamera();
-
-            if (isCameraOn) {
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'inline-block';
-                statusText.textContent = '촬영 중... Stop을 누르면 저장됩니다';
-            }
-        }
-
-        async function stopAndCaptureFlow() {
+        async function capturePhoto() {
             try {
-                if (!isCameraOn) {
-                    statusText.textContent = '카메라가 켜져 있지 않습니다.';
+                setStatus("고해상도 사진을 생성하는 중...");
+                setInfo("촬영중...");
+
+                const result = await renderToTargetBlob();
+                lastSavedBlob = result.blob;
+
+                await saveBlobToDB(result.blob);
+
+                revokePreviewUrl();
+                currentPreviewUrl = URL.createObjectURL(result.blob);
+                capturedImage.src = currentPreviewUrl;
+
+                stopTracks();
+
+                video.classList.add("hidden");
+                capturedImage.classList.remove("hidden");
+                faceGuide.classList.add("hidden");
+
+                startBtn.classList.add("hidden");
+                stopBtn.classList.add("hidden");
+
+                retakeBtn.classList.remove("hidden");
+                saveBtn.classList.remove("hidden");
+                analyzeBtn.classList.remove("hidden");
+
+                setStatus(
+                    `촬영 완료\n원본 ${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → 최종 ${result.finalWidth} x ${result.finalHeight}`
+                );
+                setInfo(`표시중\n${result.finalWidth} x ${result.finalHeight}`);
+            } catch (err) {
+                console.error(err);
+                setStatus("이미지 저장에 실패했습니다.");
+                setInfo("저장 실패");
+            }
+        }
+
+        async function retakePhoto() {
+            revokePreviewUrl();
+            capturedImage.removeAttribute("src");
+            await startCamera();
+        }
+
+        async function downloadCapturedFile() {
+            try {
+                let blob = lastSavedBlob;
+                if (!blob) {
+                    blob = await getBlobFromDB();
+                }
+
+                if (!blob) {
+                    setStatus("저장된 이미지가 없습니다.");
                     return;
                 }
 
-                statusText.textContent = '현재 프레임 캡처 중...';
-                const img = await captureCurrentVideoFrameToImage();
+                const url = URL.createObjectURL(blob);
+                const now = new Date();
 
-                stopCameraTracks();
-                stopBtn.style.display = 'none';
-                startBtn.style.display = 'inline-block';
+                const pad = (n) => String(n).padStart(2, "0");
+                const fileName =
+                    `capture_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_` +
+                    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.jpg`;
 
-                await processAndSaveImageFromSourceImage(img);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+                setStatus(`파일 저장 완료\n${fileName}`);
             } catch (err) {
                 console.error(err);
-                statusText.textContent = '이미지 저장에 실패했습니다.';
+                setStatus("파일 저장에 실패했습니다.");
             }
         }
 
-        startBtn.addEventListener('click', async () => {
-            await startCameraFlow();
-        });
-
-        stopBtn.addEventListener('click', async () => {
-            await stopAndCaptureFlow();
-        });
-
-        uploadBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-
+        async function goAnalyze() {
             try {
-                stopCameraTracks();
-                stopBtn.style.display = 'none';
-                startBtn.style.display = 'inline-block';
-
-                const img = await loadImageFromFile(file);
-                await processAndSaveImageFromSourceImage(img);
+                const blob = await getBlobFromDB();
+                if (!blob) {
+                    setStatus("저장된 이미지가 없습니다.");
+                    return;
+                }
+                window.location.href = "analysis.html";
             } catch (err) {
                 console.error(err);
-                statusText.textContent = '업로드 이미지 처리에 실패했습니다.';
-            } finally {
-                fileInput.value = '';
+                setStatus("저장된 이미지를 불러오지 못했습니다.");
             }
-        });
+        }
 
-        saveBtn.addEventListener('click', () => {
-            if (!lastSavedBlob) {
-                statusText.textContent = '저장할 이미지가 없습니다.';
-                return;
-            }
+        startBtn.addEventListener("click", startCamera);
+        stopBtn.addEventListener("click", capturePhoto);
+        retakeBtn.addEventListener("click", retakePhoto);
+        saveBtn.addEventListener("click", downloadCapturedFile);
+        analyzeBtn.addEventListener("click", goAnalyze);
 
-            try {
-                saveBlobAsFile(lastSavedBlob, lastSavedFileName || makeFileName());
-                statusText.textContent = '파일 저장이 시작되었습니다.';
-            } catch (err) {
-                console.error(err);
-                statusText.textContent = '파일 저장에 실패했습니다.';
-            }
-        });
-
-        analysisBtn.addEventListener('click', () => {
-            location.href = 'analysis.html';
-        });
-
-        window.addEventListener('beforeunload', () => {
-            stopCameraTracks();
+        window.addEventListener("beforeunload", () => {
+            stopTracks();
+            revokePreviewUrl();
         });
     </script>
 </body>
