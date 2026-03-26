@@ -2,1761 +2,1775 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Analysis - DetectEyes JS Port</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>analysis.html</title>
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             margin: 0;
             padding: 0;
-            background: #0f1115;
-            color: #fff;
-            font-family: Arial, sans-serif;
             width: 100%;
             min-height: 100%;
+            background: #0b0e13;
+            color: #fff;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            display: flex;
-            justify-content: center;
-            background: #0f1115;
+            background: radial-gradient(circle at top, #151b24 0%, #0b0e13 55%, #080a0f 100%);
         }
 
         .app {
             width: 100%;
-            max-width: 430px;
-            min-height: 100dvh;
-            background: #11151c;
-            padding: 18px 16px 28px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .title {
-            margin: 8px 0 16px;
-            text-align: center;
-            font-size: 22px;
+        .topbar {
+            padding: 18px 24px 14px;
+            font-size: 24px;
             font-weight: 800;
+            letter-spacing: -0.2px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
         }
 
-        .preview-wrap {
-            width: 100%;
-            border-radius: 18px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
-            position: relative;
+        .main-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr) 390px;
+            gap: 18px;
+            padding: 18px;
+            align-items: start;
         }
 
-        .preview-canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            background: #000;
-        }
-
-        .info-card {
-            margin-top: 16px;
-            background: rgba(255,255,255,0.06);
+        .viewer-panel,
+        .control-panel {
+            background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 14px;
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+            overflow: hidden;
         }
 
-        .info-title {
+        .viewer-head,
+        .control-head {
+            padding: 14px 16px;
             font-size: 15px;
             font-weight: 800;
-            margin-bottom: 10px;
+            color: #f2f6ff;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
         }
 
-        .info-text {
-            font-size: 14px;
-            line-height: 1.6;
-            color: rgba(255,255,255,0.88);
-            word-break: break-word;
-            white-space: pre-wrap;
+        .viewer-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2208 / 3306;
+            background: #000;
+            overflow: hidden;
         }
 
-        .button-row {
-            margin-top: 18px;
+            .viewer-wrap canvas {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                display: block;
+                background: #000;
+            }
+
+        .info-badge {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            z-index: 10;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.48);
+            font-size: 12px;
+            line-height: 1.45;
+            color: #e7edf7;
+            white-space: pre-line;
+            backdrop-filter: blur(8px);
+            max-width: 78%;
+        }
+
+        .compare-caption {
+            padding: 10px 14px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.72);
+        }
+
+        .control-panel {
+            height: calc(100vh - 110px);
             display: flex;
+            flex-direction: column;
+        }
+
+        .control-body {
+            padding: 14px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
-        button {
-            flex: 1;
-            border: none;
+        .status {
+            min-height: 58px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 14px;
-            padding: 14px 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
+            padding: 11px 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.92);
+            white-space: pre-line;
         }
 
-        .btn-back {
+        .slider-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 14px;
+            padding: 10px 12px;
+        }
+
+        .slider-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #f3f7ff;
+        }
+
+            .slider-head span:last-child {
+                color: #9dc0ff;
+                min-width: 48px;
+                text-align: right;
+            }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 0;
+        }
+
+        .section-title {
+            margin-top: 4px;
+            padding: 4px 2px 0;
+            font-size: 12px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.56);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        button {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 12px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.08s ease, opacity 0.2s ease;
+        }
+
+            button:active {
+                transform: scale(0.98);
+            }
+
+        .primary {
+            background: #4c8dff;
+            color: #fff;
+        }
+
+        .secondary {
             background: rgba(255,255,255,0.12);
             color: #fff;
             border: 1px solid rgba(255,255,255,0.12);
         }
 
-        .btn-refresh {
-            background: #4da3ff;
+        .save {
+            background: #17b26a;
             color: #fff;
         }
 
-        .status {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 14px;
-            color: rgba(255,255,255,0.85);
-        }
-
-        canvas.hiddenCanvas {
+        .offscreen {
             display: none;
         }
 
-        pre {
-            margin-top: 12px;
-            max-height: 300px;
-            overflow: auto;
-            background: rgba(0,0,0,0.28);
-            padding: 12px;
-            border-radius: 12px;
-            color: #d8e6ff;
-            font-size: 12px;
-            line-height: 1.45;
-            white-space: pre-wrap;
-            word-break: break-word;
+        @media (max-width: 1300px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
     <div class="app">
-        <div class="title">표정 분석 이미지</div>
+        <div class="topbar">Face FX 보정 뷰</div>
 
-        <div class="preview-wrap">
-            <canvas id="displayCanvas" class="preview-canvas"></canvas>
+        <div class="main-layout">
+            <section class="viewer-panel">
+                <div class="viewer-head">원본 사진</div>
+                <div class="viewer-wrap">
+                    <canvas id="originalCanvas" width="2208" height="3306"></canvas>
+                </div>
+                <div class="compare-caption">
+                    저장된 원본 이미지를 그대로 표시합니다.
+                </div>
+            </section>
+
+            <section class="viewer-panel">
+                <div class="viewer-head">보정 결과</div>
+                <div class="viewer-wrap">
+                    <canvas id="previewCanvas" width="2208" height="3306"></canvas>
+                    <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
+                </div>
+                <div class="compare-caption">
+                    좌측 원본과 비교하면서 슬라이더 값을 조절하세요.
+                </div>
+            </section>
+
+            <aside class="control-panel">
+                <div class="control-head">조절 슬라이더</div>
+                <div class="control-body">
+                    <div id="status" class="status">저장된 이미지와 랜드마크를 불러오는 중입니다.</div>
+
+                    <div class="section-title">Warp / Shape</div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Left Lift (px)</span>
+                            <span id="leftLiftValue">18</span>
+                        </div>
+                        <input id="leftLiftSlider" type="range" min="0" max="80" step="1" value="18" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Right Lift (px)</span>
+                            <span id="rightLiftValue">18</span>
+                        </div>
+                        <input id="rightLiftSlider" type="range" min="0" max="80" step="1" value="18" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Sigma X</span>
+                            <span id="sigmaXValue">90</span>
+                        </div>
+                        <input id="sigmaXSlider" type="range" min="10" max="300" step="1" value="90" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Sigma Y</span>
+                            <span id="sigmaYValue">70</span>
+                        </div>
+                        <input id="sigmaYSlider" type="range" min="10" max="300" step="1" value="70" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>ROI Padding</span>
+                            <span id="roiPadValue">160</span>
+                        </div>
+                        <input id="roiPadSlider" type="range" min="20" max="500" step="1" value="160" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Eye Lift</span>
+                            <span id="eyeLiftValue">12</span>
+                        </div>
+                        <input id="eyeLiftSlider" type="range" min="0" max="40" step="1" value="12" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Nose Slim</span>
+                            <span id="noseSlimValue">8</span>
+                        </div>
+                        <input id="noseSlimSlider" type="range" min="0" max="30" step="1" value="8" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Nose Wing Slim</span>
+                            <span id="noseWingSlimValue">8</span>
+                        </div>
+                        <input id="noseWingSlimSlider" type="range" min="0" max="30" step="1" value="8" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Jaw Slim</span>
+                            <span id="jawSlimValue">10</span>
+                        </div>
+                        <input id="jawSlimSlider" type="range" min="0" max="30" step="1" value="10" />
+                    </div>
+
+                    <div class="section-title">Face / Eye / Brow / Lip</div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Global Brightness</span>
+                            <span id="globalBrightnessValue">0</span>
+                        </div>
+                        <input id="globalBrightnessSlider" type="range" min="-40" max="60" step="1" value="0" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Face Blur</span>
+                            <span id="faceBlurValue">0</span>
+                        </div>
+                        <input id="faceBlurSlider" type="range" min="0" max="20" step="1" value="0" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Face Sharpen</span>
+                            <span id="faceSharpenValue">10</span>
+                        </div>
+                        <input id="faceSharpenSlider" type="range" min="0" max="100" step="1" value="10" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Face Lively</span>
+                            <span id="faceLivelyValue">10</span>
+                        </div>
+                        <input id="faceLivelySlider" type="range" min="0" max="100" step="1" value="10" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Blemish Remove</span>
+                            <span id="faceBlemishValue">10</span>
+                        </div>
+                        <input id="faceBlemishSlider" type="range" min="0" max="100" step="1" value="10" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Nose Depth</span>
+                            <span id="noseDepthValue">20</span>
+                        </div>
+                        <input id="noseDepthSlider" type="range" min="0" max="100" step="1" value="20" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Eye Line</span>
+                            <span id="eyeLineValue">22</span>
+                        </div>
+                        <input id="eyeLineSlider" type="range" min="0" max="100" step="1" value="22" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Iris Deepen</span>
+                            <span id="irisDeepenValue">20</span>
+                        </div>
+                        <input id="irisDeepenSlider" type="range" min="0" max="100" step="1" value="20" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Eye Open Auto</span>
+                            <span id="eyeOpenAutoValue">20</span>
+                        </div>
+                        <input id="eyeOpenAutoSlider" type="range" min="0" max="100" step="1" value="20" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Eyebrow Cleanup</span>
+                            <span id="eyebrowCleanupValue">25</span>
+                        </div>
+                        <input id="eyebrowCleanupSlider" type="range" min="0" max="100" step="1" value="25" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Eyebrow Tail Trim</span>
+                            <span id="eyebrowTailTrimValue">18</span>
+                        </div>
+                        <input id="eyebrowTailTrimSlider" type="range" min="0" max="100" step="1" value="18" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Lip Saturation</span>
+                            <span id="lipSaturationValue">28</span>
+                        </div>
+                        <input id="lipSaturationSlider" type="range" min="0" max="100" step="1" value="28" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Lip Brightness</span>
+                            <span id="lipBrightnessValue">18</span>
+                        </div>
+                        <input id="lipBrightnessSlider" type="range" min="0" max="100" step="1" value="18" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head">
+                            <span>Lip Center Glow</span>
+                            <span id="lipCenterGlowValue">24</span>
+                        </div>
+                        <input id="lipCenterGlowSlider" type="range" min="0" max="100" step="1" value="24" />
+                    </div>
+
+                    <div class="btn-row">
+                        <button id="renderBtn" class="primary">다시 적용</button>
+                        <button id="toggleBtn" class="secondary">가이드 표시: OFF</button>
+                        <button id="saveBtn" class="save">파일 저장</button>
+                        <button id="backBtn" class="secondary">다시 촬영</button>
+                    </div>
+                </div>
+            </aside>
         </div>
 
-        <div class="info-card">
-            <div class="info-title">이미지 정보</div>
-            <div class="info-text" id="imageInfo">불러오는 중...</div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-title">검출 결과</div>
-            <div class="info-text" id="detectInfo">분석 대기 중...</div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-title">디버그 로그</div>
-            <pre id="debugLog">대기 중...</pre>
-        </div>
-
-        <div class="button-row">
-            <button class="btn-back" id="backBtn">뒤로가기</button>
-            <button class="btn-refresh" id="reloadBtn">다시 불러오기</button>
-        </div>
-
-        <div class="status" id="statusText">이미지를 불러오는 중...</div>
-
-        <canvas id="hiddenCanvas" class="hiddenCanvas"></canvas>
+        <canvas id="srcCanvas" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="workCanvas" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="maskCanvas" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="tempCanvas" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="tempCanvas2" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="tempCanvas3" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="regionCanvas" class="offscreen" width="2208" height="3306"></canvas>
+        <canvas id="regionCanvas2" class="offscreen" width="2208" height="3306"></canvas>
     </div>
 
     <script>
-        const DB_NAME = 'faceCaptureDB';
-        const STORE_NAME = 'images';
-        const IMAGE_KEY = 'latestCapture';
+        const DB_NAME = "CaptureImageDB";
+        const STORE_NAME = "images";
+        const IMAGE_KEY = "capturedImage";
+        const META_KEY = "capturedMeta";
 
-        const imageInfo = document.getElementById('imageInfo');
-        const detectInfo = document.getElementById('detectInfo');
-        const debugLogEl = document.getElementById('debugLog');
-        const statusText = document.getElementById('statusText');
-        const hiddenCanvas = document.getElementById('hiddenCanvas');
-        const displayCanvas = document.getElementById('displayCanvas');
-        const displayCtx = displayCanvas.getContext('2d', { willReadFrequently: true });
+        const TARGET_W = 2208;
+        const TARGET_H = 3306;
+
+        const IDX_LEFT_CORNER = 61;
+        const IDX_RIGHT_CORNER = 291;
+
+        const LEFT_EYE_TOP = 159;
+        const LEFT_EYE_BOTTOM = 145;
+        const RIGHT_EYE_TOP = 386;
+        const RIGHT_EYE_BOTTOM = 374;
+        const LEFT_EYE_OUTER = 33;
+        const LEFT_EYE_INNER = 133;
+        const RIGHT_EYE_OUTER = 362;
+        const RIGHT_EYE_INNER = 263;
+
+        const LEFT_IRIS = [468, 469, 470, 471, 472];
+        const RIGHT_IRIS = [473, 474, 475, 476, 477];
+
+        const NOSE_LEFT = 98;
+        const NOSE_RIGHT = 327;
+        const NOSE_LEFT_WING = 49;
+        const NOSE_RIGHT_WING = 279;
+        const NOSE_TIP = 1;
+        const NOSE_BRIDGE_UP = 168;
+        const NOSE_BRIDGE_MID = 6;
+        const NOSE_BASE = 2;
+
+        const JAW_LEFT = 234;
+        const JAW_RIGHT = 454;
+
+        const FACE_OVAL = [
+            10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
+            361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
+            176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
+            162, 21, 54, 103, 67, 109
+        ];
+
+        const OUTER_LIPS = [
+            61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
+            291, 409, 270, 269, 267, 0, 37, 39, 40, 185
+        ];
+
+        const INNER_LIPS = [
+            78, 95, 88, 178, 87, 14, 317, 402, 318, 324,
+            308, 415, 310, 311, 312, 13, 82, 81, 80, 191
+        ];
+
+        const UPPER_LIP_CENTER = 13;
+        const LOWER_LIP_CENTER = 14;
+        const LIP_LEFT = 61;
+        const LIP_RIGHT = 291;
+
+        const LEFT_EYEBROW = [70, 63, 105, 66, 107, 55, 65, 52, 53, 46];
+        const RIGHT_EYEBROW = [300, 293, 334, 296, 336, 285, 295, 282, 283, 276];
+
+        const LEFT_EYE_RING = [33, 160, 159, 158, 157, 173, 133, 155, 145, 144, 163, 7];
+        const RIGHT_EYE_RING = [362, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380];
+
+        const originalCanvas = document.getElementById("originalCanvas");
+        const previewCanvas = document.getElementById("previewCanvas");
+        const srcCanvas = document.getElementById("srcCanvas");
+        const workCanvas = document.getElementById("workCanvas");
+        const maskCanvas = document.getElementById("maskCanvas");
+        const tempCanvas = document.getElementById("tempCanvas");
+        const tempCanvas2 = document.getElementById("tempCanvas2");
+        const tempCanvas3 = document.getElementById("tempCanvas3");
+        const regionCanvas = document.getElementById("regionCanvas");
+        const regionCanvas2 = document.getElementById("regionCanvas2");
+
+        const originalCtx = originalCanvas.getContext("2d");
+        const previewCtx = previewCanvas.getContext("2d");
+        const srcCtx = srcCanvas.getContext("2d", { willReadFrequently: true });
+        const workCtx = workCanvas.getContext("2d", { willReadFrequently: true });
+        const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
+        const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+        const tempCtx2 = tempCanvas2.getContext("2d", { willReadFrequently: true });
+        const tempCtx3 = tempCanvas3.getContext("2d", { willReadFrequently: true });
+        const regionCtx = regionCanvas.getContext("2d", { willReadFrequently: true });
+        const regionCtx2 = regionCanvas2.getContext("2d", { willReadFrequently: true });
+
+        const statusEl = document.getElementById("status");
+        const infoBadge = document.getElementById("infoBadge");
+
+        const leftLiftSlider = document.getElementById("leftLiftSlider");
+        const rightLiftSlider = document.getElementById("rightLiftSlider");
+        const sigmaXSlider = document.getElementById("sigmaXSlider");
+        const sigmaYSlider = document.getElementById("sigmaYSlider");
+        const roiPadSlider = document.getElementById("roiPadSlider");
+        const faceBlurSlider = document.getElementById("faceBlurSlider");
+        const faceSharpenSlider = document.getElementById("faceSharpenSlider");
+        const globalBrightnessSlider = document.getElementById("globalBrightnessSlider");
+        const faceLivelySlider = document.getElementById("faceLivelySlider");
+        const faceBlemishSlider = document.getElementById("faceBlemishSlider");
+        const eyeLiftSlider = document.getElementById("eyeLiftSlider");
+        const noseSlimSlider = document.getElementById("noseSlimSlider");
+        const noseWingSlimSlider = document.getElementById("noseWingSlimSlider");
+        const jawSlimSlider = document.getElementById("jawSlimSlider");
+        const noseDepthSlider = document.getElementById("noseDepthSlider");
+        const eyeLineSlider = document.getElementById("eyeLineSlider");
+        const irisDeepenSlider = document.getElementById("irisDeepenSlider");
+        const eyeOpenAutoSlider = document.getElementById("eyeOpenAutoSlider");
+        const eyebrowCleanupSlider = document.getElementById("eyebrowCleanupSlider");
+        const eyebrowTailTrimSlider = document.getElementById("eyebrowTailTrimSlider");
+        const lipSaturationSlider = document.getElementById("lipSaturationSlider");
+        const lipBrightnessSlider = document.getElementById("lipBrightnessSlider");
+        const lipCenterGlowSlider = document.getElementById("lipCenterGlowSlider");
+
+        const leftLiftValue = document.getElementById("leftLiftValue");
+        const rightLiftValue = document.getElementById("rightLiftValue");
+        const sigmaXValue = document.getElementById("sigmaXValue");
+        const sigmaYValue = document.getElementById("sigmaYValue");
+        const roiPadValue = document.getElementById("roiPadValue");
+        const faceBlurValue = document.getElementById("faceBlurValue");
+        const faceSharpenValue = document.getElementById("faceSharpenValue");
+        const globalBrightnessValue = document.getElementById("globalBrightnessValue");
+        const faceLivelyValue = document.getElementById("faceLivelyValue");
+        const faceBlemishValue = document.getElementById("faceBlemishValue");
+        const eyeLiftValue = document.getElementById("eyeLiftValue");
+        const noseSlimValue = document.getElementById("noseSlimValue");
+        const noseWingSlimValue = document.getElementById("noseWingSlimValue");
+        const jawSlimValue = document.getElementById("jawSlimValue");
+        const noseDepthValue = document.getElementById("noseDepthValue");
+        const eyeLineValue = document.getElementById("eyeLineValue");
+        const irisDeepenValue = document.getElementById("irisDeepenValue");
+        const eyeOpenAutoValue = document.getElementById("eyeOpenAutoValue");
+        const eyebrowCleanupValue = document.getElementById("eyebrowCleanupValue");
+        const eyebrowTailTrimValue = document.getElementById("eyebrowTailTrimValue");
+        const lipSaturationValue = document.getElementById("lipSaturationValue");
+        const lipBrightnessValue = document.getElementById("lipBrightnessValue");
+        const lipCenterGlowValue = document.getElementById("lipCenterGlowValue");
+
+        const renderBtn = document.getElementById("renderBtn");
+        const toggleBtn = document.getElementById("toggleBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const backBtn = document.getElementById("backBtn");
+
+        let sourceBlob = null;
+        let sourceMeta = null;
+        let sourceImageBitmap = null;
+        let showGuides = false;
+
+        function setStatus(msg) {
+            statusEl.textContent = msg;
+        }
+
+        function setInfo(msg) {
+            infoBadge.textContent = msg;
+        }
+
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function gaussian2D(dx, dy, sigmaX, sigmaY) {
+            const sx = Math.max(1e-6, sigmaX);
+            const sy = Math.max(1e-6, sigmaY);
+            return Math.exp(-0.5 * ((dx * dx) / (sx * sx) + (dy * dy) / (sy * sy)));
+        }
+
+        function luminance(r, g, b) {
+            return 0.299 * r + 0.587 * g + 0.114 * b;
+        }
+
+        function bilinearSample(src, sw, sh, x, y) {
+            x = clamp(x, 0, sw - 1);
+            y = clamp(y, 0, sh - 1);
+
+            const x0 = Math.floor(x);
+            const y0 = Math.floor(y);
+            const x1 = Math.min(x0 + 1, sw - 1);
+            const y1 = Math.min(y0 + 1, sh - 1);
+
+            const dx = x - x0;
+            const dy = y - y0;
+
+            const i00 = (y0 * sw + x0) * 4;
+            const i10 = (y0 * sw + x1) * 4;
+            const i01 = (y1 * sw + x0) * 4;
+            const i11 = (y1 * sw + x1) * 4;
+
+            const out = [0, 0, 0, 0];
+
+            for (let c = 0; c < 4; c++) {
+                const v00 = src[i00 + c];
+                const v10 = src[i10 + c];
+                const v01 = src[i01 + c];
+                const v11 = src[i11 + c];
+
+                const v0 = v00 + (v10 - v00) * dx;
+                const v1 = v01 + (v11 - v01) * dx;
+                out[c] = v0 + (v1 - v0) * dy;
+            }
+
+            return out;
+        }
 
         function openDB() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open(DB_NAME, 1);
+                const request = indexedDB.open(DB_NAME, 1);
 
-                req.onupgradeneeded = function (e) {
-                    const db = e.target.result;
+                request.onupgradeneeded = function (event) {
+                    const db = event.target.result;
                     if (!db.objectStoreNames.contains(STORE_NAME)) {
                         db.createObjectStore(STORE_NAME);
                     }
                 };
 
-                req.onsuccess = function () {
-                    resolve(req.result);
+                request.onsuccess = function () {
+                    resolve(request.result);
                 };
 
-                req.onerror = function () {
-                    reject(req.error || new Error('IndexedDB open failed'));
+                request.onerror = function () {
+                    reject(request.error || new Error("IndexedDB open failed"));
                 };
             });
         }
 
-        async function loadBlobFromDB() {
+        async function getFromDB(key) {
             const db = await openDB();
             return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, 'readonly');
+                const tx = db.transaction(STORE_NAME, "readonly");
                 const store = tx.objectStore(STORE_NAME);
-                const req = store.get(IMAGE_KEY);
+                const req = store.get(key);
 
                 req.onsuccess = () => resolve(req.result || null);
-                req.onerror = () => reject(req.error || new Error('Blob load failed'));
+                req.onerror = () => reject(req.error || new Error("IndexedDB read failed"));
             });
         }
 
-        function loadImageFromBlob(blob) {
-            return new Promise((resolve, reject) => {
-                const url = URL.createObjectURL(blob);
-                const img = new Image();
-                img.onload = () => resolve({ img, url });
-                img.onerror = reject;
-                img.src = url;
-            });
+        function getLm(index) {
+            if (!sourceMeta || !sourceMeta.landmarks || !sourceMeta.landmarks[index]) {
+                throw new Error(`랜드마크 ${index}가 없습니다.`);
+            }
+            return sourceMeta.landmarks[index];
         }
 
-        function make2DArray(rows, cols, fill = 0) {
-            const arr = new Array(rows);
-            for (let i = 0; i < rows; i++) {
-                arr[i] = new Array(cols).fill(fill);
+        function getAveragePoint(indices) {
+            let x = 0;
+            let y = 0;
+            for (const idx of indices) {
+                const p = getLm(idx);
+                x += p.x;
+                y += p.y;
             }
-            return arr;
+            return { x: x / indices.length, y: y / indices.length };
         }
 
-        function make3DArray(a, b, c, fill = 0) {
-            const arr = new Array(a);
-            for (let i = 0; i < a; i++) {
-                arr[i] = new Array(b);
-                for (let j = 0; j < b; j++) {
-                    arr[i][j] = new Array(c).fill(fill);
-                }
+        function getBounds(indices, padX = 0, padY = padX) {
+            let minX = TARGET_W, minY = TARGET_H, maxX = 0, maxY = 0;
+            for (const idx of indices) {
+                const p = getLm(idx);
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
             }
-            return arr;
+            return {
+                left: Math.floor(clamp(minX - padX, 0, TARGET_W - 1)),
+                top: Math.floor(clamp(minY - padY, 0, TARGET_H - 1)),
+                right: Math.floor(clamp(maxX + padX, 0, TARGET_W - 1)),
+                bottom: Math.floor(clamp(maxY + padY, 0, TARGET_H - 1))
+            };
         }
 
-        class Coord {
-            constructor(x = 0, y = 0) {
-                this.X = x;
-                this.Y = y;
-            }
+        function drawBaseImage() {
+            srcCanvas.width = TARGET_W;
+            srcCanvas.height = TARGET_H;
+            srcCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            srcCtx.drawImage(sourceImageBitmap, 0, 0, TARGET_W, TARGET_H);
+
+            originalCanvas.width = TARGET_W;
+            originalCanvas.height = TARGET_H;
+            originalCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            originalCtx.drawImage(srcCanvas, 0, 0);
+
+            workCanvas.width = TARGET_W;
+            workCanvas.height = TARGET_H;
+            workCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            workCtx.drawImage(srcCanvas, 0, 0);
+
+            maskCanvas.width = TARGET_W;
+            maskCanvas.height = TARGET_H;
+            maskCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            tempCanvas.width = TARGET_W;
+            tempCanvas.height = TARGET_H;
+            tempCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            tempCanvas2.width = TARGET_W;
+            tempCanvas2.height = TARGET_H;
+            tempCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            tempCanvas3.width = TARGET_W;
+            tempCanvas3.height = TARGET_H;
+            tempCtx3.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            regionCanvas.width = TARGET_W;
+            regionCanvas.height = TARGET_H;
+            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            regionCanvas2.width = TARGET_W;
+            regionCanvas2.height = TARGET_H;
+            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
         }
 
-        class FaceBean {
-            constructor(imageData, width, height) {
-                this.imageData = imageData;
-                this.width = width;
-                this.height = height;
-                this.errCode = '';
-                this.eye_r = Array.from({ length: 10 }, () => new Coord());
-                this.eye_l = Array.from({ length: 10 }, () => new Coord());
-                this.centerX = 0;
-                this.centerY = 0;
-                this.eyeRL = 0;
-            }
-            getTex() { return this; }
-            setTex(tex) { this.imageData = tex.imageData; this.width = tex.width; this.height = tex.height; }
-            setErrCode(v) { this.errCode = v; }
-            getErrCode() { return this.errCode; }
-            setEye_r(v) { this.eye_r = v; }
-            getEye_r() { return this.eye_r; }
-            setEye_l(v) { this.eye_l = v; }
-            getEye_l() { return this.eye_l; }
-            setCenterX(v) { this.centerX = v; }
-            getCenterX() { return this.centerX; }
-            setCenterY(v) { this.centerY = v; }
-            getCenterY() { return this.centerY; }
-            setEyeRL(v) { this.eyeRL = v; }
-            getEyeRL() { return this.eyeRL; }
+        function getEyeOpenRatio(isLeft) {
+            const top = getLm(isLeft ? LEFT_EYE_TOP : RIGHT_EYE_TOP);
+            const bottom = getLm(isLeft ? LEFT_EYE_BOTTOM : RIGHT_EYE_BOTTOM);
+            const outer = getLm(isLeft ? LEFT_EYE_OUTER : RIGHT_EYE_OUTER);
+            const inner = getLm(isLeft ? LEFT_EYE_INNER : RIGHT_EYE_INNER);
+            const h = Math.abs(top.y - bottom.y);
+            const w = Math.max(1, Math.abs(outer.x - inner.x));
+            return h / w;
         }
 
-        class CommonClass {
-            RGB255toHSV_100(r, g, b) {
-                r /= 255; g /= 255; b /= 255;
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                const d = max - min;
-                let h = 0;
-                const s = max === 0 ? 0 : d / max;
-                const v = max;
+        function buildData() {
+            const leftCorner = getLm(IDX_LEFT_CORNER);
+            const rightCorner = getLm(IDX_RIGHT_CORNER);
 
-                if (d !== 0) {
-                    switch (max) {
-                        case r: h = ((g - b) / d + (g < b ? 6 : 0)); break;
-                        case g: h = ((b - r) / d + 2); break;
-                        case b: h = ((r - g) / d + 4); break;
-                    }
-                    h /= 6;
-                }
-                return {
-                    hue: h * 100,
-                    sat: s * 100,
-                    bri: v * 100
-                };
-            }
+            const leftLift = Number(leftLiftSlider.value);
+            const rightLift = Number(rightLiftSlider.value);
+            const sigmaX = Number(sigmaXSlider.value);
+            const sigmaY = Number(sigmaYSlider.value);
+            const roiPad = Number(roiPadSlider.value);
+
+            const faceBlur = Number(faceBlurSlider.value);
+            const faceSharpen = Number(faceSharpenSlider.value);
+            const globalBrightness = Number(globalBrightnessSlider.value);
+            const faceLively = Number(faceLivelySlider.value);
+            const faceBlemish = Number(faceBlemishSlider.value);
+
+            const eyeLift = Number(eyeLiftSlider.value) / 100;
+            const noseSlim = Number(noseSlimSlider.value) / 100;
+            const noseWingSlim = Number(noseWingSlimSlider.value) / 100;
+            const jawSlim = Number(jawSlimSlider.value) / 100;
+
+            const noseDepth = Number(noseDepthSlider.value) / 100;
+            const eyeLine = Number(eyeLineSlider.value) / 100;
+            const irisDeepen = Number(irisDeepenSlider.value) / 100;
+            const eyeOpenAuto = Number(eyeOpenAutoSlider.value) / 100;
+            const eyebrowCleanup = Number(eyebrowCleanupSlider.value) / 100;
+            const eyebrowTailTrim = Number(eyebrowTailTrimSlider.value) / 100;
+            const lipSaturation = Number(lipSaturationSlider.value) / 100;
+            const lipBrightness = Number(lipBrightnessSlider.value) / 100;
+            const lipCenterGlow = Number(lipCenterGlowSlider.value) / 100;
+
+            const roi = {
+                left: Math.floor(clamp(Math.min(leftCorner.x, rightCorner.x) - roiPad, 0, TARGET_W - 1)),
+                right: Math.floor(clamp(Math.max(leftCorner.x, rightCorner.x) + roiPad, 0, TARGET_W - 1)),
+                top: Math.floor(clamp(Math.min(leftCorner.y, rightCorner.y) - roiPad, 0, TARGET_H - 1)),
+                bottom: Math.floor(clamp(Math.max(leftCorner.y, rightCorner.y) + roiPad, 0, TARGET_H - 1))
+            };
+
+            const leftEyeOpenRatio = getEyeOpenRatio(true);
+            const rightEyeOpenRatio = getEyeOpenRatio(false);
+
+            return {
+                leftCorner,
+                rightCorner,
+                leftLift,
+                rightLift,
+                sigmaX,
+                sigmaY,
+                roi,
+                faceBlur,
+                faceSharpen,
+                globalBrightness,
+                faceLively,
+                faceBlemish,
+                eyeLift,
+                noseSlim,
+                noseWingSlim,
+                jawSlim,
+                noseDepth,
+                eyeLine,
+                irisDeepen,
+                eyeOpenAuto,
+                eyebrowCleanup,
+                eyebrowTailTrim,
+                lipSaturation,
+                lipBrightness,
+                lipCenterGlow,
+                leftEyeOpenRatio,
+                rightEyeOpenRatio
+            };
         }
 
-        class DetectEyesJS {
-            constructor(logger) {
-                this.width = 0;
-                this.height = 0;
-                this.pixels = null;
-                this.logger = logger || (() => { });
+        function computeDisplacement(x, y, data) {
+            const gL = gaussian2D(
+                x - data.leftCorner.x,
+                y - data.leftCorner.y,
+                data.sigmaX,
+                data.sigmaY
+            );
+
+            const gR = gaussian2D(
+                x - data.rightCorner.x,
+                y - data.rightCorner.y,
+                data.sigmaX,
+                data.sigmaY
+            );
+
+            let dy = -(data.leftLift * gL + data.rightLift * gR);
+            let dx = 0;
+
+            const lEyeTop = getLm(LEFT_EYE_TOP);
+            const lEyeBot = getLm(LEFT_EYE_BOTTOM);
+            const rEyeTop = getLm(RIGHT_EYE_TOP);
+            const rEyeBot = getLm(RIGHT_EYE_BOTTOM);
+
+            const lEyeCx = (lEyeTop.x + lEyeBot.x) * 0.5;
+            const lEyeCy = (lEyeTop.y + lEyeBot.y) * 0.5;
+            const rEyeCx = (rEyeTop.x + rEyeBot.x) * 0.5;
+            const rEyeCy = (rEyeTop.y + rEyeBot.y) * 0.5;
+
+            const gEyeL = gaussian2D(x - lEyeCx, y - lEyeCy, 70, 45);
+            const gEyeR = gaussian2D(x - rEyeCx, y - rEyeCy, 70, 45);
+
+            dy -= data.eyeLift * 8 * (gEyeL + gEyeR);
+
+            const leftClosedBoost = clamp((0.18 - data.leftEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
+            const rightClosedBoost = clamp((0.18 - data.rightEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
+
+            dy -= leftClosedBoost * 10 * gEyeL;
+            dy -= rightClosedBoost * 10 * gEyeR;
+
+            const noseL = getLm(NOSE_LEFT);
+            const noseR = getLm(NOSE_RIGHT);
+
+            const gNoseL = gaussian2D(x - noseL.x, y - noseL.y, 90, 110);
+            const gNoseR = gaussian2D(x - noseR.x, y - noseR.y, 90, 110);
+
+            dx += data.noseSlim * 6 * (gNoseL - gNoseR);
+
+            const wingL = getLm(NOSE_LEFT_WING);
+            const wingR = getLm(NOSE_RIGHT_WING);
+
+            const gWingL = gaussian2D(x - wingL.x, y - wingL.y, 60, 80);
+            const gWingR = gaussian2D(x - wingR.x, y - wingR.y, 60, 80);
+
+            dx += data.noseWingSlim * 10 * (gWingL - gWingR);
+
+            const jawL = getLm(JAW_LEFT);
+            const jawR = getLm(JAW_RIGHT);
+
+            const gJawL = gaussian2D(x - jawL.x, y - jawL.y, 140, 160);
+            const gJawR = gaussian2D(x - jawR.x, y - jawR.y, 140, 160);
+
+            dx += data.jawSlim * 7 * (gJawL - gJawR);
+
+            return {
+                dx,
+                dy,
+                influence: Math.max(gL, gR, gEyeL, gEyeR, gNoseL, gNoseR, gWingL, gWingR, gJawL, gJawR)
+            };
+        }
+
+        function applyWarp(data) {
+            const srcImg = srcCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const dstImg = workCtx.createImageData(TARGET_W, TARGET_H);
+
+            const src = srcImg.data;
+            const dst = dstImg.data;
+            dst.set(src);
+
+            for (let y = 0; y < TARGET_H; y++) {
+                for (let x = 0; x < TARGET_W; x++) {
+                    const disp = computeDisplacement(x, y, data);
+                    if (disp.influence < 0.001) continue;
+
+                    const srcX = x - disp.dx;
+                    const srcY = y - disp.dy;
+
+                    const rgba = bilinearSample(src, TARGET_W, TARGET_H, srcX, srcY);
+                    const di = (y * TARGET_W + x) * 4;
+
+                    dst[di] = rgba[0];
+                    dst[di + 1] = rgba[1];
+                    dst[di + 2] = rgba[2];
+                    dst[di + 3] = 255;
+                }
             }
 
-            log(...args) {
-                this.logger(args.join(' '));
+            workCtx.putImageData(dstImg, 0, 0);
+        }
+
+        function buildFaceMask() {
+            maskCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            maskCtx.fillStyle = "black";
+            maskCtx.fillRect(0, 0, TARGET_W, TARGET_H);
+
+            tempCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            tempCtx.fillStyle = "black";
+            tempCtx.fillRect(0, 0, TARGET_W, TARGET_H);
+
+            tempCtx.save();
+            tempCtx.beginPath();
+
+            let minX = TARGET_W, minY = TARGET_H, maxX = 0, maxY = 0;
+
+            for (let i = 0; i < FACE_OVAL.length; i++) {
+                const p = getLm(FACE_OVAL[i]);
+                if (i === 0) tempCtx.moveTo(p.x, p.y);
+                else tempCtx.lineTo(p.x, p.y);
+
+                if (p.x < minX) minX = p.x;
+                if (p.y < minY) minY = p.y;
+                if (p.x > maxX) maxX = p.x;
+                if (p.y > maxY) maxY = p.y;
             }
 
-            DetectMain(bean) {
-                bean = this.DetectProcess(bean, 1220, 1600, -1500, -1270, 1);
-                bean = this.DetectProcess(bean, -1060, -660, -1500, -1270, 2);
-                return bean;
+            tempCtx.closePath();
+            tempCtx.fillStyle = "white";
+            tempCtx.fill();
+            tempCtx.restore();
+
+            const feather = 24;
+            maskCtx.save();
+            maskCtx.filter = `blur(${feather}px)`;
+            maskCtx.drawImage(tempCanvas, 0, 0);
+            maskCtx.restore();
+
+            return {
+                left: Math.floor(clamp(minX - 40, 0, TARGET_W - 1)),
+                top: Math.floor(clamp(minY - 60, 0, TARGET_H - 1)),
+                right: Math.floor(clamp(maxX + 40, 0, TARGET_W - 1)),
+                bottom: Math.floor(clamp(maxY + 60, 0, TARGET_H - 1))
+            };
+        }
+
+        function applyGlobalBrightness(data) {
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
+            const brightness = data.globalBrightness;
+
+            if (brightness === 0) return;
+
+            for (let i = 0; i < px.length; i += 4) {
+                px[i] = clamp(px[i] + brightness, 0, 255);
+                px[i + 1] = clamp(px[i + 1] + brightness, 0, 255);
+                px[i + 2] = clamp(px[i + 2] + brightness, 0, 255);
             }
 
-            DetectProcess(bean, h_start, h_end, v_start, v_end, rl_code) {
-                const tex = bean.getTex();
-                this.pixels = tex.imageData.data;
-                this.width = tex.width;
-                this.height = tex.height;
+            workCtx.putImageData(img, 0, 0);
+        }
 
-                let i = 0, j = 0, k = 0;
-                const InclineAndPeak = make2DArray(100, 12, 0);
-                const InclineAndPeak2 = make3DArray(100, 6, 11, 0);
+        function applyFaceVibrance(data, bbox) {
+            const w = bbox.right - bbox.left + 1;
+            const h = bbox.bottom - bbox.top + 1;
 
-                this.log("height:" + this.height + ", width:" + this.width);
+            const img = workCtx.getImageData(bbox.left, bbox.top, w, h);
+            const mask = maskCtx.getImageData(bbox.left, bbox.top, w, h);
 
-                const cc = new CommonClass();
+            const px = img.data;
+            const mx = mask.data;
 
-                let g_sum = 0;
-                let b_sum = 0;
-                let r_sum = 0;
-                let r = 0, g = 0, b = 0;
-                let cnt = 0;
-                let color_all = 0;
-                let line_cnt = 0;
-                let adjust_cnt = 0;
+            const lively = data.faceLively;
+            const contrast = 1 + lively * 0.22;
+            const vibrance = lively * 0.55;
 
-                let ii, jj;
-                const lineInfo = make2DArray(400, 7, 0);
+            for (let i = 0; i < px.length; i += 4) {
+                const alpha = mx[i] / 255;
+                if (alpha <= 0.001) continue;
 
-                let pivot_inc = 0;
-                let pivot_black = 0;
-                let pivot_black_boundary = 0;
-                let pivot_white = 0;
-                let pivot_gap_bw = 0;
-                let adjust_line = 7;
+                let r = px[i];
+                let g = px[i + 1];
+                let b = px[i + 2];
 
-                const inclineInfo = make2DArray(200, 9, 0);
-                const inclineInfo2 = make2DArray(200, 9, 0);
-                let inclineInfoCnt = 0;
-                let inc_start = 0, cur = 0, inc_end = 0, incCnt = 0, is_continue_inc = 0, pointJ = 0, inverseCnt = 0, avgInclineV = 0, totInclineV = 0;
-                let inclineV = 0, inclineVCur = 0;
-                let tot_fail_cnt = 0;
+                const avg = (r + g + b) / 3;
+                r = avg + (r - avg) * contrast;
+                g = avg + (g - avg) * contrast;
+                b = avg + (b - avg) * contrast;
 
-                const pivot_inc_axis = 0.025;
-                let init_k = 1250;
-                let start_k = init_k;
+                const maxC = Math.max(r, g, b);
+                const minC = Math.min(r, g, b);
+                const sat = maxC - minC;
+                const satBoost = 1 + vibrance * (1 - sat / 255);
 
-                let k_abs = 0, i_abs = 0;
-                let hue = 0, sat = 0, bri = 0;
-                let UpT = 6;
-                let yUnity = 0;
+                r = avg + (r - avg) * satBoost;
+                g = avg + (g - avg) * satBoost;
+                b = avg + (b - avg) * satBoost;
 
-                const colorR = [255, 0, 0, 255];
-                const colorG = [0, 255, 0, 255];
-                const colorB = [0, 0, 255, 255];
-                const colorBLK = [0, 0, 0, 255];
-                const colorY = [128, 255, 255, 255];
+                px[i] = clamp(px[i] * (1 - alpha) + clamp(r, 0, 255) * alpha, 0, 255);
+                px[i + 1] = clamp(px[i + 1] * (1 - alpha) + clamp(g, 0, 255) * alpha, 0, 255);
+                px[i + 2] = clamp(px[i + 2] * (1 - alpha) + clamp(b, 0, 255) * alpha, 0, 255);
+            }
 
-                line_cnt = 0;
+            workCtx.putImageData(img, bbox.left, bbox.top);
+        }
 
-                for (k = h_start; k < h_end; k += 4) {
-                    cnt = 0;
-                    k_abs = Math.abs(k);
+        function createBlurredFaceVersion(radius) {
+            tempCanvas2.width = TARGET_W;
+            tempCanvas2.height = TARGET_H;
+            tempCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
 
-                    for (i = v_start; i < v_end; i += 2) {
-                        i_abs = Math.abs(i);
-                        g_sum = 0;
-                        b_sum = 0;
-                        r_sum = 0;
+            tempCtx2.save();
+            tempCtx2.filter = `blur(${radius}px)`;
+            tempCtx2.drawImage(workCanvas, 0, 0);
+            tempCtx2.restore();
+        }
 
-                        for (j = k_abs; j < k_abs + 2; j++) {
-                            ({ r, g, b } = this.GetRgbTopLeft(j, i_abs));
-                            g_sum += g;
-                            b_sum += b;
-                            r_sum += r;
+        function blendBlurWithMask(data, bbox) {
+            const radius = data.faceBlur;
+            if (radius <= 0) return;
 
-                            ({ r, g, b } = this.GetRgbTopLeft(j, i_abs - 1));
-                            g_sum += g;
-                            b_sum += b;
-                            r_sum += r;
-                        }
+            createBlurredFaceVersion(radius);
 
-                        color_all = Math.floor(g_sum * 0.9);
-                        const hsv = cc.RGB255toHSV_100(Math.floor(r_sum * 0.25), Math.floor(g_sum * 0.25), Math.floor(b_sum * 0.25));
-                        hue = hsv.hue;
-                        sat = hsv.sat;
-                        bri = hsv.bri;
+            const w = bbox.right - bbox.left + 1;
+            const h = bbox.bottom - bbox.top + 1;
 
-                        if (cnt === 0) {
-                            pivot_inc = Math.floor(color_all * pivot_inc_axis);
-                            pivot_black = Math.floor(color_all * 0.25);
-                            pivot_black_boundary = Math.floor(color_all * 0.75);
-                            pivot_white = Math.floor(color_all * 1.25);
-                            pivot_gap_bw = Math.floor(color_all * 0.3);
-                        }
+            const baseImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
+            const blurImg = tempCtx2.getImageData(bbox.left, bbox.top, w, h);
+            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
 
-                        lineInfo[cnt][0] = color_all;
-                        lineInfo[cnt][1] = i_abs;
-                        lineInfo[cnt][2] = k_abs;
-                        lineInfo[cnt][3] = Math.floor(bri);
+            const base = baseImg.data;
+            const blur = blurImg.data;
+            const mask = maskImg.data;
 
-                        if (lineInfo[cnt][0] < pivot_black) lineInfo[cnt][0] = pivot_black;
-                        if (lineInfo[cnt][0] > pivot_white) lineInfo[cnt][0] = pivot_white;
+            const blurMix = clamp(radius / 20, 0, 1);
 
-                        cnt++;
-                    }
+            for (let i = 0; i < base.length; i += 4) {
+                const alpha = (mask[i] / 255) * blurMix;
+                if (alpha <= 0.001) continue;
 
-                    inclineInfoCnt = 0;
+                base[i] = base[i] * (1 - alpha) + blur[i] * alpha;
+                base[i + 1] = base[i + 1] * (1 - alpha) + blur[i + 1] * alpha;
+                base[i + 2] = base[i + 2] * (1 - alpha) + blur[i + 2] * alpha;
+            }
 
-                    for (ii = 0; ii < cnt; ii++) {
-                        inc_end = ii + 6;
-                        incCnt = 0;
-                        is_continue_inc = 0;
-                        pointJ = 0;
-                        inverseCnt = 0;
-                        avgInclineV = 0;
-                        totInclineV = 0;
-                        cur = ii;
+            workCtx.putImageData(baseImg, bbox.left, bbox.top);
+        }
 
-                        inclineInfo[inclineInfoCnt][0] = ii;
-                        inclineInfo[inclineInfoCnt][2] = lineInfo[ii][0];
-                        inclineInfo[inclineInfoCnt][5] = lineInfo[ii][1];
-                        inclineInfo[inclineInfoCnt][6] = lineInfo[ii][2];
+        function applySharpen(data, bbox) {
+            const amount = data.faceSharpen / 100;
+            if (amount <= 0) return;
 
-                        for (jj = ii + 1; jj < inc_end; jj++) {
-                            if (jj >= cnt + 1) break;
+            const w = bbox.right - bbox.left + 1;
+            const h = bbox.bottom - bbox.top + 1;
 
-                            inclineV = lineInfo[jj][0] - lineInfo[jj - 1][0];
-                            totInclineV += inclineV;
-                            avgInclineV = Math.trunc(totInclineV / (jj - ii));
+            const srcImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
+            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
 
-                            if (avgInclineV !== 0) {
-                                if (((avgInclineV > pivot_inc && inclineV > (pivot_inc * 0.5)) ||
-                                    (avgInclineV > pivot_inc && inverseCnt === 1 && inclineV > (pivot_inc * 0.5))) ||
-                                    ((avgInclineV < -pivot_inc && inclineV < -(pivot_inc * 0.5)) ||
-                                        (avgInclineV < -pivot_inc && inverseCnt === 1 && inclineV < -(pivot_inc * 0.5)))) {
+            const src = srcImg.data;
+            const out = new Uint8ClampedArray(src);
+            const mask = maskImg.data;
 
-                                    inverseCnt = 0;
-                                    if (inclineV < 0) is_continue_inc = -1;
-                                    else is_continue_inc = 1;
+            const kCenter = 1 + 4 * amount;
+            const kSide = -amount;
 
-                                    pointJ = jj;
-                                    incCnt++;
+            function idx(x, y) {
+                return (y * w + x) * 4;
+            }
 
-                                    if (incCnt > 1) {
-                                        inclineInfo[inclineInfoCnt][1] = jj;
-                                        inclineInfo[inclineInfoCnt][3] = lineInfo[jj][0];
-                                        inclineInfo[inclineInfoCnt][4] = avgInclineV;
-                                        inclineInfo[inclineInfoCnt][7] = lineInfo[jj][1];
-                                        inclineInfo[inclineInfoCnt][8] = lineInfo[jj][2];
-                                        inc_end++;
-                                    }
-                                } else {
-                                    if (jj - ii > 1) inverseCnt++;
-                                }
-                            } else {
-                                break;
-                            }
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const i = idx(x, y);
+                    const alpha = mask[i] / 255;
+                    if (alpha <= 0.001) continue;
 
-                            if (inverseCnt > 1) break;
-                        }
+                    for (let c = 0; c < 3; c++) {
+                        const v =
+                            src[idx(x, y) + c] * kCenter +
+                            src[idx(x - 1, y) + c] * kSide +
+                            src[idx(x + 1, y) + c] * kSide +
+                            src[idx(x, y - 1) + c] * kSide +
+                            src[idx(x, y + 1) + c] * kSide;
 
-                        if (incCnt > 1) {
-                            this.log(
-                                "start:" + inclineInfo[inclineInfoCnt][0] +
-                                ", end:" + inclineInfo[inclineInfoCnt][1] +
-                                ", start color:" + inclineInfo[inclineInfoCnt][2] +
-                                ", end:" + inclineInfo[inclineInfoCnt][3] +
-                                ", avg:" + inclineInfo[inclineInfoCnt][4] +
-                                ", x:" + inclineInfo[inclineInfoCnt][6] +
-                                ", y:" + inclineInfo[inclineInfoCnt][5]
-                            );
-                            ii = pointJ - 1;
-                            inclineInfoCnt++;
-                        }
-                    }
-
-                    let color_code = 0;
-                    let min_c = 0;
-                    let max_c = 0;
-                    let min_i = 0;
-                    let max_i = 0;
-                    let pivot_bri = 0;
-                    let up_down = -1;
-                    let fail_cnt = 0;
-                    let inclineInfoCnt2 = 0;
-                    UpT = 50;
-                    max_c = 0;
-                    min_c = lineInfo[0][0];
-
-                    for (ii = 1; ii < cnt; ii++) {
-                        if (up_down === -1) {
-                            if (lineInfo[ii][color_code] < max_c - UpT || lineInfo[ii][color_code] < min_c + UpT) {
-                                if (lineInfo[ii][color_code] < min_c) {
-                                    min_c = lineInfo[ii][color_code];
-                                    min_i = ii;
-                                }
-                                fail_cnt = 0;
-                                max_c = 0;
-                                continue;
-                            } else {
-                                fail_cnt++;
-                                if (lineInfo[ii][color_code] > max_c) {
-                                    max_c = lineInfo[ii][color_code];
-                                    max_i = ii;
-                                }
-                            }
-                            if (fail_cnt > 2) {
-                                inclineInfo2[inclineInfoCnt2][0] = min_i;
-                                inclineInfo2[inclineInfoCnt2][2] = lineInfo[min_i][color_code];
-                                inclineInfo2[inclineInfoCnt2][3] = -1;
-                                inclineInfo2[inclineInfoCnt2][5] = lineInfo[min_i][1];
-                                inclineInfo2[inclineInfoCnt2][6] = lineInfo[min_i][2];
-
-                                this.log("min i:" + inclineInfo2[inclineInfoCnt2][0] + ", color:" + inclineInfo2[inclineInfoCnt2][2] + ", x:" + inclineInfo2[inclineInfoCnt2][6] + ", y:" + inclineInfo2[inclineInfoCnt2][5]);
-                                inclineInfoCnt2++;
-
-                                up_down = 1;
-                                fail_cnt = 0;
-                                min_c = 1000;
-                            }
-                        } else {
-                            if (lineInfo[ii][color_code] > min_c + UpT || lineInfo[ii][color_code] > max_c - UpT) {
-                                if (lineInfo[ii][color_code] > max_c) {
-                                    max_c = lineInfo[ii][color_code];
-                                    max_i = ii;
-                                }
-                                min_c = 1000;
-                                fail_cnt = 0;
-                                continue;
-                            } else {
-                                fail_cnt++;
-                                if (lineInfo[ii][color_code] < min_c) {
-                                    min_c = lineInfo[ii][color_code];
-                                    min_i = ii;
-                                }
-                            }
-                            if (fail_cnt > 2) {
-                                up_down = -1;
-                                max_c = 0;
-                                fail_cnt = 0;
-                            }
-                        }
-                    }
-
-                    if (inclineInfoCnt2 > 0) {
-                        for (j = 0; j < 4; j++) {
-                            if (inclineInfo2[j][5] > 0) {
-                                InclineAndPeak2[adjust_cnt][j][0] = inclineInfo2[j][0];
-                                InclineAndPeak2[adjust_cnt][j][1] = inclineInfo2[j][5];
-                                InclineAndPeak2[adjust_cnt][j][2] = inclineInfo2[j][6];
-                            }
-                        }
-                    }
-
-                    let darkIndex = -1, secondIndex = 0;
-                    let minBWColor = 1000;
-                    let secondMinBWColor = 1000;
-                    let secondMinBWColorI = 0;
-                    let maxBWColor = 0;
-                    let maxBWi = -1;
-                    let minBWi = -1;
-                    let eyeBWi = -1;
-                    let secondMinBWi = -1;
-                    let thirdMinBWi = -1;
-                    let minBlack = -1;
-                    let firstBlack = -1;
-
-                    for (ii = 0; ii < inclineInfoCnt; ii++) {
-                        if (inclineInfo[ii][4] > 0) {
-                            if (inclineInfo[ii][2] < minBWColor) {
-                                minBWColor = inclineInfo[ii][2];
-                                minBWi = ii;
-                            } else if (minBWi > 0 && inclineInfo[ii][2] <= minBWColor) {
-                                minBWColor = inclineInfo[ii][2];
-                                if (secondMinBWi > 0) {
-                                    if (thirdMinBWi > 0) secondMinBWi = thirdMinBWi;
-                                    thirdMinBWi = ii;
-                                } else {
-                                    secondMinBWi = ii;
-                                }
-                                this.log("SECOND or Third :" + inclineInfo[ii][0]);
-                            }
-
-                            if (inclineInfo[ii][3] - inclineInfo[ii][2] > maxBWColor) {
-                                maxBWColor = inclineInfo[ii][3] - inclineInfo[ii][2];
-                                maxBWi = ii;
-                            }
-                            if (inclineInfo[ii][2] <= pivot_black) {
-                                minBlack = ii;
-                                if (firstBlack === -1) firstBlack = ii;
-                            }
-                        }
-                    }
-
-                    let startST = 0;
-                    if (thirdMinBWi > 0) {
-                        startST = thirdMinBWi;
-                        eyeBWi = thirdMinBWi;
-                    } else if (secondMinBWi > 0) {
-                        startST = secondMinBWi;
-                        eyeBWi = secondMinBWi;
-                    } else {
-                        startST = minBWi;
-                        eyeBWi = minBWi;
-                    }
-
-                    for (ii = startST + 1; ii < inclineInfoCnt; ii++) {
-                        if (inclineInfo[ii][2] < secondMinBWColor) {
-                            secondMinBWColor = inclineInfo[ii][2];
-                            secondMinBWColorI = ii;
-                        }
-                    }
-
-                    if (startST > 0) {
-                        if (adjust_cnt >= 20 && (startST + 2) < inclineInfoCnt && secondMinBWColorI > 0) {
-                            if (inclineInfo[secondMinBWColorI][2] < pivot_black_boundary) {
-                                InclineAndPeak[adjust_cnt][7] = inclineInfo[secondMinBWColorI][5];
-                                InclineAndPeak[adjust_cnt][8] = inclineInfo[secondMinBWColorI][6];
-                                this.log("222 쌍꺼풀로? ");
-                            }
-                        } else if (adjust_cnt >= 20 && (startST + 1) < inclineInfoCnt) {
-                            if (thirdMinBWi > 0) {
-                                if (inclineInfo[thirdMinBWi][0] - inclineInfo[secondMinBWi][0] < 17) {
-                                    InclineAndPeak[adjust_cnt][7] = inclineInfo[thirdMinBWi][5];
-                                    InclineAndPeak[adjust_cnt][8] = inclineInfo[thirdMinBWi][6];
-                                    eyeBWi = secondMinBWi;
-                                    this.log("BLACK THIRD 쌍꺼풀 ");
-                                }
-                            } else if (secondMinBWi > 0) {
-                                if (inclineInfo[secondMinBWi][0] - inclineInfo[minBWi][0] < 12) {
-                                    InclineAndPeak[adjust_cnt][7] = inclineInfo[minBWi][5];
-                                    InclineAndPeak[adjust_cnt][8] = inclineInfo[minBWi][6];
-                                    eyeBWi = minBWi;
-                                    this.log("BLACK Second 쌍꺼풀 ");
-                                }
-                            }
-                        }
-                    }
-
-                    this.log("---startST:" + startST + ",second COLOR: " + secondMinBWColor);
-
-                    let minPreColorI = 0;
-                    let minNextColorI = 0;
-                    for (ii = minBWi - 1; ii >= 0; ii--) {
-                        if (inclineInfo[ii][4] < 0) minPreColorI = ii;
-                        else break;
-                    }
-
-                    for (ii = minBWi + 1; ii < inclineInfoCnt; ii++) {
-                        if (inclineInfo[ii][4] < 0) minNextColorI = ii;
-                        else break;
-                    }
-
-                    let minHeight = -1;
-                    let minHeightColor = 1000;
-                    let maxHeightColor = 1000;
-                    let minHStep = 1;
-                    let minHeightStartI = -1;
-                    let minHeightEndI = -1;
-
-                    for (ii = eyeBWi - 1; ii >= 0; ii--) {
-                        if (inclineInfo[ii][4] < 0) {
-                            minHeightStartI = ii;
-                            break;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    minHeightEndI = minBWi;
-                    for (ii = eyeBWi + 1; ii < inclineInfoCnt; ii++) {
-                        if (inclineInfo[ii][4] > 0) minHeightEndI = ii;
-                        else break;
-                    }
-
-                    if (eyeBWi > 0) {
-                        if (secondMinBWColorI > eyeBWi) {
-                            InclineAndPeak[adjust_cnt][9] = inclineInfo[secondMinBWColorI][0];
-                            InclineAndPeak[adjust_cnt][5] = inclineInfo[secondMinBWColorI][5];
-                            InclineAndPeak[adjust_cnt][6] = inclineInfo[secondMinBWColorI][6];
-                        }
-                        InclineAndPeak[adjust_cnt][0] = inclineInfo[eyeBWi][0];
-                        InclineAndPeak[adjust_cnt][1] = inclineInfo[eyeBWi][5];
-                        InclineAndPeak[adjust_cnt][2] = inclineInfo[eyeBWi][6];
-                        this.log("---eyeBWi,cnt:" + InclineAndPeak[adjust_cnt][0] + ", X:" + InclineAndPeak[adjust_cnt][2] + ", Y:" + InclineAndPeak[adjust_cnt][1] + ", Before span:" + InclineAndPeak[adjust_cnt][3]);
-                        adjust_cnt++;
-                    }
-
-                    line_cnt++;
-                }
-
-                if (adjust_cnt < 40) {
-                    bean.setErrCode("눈 라인 수가 부족합니다.");
-                    bean.setTex(tex);
-                    return bean;
-                }
-
-                UpT = 10;
-                let group_fail_cnt = 0;
-                let group_cnt = 1;
-                let group_gap = 0;
-                const group_info = make2DArray(100, 5, 0);
-                const group_info_lid = make2DArray(100, 5, 0);
-                group_info[1][0] = 0;
-
-                InclineAndPeak[0][4] = group_cnt;
-                for (i = 0; i < adjust_cnt - 1; i++) {
-                    if (InclineAndPeak[i + 1][0] <= InclineAndPeak[i][0] + UpT &&
-                        InclineAndPeak[i + 1][0] >= InclineAndPeak[i][0] - UpT) {
-
-                        if (InclineAndPeak[i + 1][0] > InclineAndPeak[i][0] + (UpT * 0.5) &&
-                            InclineAndPeak[i + 1][0] < InclineAndPeak[i][0] - (UpT * 0.5)) {
-                            this.log("보정:" + InclineAndPeak[i + 1][0]);
-                            for (j = 0; j < 9; j++) {
-                                InclineAndPeak[i + 1][j] = Math.trunc((InclineAndPeak[i + 1][j] + InclineAndPeak[i][j]) * 0.5);
-                            }
-                        }
-
-                        InclineAndPeak[i + 1][4] = group_cnt;
-                        group_info[group_cnt][0] += 1;
-                    } else {
-                        group_cnt++;
-                        InclineAndPeak[i + 1][4] = group_cnt;
-                        group_info[group_cnt][0] = 1;
+                        out[i + c] = clamp(
+                            src[i + c] * (1 - alpha) + clamp(v, 0, 255) * alpha,
+                            0,
+                            255
+                        );
                     }
                 }
+            }
 
-                let temp_mid = Math.trunc(adjust_cnt * 0.15);
-                let temp_right = Math.trunc(adjust_cnt * 0.7);
-                let avg_top_line = 0;
-                let max_top_line = InclineAndPeak[temp_mid][0];
-                let mid_pos = 0, left_pos = 0, right_pos = (adjust_cnt - 1), max_top_pos = temp_mid, max_top_pos_r = temp_mid;
-                let inc_cnt2 = 0;
-                let continue_fail = 0;
-                let max_eye_height = 0;
-                let low_eye_pos = temp_mid;
+            const outImg = new ImageData(out, w, h);
+            workCtx.putImageData(outImg, bbox.left, bbox.top);
+        }
 
-                for (i = temp_mid; i < temp_right; i++) {
-                    if (group_info[InclineAndPeak[i + 1][4]][0] > 4) {
-                        if (InclineAndPeak[i + 1][0] > max_top_line) {
-                            max_top_line = InclineAndPeak[i + 1][0];
-                            max_top_pos = i + 1;
-                        }
+        function createBlemishSmoothVersion(radius) {
+            tempCanvas3.width = TARGET_W;
+            tempCanvas3.height = TARGET_H;
+            tempCtx3.clearRect(0, 0, TARGET_W, TARGET_H);
 
-                        if (InclineAndPeak[i + 1][3] > 0 && (InclineAndPeak[i + 1][0] - InclineAndPeak[i + 1][3]) > max_eye_height) {
-                            max_eye_height = InclineAndPeak[i + 1][0] - InclineAndPeak[i + 1][3];
-                            low_eye_pos = i + 1;
-                        }
-                    }
+            tempCtx3.save();
+            tempCtx3.filter = `blur(${radius}px)`;
+            tempCtx3.drawImage(workCanvas, 0, 0);
+            tempCtx3.restore();
+        }
+
+        function applyBlemishRemoval(data, bbox) {
+            const amount = data.faceBlemish;
+            if (amount <= 0) return;
+
+            const blurRadius = 2 + amount * 4.5;
+            createBlemishSmoothVersion(blurRadius);
+
+            const w = bbox.right - bbox.left + 1;
+            const h = bbox.bottom - bbox.top + 1;
+
+            const baseImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
+            const smoothImg = tempCtx3.getImageData(bbox.left, bbox.top, w, h);
+            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
+
+            const base = baseImg.data;
+            const smooth = smoothImg.data;
+            const mask = maskImg.data;
+
+            for (let i = 0; i < base.length; i += 4) {
+                const maskAlpha = mask[i] / 255;
+                if (maskAlpha <= 0.001) continue;
+
+                const r = base[i];
+                const g = base[i + 1];
+                const b = base[i + 2];
+
+                const sr = smooth[i];
+                const sg = smooth[i + 1];
+                const sb = smooth[i + 2];
+
+                const lum = luminance(r, g, b);
+                const smoothLum = luminance(sr, sg, sb);
+
+                const darkDefect = clamp((smoothLum - lum - 3) / 28, 0, 1);
+                const edgeStrength = clamp(Math.abs(lum - smoothLum) / 42, 0, 1);
+                const edgeProtect = 1 - edgeStrength;
+
+                let blend = darkDefect * edgeProtect * amount * maskAlpha;
+                blend = Math.pow(blend, 0.85);
+
+                if (blend <= 0.001) continue;
+
+                const repairMix = 0.72 * blend;
+
+                base[i] = r * (1 - repairMix) + sr * repairMix;
+                base[i + 1] = g * (1 - repairMix) + sg * repairMix;
+                base[i + 2] = b * (1 - repairMix) + sb * repairMix;
+            }
+
+            workCtx.putImageData(baseImg, bbox.left, bbox.top);
+        }
+
+        function applyFaceEffects(data) {
+            const bbox = buildFaceMask();
+            applyFaceVibrance(data, bbox);
+            blendBlurWithMask(data, bbox);
+            applyBlemishRemoval(data, bbox);
+            applySharpen(data, bbox);
+            return bbox;
+        }
+
+        function buildPolygonMask(indices, blurPx = 10) {
+            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            regionCtx.fillStyle = "black";
+            regionCtx.fillRect(0, 0, TARGET_W, TARGET_H);
+
+            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
+            regionCtx2.fillStyle = "black";
+            regionCtx2.fillRect(0, 0, TARGET_W, TARGET_H);
+
+            regionCtx.beginPath();
+            for (let i = 0; i < indices.length; i++) {
+                const p = getLm(indices[i]);
+                if (i === 0) regionCtx.moveTo(p.x, p.y);
+                else regionCtx.lineTo(p.x, p.y);
+            }
+            regionCtx.closePath();
+            regionCtx.fillStyle = "white";
+            regionCtx.fill();
+
+            regionCtx2.save();
+            regionCtx2.filter = `blur(${blurPx}px)`;
+            regionCtx2.drawImage(regionCanvas, 0, 0);
+            regionCtx2.restore();
+
+            return regionCtx2.getImageData(0, 0, TARGET_W, TARGET_H);
+        }
+
+        function buildEyeEllipseMask(isLeft, extraScale = 1.0, blurPx = 10) {
+            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            regionCtx.fillStyle = "black";
+            regionCtx.fillRect(0, 0, TARGET_W, TARGET_H);
+            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
+
+            const top = getLm(isLeft ? LEFT_EYE_TOP : RIGHT_EYE_TOP);
+            const bottom = getLm(isLeft ? LEFT_EYE_BOTTOM : RIGHT_EYE_BOTTOM);
+            const outer = getLm(isLeft ? LEFT_EYE_OUTER : RIGHT_EYE_OUTER);
+            const inner = getLm(isLeft ? LEFT_EYE_INNER : RIGHT_EYE_INNER);
+
+            const cx = (outer.x + inner.x) * 0.5;
+            const cy = (top.y + bottom.y) * 0.5;
+            const rx = Math.abs(outer.x - inner.x) * 0.62 * extraScale;
+            const ry = Math.max(8, Math.abs(top.y - bottom.y) * 1.8 * extraScale);
+
+            regionCtx.beginPath();
+            regionCtx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+            regionCtx.fillStyle = "white";
+            regionCtx.fill();
+
+            regionCtx2.save();
+            regionCtx2.filter = `blur(${blurPx}px)`;
+            regionCtx2.drawImage(regionCanvas, 0, 0);
+            regionCtx2.restore();
+
+            return regionCtx2.getImageData(0, 0, TARGET_W, TARGET_H);
+        }
+
+        function applyNoseDepth(data) {
+            if (data.noseDepth <= 0) return;
+
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
+
+            const bridgeUp = getLm(NOSE_BRIDGE_UP);
+            const bridgeMid = getLm(NOSE_BRIDGE_MID);
+            const tip = getLm(NOSE_TIP);
+            const base = getLm(NOSE_BASE);
+            const leftWing = getLm(NOSE_LEFT_WING);
+            const rightWing = getLm(NOSE_RIGHT_WING);
+
+            const cx = (bridgeMid.x + tip.x) * 0.5;
+            const cy = (bridgeUp.y + base.y) * 0.5;
+            const sx = Math.abs(rightWing.x - leftWing.x) * 0.34;
+            const sy = Math.abs(base.y - bridgeUp.y) * 0.60 + 20;
+
+            for (let y = Math.max(0, Math.floor(cy - sy * 2)); y < Math.min(TARGET_H, Math.ceil(cy + sy * 2)); y++) {
+                for (let x = Math.max(0, Math.floor(cx - sx * 3)); x < Math.min(TARGET_W, Math.ceil(cx + sx * 3)); x++) {
+                    const i = (y * TARGET_W + x) * 4;
+                    const gCenter = gaussian2D(x - cx, y - cy, sx, sy);
+                    const gLeftShadow = gaussian2D(x - (cx - sx * 0.95), y - cy, sx * 0.85, sy * 1.15);
+                    const gRightShadow = gaussian2D(x - (cx + sx * 0.95), y - cy, sx * 0.85, sy * 1.15);
+                    const effect = (gCenter * 1.0 - gLeftShadow * 0.55 - gRightShadow * 0.55) * data.noseDepth;
+
+                    px[i] = clamp(px[i] + effect * 26, 0, 255);
+                    px[i + 1] = clamp(px[i + 1] + effect * 22, 0, 255);
+                    px[i + 2] = clamp(px[i + 2] + effect * 18, 0, 255);
                 }
+            }
 
-                continue_fail = 0;
-                let avg_pivot = InclineAndPeak[max_top_pos][0];
-                let avg_pivot_cnt = 1;
-                let descent_pivot = Math.trunc(UpT * 0.3);
+            workCtx.putImageData(img, 0, 0);
+        }
 
-                for (i = max_top_pos; i > 0; i--) {
-                    if (i < (max_top_pos * 0.3)) descent_pivot = 0;
+        function applyEyeLineEnhance(data) {
+            if (data.eyeLine <= 0 && data.irisDeepen <= 0) return;
 
-                    if ((InclineAndPeak[i - 1][0] < InclineAndPeak[i + continue_fail][0] + descent_pivot) &&
-                        (InclineAndPeak[i - 1][0] >= InclineAndPeak[i + continue_fail][0] - UpT)) {
-                        continue_fail = 0;
-                        left_pos = i - 1;
-                    } else {
-                        if (InclineAndPeak[i - 1][9] > 0 &&
-                            (InclineAndPeak[i - 1][9] < InclineAndPeak[i + continue_fail][0] + descent_pivot) &&
-                            (InclineAndPeak[i - 1][9] >= InclineAndPeak[i + continue_fail][0] - UpT)) {
-                            continue_fail = 0;
-                            left_pos = i - 1;
-                            InclineAndPeak[i - 1][0] = InclineAndPeak[i - 1][9];
-                            InclineAndPeak[i - 1][1] = InclineAndPeak[i - 1][5];
-                            InclineAndPeak[i - 1][2] = InclineAndPeak[i - 1][6];
-                            continue;
-                        }
-                        InclineAndPeak[i - 1][11] = 1;
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
 
-                        tot_fail_cnt++;
-                        continue_fail++;
-                        if (continue_fail > 4 && i < 10) {
-                            this.log("Left Continue Fail!!!!! at : " + i);
-                            break;
-                        }
-                    }
+            const leftMask = buildEyeEllipseMask(true, 1.1, 10).data;
+            const rightMask = buildEyeEllipseMask(false, 1.1, 10).data;
+
+            const leftCenter = getAveragePoint(LEFT_IRIS);
+            const rightCenter = getAveragePoint(RIGHT_IRIS);
+
+            for (let y = 0; y < TARGET_H; y++) {
+                for (let x = 0; x < TARGET_W; x++) {
+                    const i = (y * TARGET_W + x) * 4;
+                    const m = Math.max(leftMask[i], rightMask[i]) / 255;
+                    if (m <= 0.001) continue;
+
+                    const lTop = getLm(LEFT_EYE_TOP);
+                    const lBottom = getLm(LEFT_EYE_BOTTOM);
+                    const rTop = getLm(RIGHT_EYE_TOP);
+                    const rBottom = getLm(RIGHT_EYE_BOTTOM);
+
+                    const gUpperLeft = gaussian2D(x - lTop.x, y - lTop.y, 85, 20);
+                    const gUpperRight = gaussian2D(x - rTop.x, y - rTop.y, 85, 20);
+                    const gLowerLeft = gaussian2D(x - lBottom.x, y - lBottom.y, 90, 24);
+                    const gLowerRight = gaussian2D(x - rBottom.x, y - rBottom.y, 90, 24);
+
+                    const upperLine = Math.max(gUpperLeft, gUpperRight) * data.eyeLine;
+                    const lowerSoft = Math.max(gLowerLeft, gLowerRight) * data.eyeLine * 0.35;
+
+                    const gIrisL = gaussian2D(x - leftCenter.x, y - leftCenter.y, 24, 24);
+                    const gIrisR = gaussian2D(x - rightCenter.x, y - rightCenter.y, 24, 24);
+                    const irisEffect = Math.max(gIrisL, gIrisR) * data.irisDeepen;
+
+                    const darken = upperLine * 18 + irisEffect * 26;
+                    const brighten = lowerSoft * 7;
+
+                    px[i] = clamp(px[i] - darken + brighten, 0, 255);
+                    px[i + 1] = clamp(px[i + 1] - darken + brighten, 0, 255);
+                    px[i + 2] = clamp(px[i + 2] - darken + brighten, 0, 255);
                 }
+            }
 
-                let incline_v = 0.0;
-                let incline_avg = 0.0;
-                let incline_tot = 0.0;
-                let incline_cnt = 0;
-                descent_pivot = Math.trunc(UpT * 0.3);
+            workCtx.putImageData(img, 0, 0);
+        }
 
-                for (i = max_top_pos; i < adjust_cnt - 1; i++) {
-                    if (i > (max_top_pos * 0.7)) descent_pivot = 0;
+        function applyEyeOpenHighlight(data) {
+            if (data.eyeOpenAuto <= 0) return;
 
-                    if ((InclineAndPeak[i + 1][0] < (InclineAndPeak[i - continue_fail][0]) + descent_pivot) &&
-                        (InclineAndPeak[i + 1][0] >= InclineAndPeak[i - continue_fail][0] - UpT) &&
-                        (InclineAndPeak[i + 1][0] > InclineAndPeak[left_pos][0] + (UpT * 0.7))) {
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
 
-                        if (InclineAndPeak[i + 1][0] > max_top_line) {
-                            max_top_line = InclineAndPeak[i + 1][0];
-                            max_top_pos = i + 1;
-                        }
+            const leftEyeCenter = getAveragePoint([LEFT_EYE_TOP, LEFT_EYE_BOTTOM, LEFT_EYE_OUTER, LEFT_EYE_INNER]);
+            const rightEyeCenter = getAveragePoint([RIGHT_EYE_TOP, RIGHT_EYE_BOTTOM, RIGHT_EYE_OUTER, RIGHT_EYE_INNER]);
 
-                        if (InclineAndPeak[i + 1][3] > 0 && (InclineAndPeak[i + 1][0] - InclineAndPeak[i + 1][3]) > max_eye_height) {
-                            max_eye_height = InclineAndPeak[i + 1][0] - InclineAndPeak[i + 1][3];
-                            low_eye_pos = i + 1;
-                        }
+            const leftBoost = clamp((0.18 - data.leftEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
+            const rightBoost = clamp((0.18 - data.rightEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
 
-                        InclineAndPeak[i + 1][11] = 1;
+            if (leftBoost <= 0 && rightBoost <= 0) return;
 
-                        incline_v = (InclineAndPeak[i + 1][0] - InclineAndPeak[i - continue_fail][0]) / (continue_fail + 1);
-                        incline_tot += incline_v;
-                        incline_cnt += 1;
-                        incline_avg = (incline_tot / incline_cnt);
+            for (let y = 0; y < TARGET_H; y++) {
+                for (let x = 0; x < TARGET_W; x++) {
+                    const i = (y * TARGET_W + x) * 4;
 
-                        if (i > Math.trunc(adjust_cnt * 0.8) && incline_v > (incline_avg * 0.3)) break;
+                    const gL = gaussian2D(x - leftEyeCenter.x, y - (leftEyeCenter.y - 8), 60, 28) * leftBoost;
+                    const gR = gaussian2D(x - rightEyeCenter.x, y - (rightEyeCenter.y - 8), 60, 28) * rightBoost;
+                    const g = Math.max(gL, gR);
 
-                        continue_fail = 0;
-                        right_pos = i + 1;
-                    } else {
-                        tot_fail_cnt++;
-                        continue_fail++;
-                        if (continue_fail > 4 && i > (adjust_cnt - 10)) {
-                            this.log("Right Continue Fail!!!!!!");
-                            break;
-                        }
-                    }
+                    if (g <= 0.001) continue;
+
+                    px[i] = clamp(px[i] + g * 10, 0, 255);
+                    px[i + 1] = clamp(px[i + 1] + g * 9, 0, 255);
+                    px[i + 2] = clamp(px[i + 2] + g * 8, 0, 255);
                 }
+            }
 
-                let left_mid_pos = 0;
-                let right_mid_pos = 0;
-                let adjust_pos_r = max_top_pos + Math.trunc((right_pos - max_top_pos) * 0.20);
-                let adjust_pos_l = max_top_pos - Math.trunc((max_top_pos - left_pos) * 0.20);
+            workCtx.putImageData(img, 0, 0);
+        }
 
-                this.log("adjust_pos_l:" + adjust_pos_l);
+        function applyEyebrowCleanup(data) {
+            const cleanup = data.eyebrowCleanup;
+            const tailTrim = data.eyebrowTailTrim;
+            if (cleanup <= 0 && tailTrim <= 0) return;
 
-                left_mid_pos = adjust_pos_l;
-                for (ii = adjust_pos_l; ii > (max_top_pos - Math.trunc((max_top_pos - left_pos) * 0.4)); ii--) {
-                    if (InclineAndPeak[ii][11] === 1) {
-                        left_mid_pos = ii;
-                        break;
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
+            const original = srcCtx.getImageData(0, 0, TARGET_W, TARGET_H).data;
+
+            const lBrowCenter = getAveragePoint(LEFT_EYEBROW);
+            const rBrowCenter = getAveragePoint(RIGHT_EYEBROW);
+            const lEye = getAveragePoint([LEFT_EYE_TOP, LEFT_EYE_BOTTOM, LEFT_EYE_OUTER, LEFT_EYE_INNER]);
+            const rEye = getAveragePoint([RIGHT_EYE_TOP, RIGHT_EYE_BOTTOM, RIGHT_EYE_OUTER, RIGHT_EYE_INNER]);
+
+            const lOuter = getLm(LEFT_EYEBROW[0]);
+            const rOuter = getLm(RIGHT_EYEBROW[0]);
+
+            for (let y = 0; y < TARGET_H; y++) {
+                for (let x = 0; x < TARGET_W; x++) {
+                    const i = (y * TARGET_W + x) * 4;
+
+                    const gLBrow = gaussian2D(x - lBrowCenter.x, y - lBrowCenter.y, 95, 36);
+                    const gRBrow = gaussian2D(x - rBrowCenter.x, y - rBrowCenter.y, 95, 36);
+                    const gBrow = Math.max(gLBrow, gRBrow);
+
+                    const gLEye = gaussian2D(x - lEye.x, y - lEye.y, 90, 40);
+                    const gREye = gaussian2D(x - rEye.x, y - rEye.y, 90, 40);
+                    const eyeProtect = Math.max(gLEye, gREye);
+
+                    const tailL = gaussian2D(x - (lOuter.x - 18), y - (lOuter.y - 2), 42, 18);
+                    const tailR = gaussian2D(x - (rOuter.x + 18), y - (rOuter.y - 2), 42, 18);
+                    const tailMask = Math.max(tailL, tailR);
+
+                    const lum = luminance(px[i], px[i + 1], px[i + 2]);
+                    const originalLum = luminance(original[i], original[i + 1], original[i + 2]);
+
+                    let alpha = 0;
+
+                    if (gBrow > 0.08 && eyeProtect < 0.55 && lum < 110 && originalLum < 120) {
+                        alpha += cleanup * gBrow * 0.22;
                     }
-                }
 
-                right_mid_pos = adjust_pos_r;
-                for (ii = adjust_pos_r; ii < (max_top_pos + Math.trunc((right_pos - max_top_pos) * 0.4)); ii++) {
-                    if (InclineAndPeak[ii][11] === 1) {
-                        right_mid_pos = ii;
-                        break;
+                    if (tailMask > 0.05 && lum < 130) {
+                        alpha += tailTrim * tailMask * 0.40;
                     }
+
+                    alpha = clamp(alpha, 0, 0.75);
+                    if (alpha <= 0.001) continue;
+
+                    const skinR = clamp(original[i] + 18, 0, 255);
+                    const skinG = clamp(original[i + 1] + 12, 0, 255);
+                    const skinB = clamp(original[i + 2] + 10, 0, 255);
+
+                    px[i] = lerp(px[i], skinR, alpha);
+                    px[i + 1] = lerp(px[i + 1], skinG, alpha);
+                    px[i + 2] = lerp(px[i + 2], skinB, alpha);
                 }
+            }
 
-                this.log("adjust_cnt:" + adjust_cnt);
-                this.log("max_top_pos:" + max_top_pos);
-                this.log("left_pos:" + left_pos);
-                this.log("left_mid_pos:" + left_mid_pos);
-                this.log("right_pos:" + right_pos);
-                this.log("right_mid_pos:" + right_mid_pos);
-                this.log("low_eye_pos:" + low_eye_pos);
+            workCtx.putImageData(img, 0, 0);
+        }
 
-                const input = make2DArray(adjust_cnt * 4, 2, 0);
-                let clust_cnt = 0;
+        function applyLipEnhancement(data) {
+            if (data.lipSaturation <= 0 && data.lipBrightness <= 0 && data.lipCenterGlow <= 0) return;
 
-                for (i = 0; i < adjust_cnt; i++) {
-                    for (j = 0; j < 4; j++) {
-                        if (InclineAndPeak2[i][j][0] > 0) {
-                            input[clust_cnt][0] = InclineAndPeak2[i][j][2];
-                            input[clust_cnt][1] = InclineAndPeak2[i][j][1];
-                            clust_cnt++;
-                        }
-                    }
-                }
+            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
+            const px = img.data;
 
-                this.log("clust cnt:" + clust_cnt);
+            const lipMask = buildPolygonMask(OUTER_LIPS, 12).data;
+            const innerMask = buildPolygonMask(INNER_LIPS, 10).data;
 
-                const sliceInput = input.slice(0, clust_cnt);
+            const left = getLm(LIP_LEFT);
+            const right = getLm(LIP_RIGHT);
+            const upper = getLm(UPPER_LIP_CENTER);
+            const lower = getLm(LOWER_LIP_CENTER);
 
-                const eps = 10.0;
-                const minPts = 5;
-                const maxYDeviation = 4;
-                const maxGapX = 5;
-                const enableCurvatureSplit = true;
-                const curvatureSplitTol = 0.03;
-                const minSegmentPts = 5;
-                const curvatureStep = 3;
+            const cx = (left.x + right.x) * 0.5;
+            const cy = (upper.y + lower.y) * 0.5;
+            const sx = Math.max(20, Math.abs(right.x - left.x) * 0.22);
+            const sy = Math.max(12, Math.abs(lower.y - upper.y) * 1.25);
 
-                const runResult = this.Run(
-                    sliceInput,
-                    eps,
-                    minPts,
-                    maxYDeviation,
-                    maxGapX,
-                    enableCurvatureSplit,
-                    curvatureSplitTol,
-                    minSegmentPts,
-                    curvatureStep
+            for (let i = 0; i < px.length; i += 4) {
+                const outerA = lipMask[i] / 255;
+                if (outerA <= 0.001) continue;
+
+                const idx = i / 4;
+                const x = idx % TARGET_W;
+                const y = Math.floor(idx / TARGET_W);
+
+                const innerA = innerMask[i] / 255;
+                const centerGlow = gaussian2D(x - cx, y - cy, sx, sy) * data.lipCenterGlow;
+
+                let r = px[i];
+                let g = px[i + 1];
+                let b = px[i + 2];
+
+                const avg = (r + g + b) / 3;
+                const satBoost = 1 + data.lipSaturation * (0.45 + innerA * 0.15);
+                const brightnessBoost = data.lipBrightness * (12 + (avg < 110 ? 10 : 0));
+                const centerBoost = centerGlow * 18;
+
+                r = avg + (r - avg) * satBoost + brightnessBoost + centerBoost;
+                g = avg + (g - avg) * (1 + data.lipSaturation * 0.14) + brightnessBoost * 0.25 + centerBoost * 0.30;
+                b = avg + (b - avg) * (1 + data.lipSaturation * 0.10) + brightnessBoost * 0.18 + centerBoost * 0.25;
+
+                px[i] = clamp(lerp(px[i], r, outerA), 0, 255);
+                px[i + 1] = clamp(lerp(px[i + 1], g, outerA), 0, 255);
+                px[i + 2] = clamp(lerp(px[i + 2], b, outerA), 0, 255);
+            }
+
+            workCtx.putImageData(img, 0, 0);
+        }
+
+        function drawPoint(ctx, x, y, r, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawPolygon(ctx, indices, color) {
+            ctx.beginPath();
+            for (let i = 0; i < indices.length; i++) {
+                const p = getLm(indices[i]);
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawGuides(data, faceBox) {
+            if (!showGuides) return;
+
+            previewCtx.save();
+
+            previewCtx.strokeStyle = "rgba(255,255,0,0.7)";
+            previewCtx.lineWidth = 2;
+            previewCtx.strokeRect(
+                data.roi.left,
+                data.roi.top,
+                data.roi.right - data.roi.left,
+                data.roi.bottom - data.roi.top
+            );
+
+            if (faceBox) {
+                previewCtx.strokeStyle = "rgba(0,255,128,0.65)";
+                previewCtx.lineWidth = 2;
+                previewCtx.strokeRect(
+                    faceBox.left,
+                    faceBox.top,
+                    faceBox.right - faceBox.left,
+                    faceBox.bottom - faceBox.top
                 );
-
-                const cleaned = runResult.cleaned;
-                const labels = runResult.labels;
-
-                const map = new Map();
-                for (i = 0; i < cleaned.length; i++) {
-                    const lb = labels[i];
-                    if (!map.has(lb)) map.set(lb, []);
-                    map.get(lb).push(cleaned[i]);
-                }
-
-                const clusterCount = map.size - (map.has(-1) ? 1 : 0);
-                const noiseCount = map.has(-1) ? map.get(-1).length : 0;
-
-                this.log(`[CurveClustering] total=${cleaned.length}, clusters=${clusterCount}, noise=${noiseCount}`);
-
-                const clust_info = make2DArray(cleaned.length, 10, 0);
-                let clust_slope = 0.0;
-                let tot_x = 0, tot_y = 0;
-                let tot_x_cnt = 0;
-                let max_x = 0;
-                let min_x = 0;
-                let max_y = 0;
-                let min_y = 0;
-                i = 0;
-
-                for (const [lb, list] of map.entries()) {
-                    if (lb === -1) continue;
-
-                    tot_x = 0;
-                    tot_y = 0;
-                    tot_x_cnt = 0;
-                    max_x = 0;
-                    min_x = 10000;
-
-                    for (j = 0; j < list.length; j++) {
-                        tot_x += list[j].x;
-                        tot_y += list[j].y;
-
-                        if (list[j].x > max_x) {
-                            max_x = list[j].x;
-                            max_y = list[j].y;
-                        }
-                        if (list[j].x < min_x) {
-                            min_x = list[j].x;
-                            min_y = list[j].y;
-                        }
-                        tot_x_cnt++;
-                    }
-
-                    clust_info[i][0] = tot_x_cnt;
-                    clust_info[i][1] = (tot_x / tot_x_cnt);
-                    clust_info[i][2] = (tot_y / tot_x_cnt);
-                    clust_info[i][3] = ((min_y - max_y) / ((max_x - min_x) || 1));
-                    clust_info[i][5] = max_x;
-                    clust_info[i][6] = max_y;
-                    clust_info[i][7] = min_x;
-                    clust_info[i][8] = min_y;
-
-                    this.log("clust i:" + i + ",cnt:" + clust_info[i][0] + ",x avg:" + clust_info[i][1] + ",y avg:" + clust_info[i][2] + ",slope:" + clust_info[i][3]);
-                    i = i + 1;
-                }
-
-                this.log("left_pos: x " + InclineAndPeak[left_pos][2] + ",y:" + InclineAndPeak[left_pos][1]);
-                this.log("right_pos: x " + InclineAndPeak[right_pos][2] + ",y:" + InclineAndPeak[right_pos][1]);
-
-                for (i = 0; i < cleaned.length; i++) {
-                    if (rl_code === 2) {
-                        if (clust_info[i][1] > InclineAndPeak[max_top_pos][2] + 30 &&
-                            clust_info[i][1] < InclineAndPeak[left_pos][2] &&
-                            clust_info[i][2] > InclineAndPeak[left_pos][1] - 10 &&
-                            clust_info[i][2] < InclineAndPeak[left_pos][1] + 30 &&
-                            clust_info[i][3] < 0.5 && clust_info[i][3] >= -0.05) {
-                            this.log("Find A:" + i);
-                        }
-                        if (clust_info[i][1] < InclineAndPeak[max_top_pos][2] - 30 &&
-                            clust_info[i][1] > InclineAndPeak[right_pos][2] &&
-                            clust_info[i][2] > InclineAndPeak[right_pos][1] - 20 &&
-                            clust_info[i][2] < InclineAndPeak[right_pos][1] + 50 &&
-                            clust_info[i][3] > -0.75 && clust_info[i][3] < 0.0) {
-                            this.log("Find B:" + i);
-                        }
-                        if ((clust_info[i][1] > InclineAndPeak[max_top_pos][2] &&
-                            clust_info[i][2] > InclineAndPeak[right_pos][1] + 50 &&
-                            clust_info[i][2] < InclineAndPeak[right_pos][1] + 130 &&
-                            clust_info[i][3] < 0.75 && clust_info[i][3] > 0.0) ||
-                            (clust_info[i][1] < InclineAndPeak[max_top_pos][2] &&
-                                clust_info[i][2] > InclineAndPeak[right_pos][1] + 50 &&
-                                clust_info[i][2] < InclineAndPeak[right_pos][1] + 130 &&
-                                clust_info[i][3] > -0.75 && clust_info[i][3] < 0.0)) {
-                            this.log("Find C:" + i);
-                        }
-                    }
-                }
-
-                let pivot_v = 0;
-                let pivot_i = 0;
-                let end_point_cnt = 0;
-                let eye_adjust_v = Math.trunc((InclineAndPeak[max_top_pos][0] - InclineAndPeak[left_pos][0]) * 0.6);
-                const end_group = make2DArray(50, 3, 0);
-
-                this.log("eye_adjust_v:" + eye_adjust_v + ", right pos:" + InclineAndPeak[right_pos][0]);
-
-                for (i = right_mid_pos + 5; i < right_pos; i++) {
-                    for (j = 0; j < 2; j++) {
-                        if (InclineAndPeak2[i][j][0] > 0)
-                            this.log("i:" + i + ",PIVOT V:" + InclineAndPeak2[i][j][0]);
-
-                        if (InclineAndPeak2[i][j][0] >= (InclineAndPeak[right_pos][0] - eye_adjust_v) &&
-                            InclineAndPeak2[i][j][0] <= InclineAndPeak[right_pos][0]) {
-                            pivot_v = InclineAndPeak2[i][j][0];
-                            pivot_i = i;
-                            break;
-                        }
-                    }
-                    if (pivot_i > 0) break;
-                }
-
-                this.log("find PIVOT V:" + pivot_v);
-
-                for (i = pivot_i; i < right_pos; i++) {
-                    for (j = 0; j < 2; j++) {
-                        if (InclineAndPeak2[i][j][0] >= pivot_v && InclineAndPeak2[i][j][0] < pivot_v + 5) {
-                            this.log("i:" + i + ",PIVOT V:" + InclineAndPeak2[i][j][0]);
-                            pivot_v = InclineAndPeak2[i][j][0];
-                            end_group[end_point_cnt][0] = InclineAndPeak2[i][j][0];
-                            end_group[end_point_cnt][1] = InclineAndPeak2[i][j][1];
-                            end_group[end_point_cnt][2] = InclineAndPeak2[i][j][2];
-                            end_point_cnt++;
-                            break;
-                        }
-                    }
-                }
-
-                let end_s = 0;
-                let end_e = end_point_cnt - 1;
-                let end_m = Math.trunc(end_point_cnt * 0.5);
-
-                const arc1 = [[0, 0], [0, 0], [0, 0]];
-                const arc2 = [[0, 0], [0, 0], [0, 0]];
-
-                if (end_point_cnt > 0) {
-                    arc1[0][0] = end_group[0][2];
-                    arc1[0][1] = end_group[0][1];
-                }
-                if (end_point_cnt > 0) {
-                    arc1[1][0] = end_group[Math.max(0, end_m)][2];
-                    arc1[1][1] = end_group[Math.max(0, end_m)][1];
-                    arc1[2][0] = end_group[Math.max(0, end_e)][2];
-                    arc1[2][1] = end_group[Math.max(0, end_e)][1];
-                }
-
-                arc2[0][0] = InclineAndPeak[max_top_pos][2];
-                arc2[0][1] = InclineAndPeak[max_top_pos][1];
-                arc2[1][0] = InclineAndPeak[right_mid_pos][2];
-                arc2[1][1] = InclineAndPeak[right_mid_pos][1];
-                arc2[2][0] = InclineAndPeak[right_pos][2];
-                arc2[2][1] = InclineAndPeak[right_pos][1];
-
-                for (i = 0; i < 3; i++) {
-                    this.log("arc1 x:" + arc1[i][0] + ",arc1 y:" + arc1[i][1]);
-                    this.log("arc2 x:" + arc2[i][0] + ",arc2 y:" + arc2[i][1]);
-                }
-
-                let getPointXY = [0, 0];
-                let circle1 = [0, 0, 0];
-                let circle2 = [0, 0, 0];
-                let intersections = null;
-                let count = 0;
-
-                if (end_point_cnt > 3) {
-                    const ok1 = this.TryCircleFrom3Points(arc1[0], arc1[1], arc1[2]);
-                    const ok2 = this.TryCircleFrom3Points(arc2[0], arc2[1], arc2[2]);
-
-                    if (ok1.ok && ok2.ok) {
-                        circle1 = ok1.circle;
-                        circle2 = ok2.circle;
-                        const inter = this.IntersectCircles(circle1, circle2);
-                        count = inter.count;
-                        intersections = inter.points;
-
-                        this.log("count:" + count);
-                        const refPoint = arc1[2];
-                        const pick = this.PickClosestIntersection(intersections, count, refPoint);
-                        if (pick.ok) {
-                            getPointXY = pick.result;
-                            this.log("getPointX:" + getPointXY[0] + ",Y:" + getPointXY[1]);
-                        }
-                    }
-                }
-
-                let spot_i = 0;
-                let min_close = 10000;
-                if (count > 0) {
-                    for (i = right_mid_pos; i < right_pos; i++) {
-                        if (Math.abs(InclineAndPeak[i][2] - Math.trunc(getPointXY[0])) < min_close) {
-                            spot_i = i;
-                            min_close = Math.abs(InclineAndPeak[i][2] - Math.trunc(getPointXY[0]));
-                        }
-                    }
-                    this.log("new Right:" + spot_i + ",X:" + InclineAndPeak[spot_i][2]);
-
-                    if (spot_i > 0) {
-                        right_pos = spot_i;
-                        adjust_pos_r = max_top_pos + Math.trunc((right_pos - max_top_pos) * 0.25);
-
-                        right_mid_pos = adjust_pos_r;
-                        for (ii = adjust_pos_r; ii < adjust_cnt; ii++) {
-                            if (InclineAndPeak[ii][11] === 1) {
-                                right_mid_pos = ii;
-                                break;
-                            }
-                        }
-                        this.log("New RIGHT MID:" + right_mid_pos);
-                    }
-                }
-
-                group_cnt = 1;
-                InclineAndPeak[0][10] = group_cnt;
-                UpT = 5;
-                group_info_lid[1][0] = 0;
-
-                for (i = 0; i < adjust_cnt - 1; i++) {
-                    if (InclineAndPeak[i + 1][5] > InclineAndPeak[max_top_pos][1] - 35) {
-                        if (InclineAndPeak[i + 1][9] <= InclineAndPeak[i][9] + UpT &&
-                            InclineAndPeak[i + 1][9] >= InclineAndPeak[i][9] - UpT) {
-                            InclineAndPeak[i + 1][10] = group_cnt;
-                            group_info_lid[group_cnt][0] += 1;
-                        } else {
-                            group_cnt++;
-                            InclineAndPeak[i + 1][10] = group_cnt;
-                            group_info_lid[group_cnt][0] = 1;
-                        }
-                    }
-                }
-
-                this.log("max top:" + InclineAndPeak[max_top_pos][1]);
-                for (i = 0; i < adjust_cnt; i++) {
-                    this.log("lid i:" + i + ",group cnt:" + InclineAndPeak[i][4] + ",cnt:" + InclineAndPeak[i][0] + ",x:" + InclineAndPeak[i][6] + ",y:" + InclineAndPeak[i][5] + ",lid_group:" + InclineAndPeak[i][10] + ",cnt:" + InclineAndPeak[i][9]);
-                }
-
-                let c_r = Array.from({ length: 10 }, () => new Coord());
-                let lid_mid_pos = 0;
-                let lid_left_pos = 0;
-                let lid_right_pos = 0;
-                let lid_cnt = 0;
-                let lid_tot_cnt = 0;
-
-                for (i = 1; i < adjust_cnt - 1; i++) {
-                    if (group_info_lid[InclineAndPeak[i][10]][0] > 2 && InclineAndPeak[i][9] > 0) {
-                        if (group_info[InclineAndPeak[i][4]][0] > 10) {
-                            lid_tot_cnt++;
-                        }
-                    }
-                }
-                this.log("lid_tot_cnt:" + lid_tot_cnt);
-
-                for (i = 1; i < adjust_cnt - 1; i++) {
-                    if (group_info_lid[InclineAndPeak[i][10]][0] > 2 && InclineAndPeak[i][9] > 0) {
-                        if (group_info[InclineAndPeak[i][4]][0] > 10) {
-                            if (lid_cnt !== 0) {
-                                lid_right_pos = i;
-                                if (i >= right_pos + 5) break;
-                            }
-                            if (lid_cnt === 0) {
-                                lid_left_pos = i;
-                            }
-                            if (lid_cnt === Math.trunc(lid_tot_cnt * 0.5))
-                                lid_mid_pos = i;
-
-                            lid_cnt++;
-                        }
-                    }
-                }
-
-                if (lid_mid_pos > 0) {
-                    c_r[6].X = InclineAndPeak[lid_left_pos][2];
-                    c_r[6].Y = InclineAndPeak[lid_left_pos][1] - InclineAndPeak[lid_left_pos][5] - 8;
-                    c_r[7].X = InclineAndPeak[lid_mid_pos][2];
-                    c_r[7].Y = InclineAndPeak[lid_mid_pos][1] - InclineAndPeak[lid_mid_pos][5] - 8;
-                    c_r[8].X = InclineAndPeak[lid_right_pos][2];
-                    c_r[8].Y = InclineAndPeak[lid_right_pos][1] - InclineAndPeak[lid_right_pos][5] - 8;
-
-                    if (c_r[7].Y < c_r[6].Y) c_r[7].Y = c_r[6].Y + 3;
-                    if (c_r[8].Y < c_r[7].Y) c_r[8].Y = c_r[7].Y + 6;
-                }
-
-                let low_eye_pos_y = 0;
-
-                c_r[0].X = InclineAndPeak[left_pos][2];
-                c_r[0].Y = InclineAndPeak[left_pos][1] + 5;
-                c_r[1].X = InclineAndPeak[left_mid_pos][2];
-                c_r[1].Y = InclineAndPeak[left_mid_pos][1] - 5;
-                c_r[2].X = InclineAndPeak[max_top_pos][2];
-                c_r[2].Y = InclineAndPeak[max_top_pos][1] - 5;
-                c_r[3].X = InclineAndPeak[right_mid_pos][2];
-                c_r[3].Y = InclineAndPeak[right_mid_pos][1] - 5;
-                c_r[4].X = InclineAndPeak[right_pos][2];
-                c_r[4].Y = InclineAndPeak[right_pos][1] + 5;
-
-                this.log("----max_eye_height:" + max_eye_height);
-
-                if (rl_code === 1) {
-                    bean.setEye_r(c_r);
-                    bean.setCenterX(c_r[0].X);
-                    bean.setCenterY(c_r[0].Y);
-                } else {
-                    bean.setEye_l(c_r);
-                    bean.setCenterX(Math.trunc((bean.getCenterX() + c_r[0].X) / 2));
-                    bean.setCenterY(Math.trunc((bean.getCenterY() + c_r[0].Y) / 2));
-                    this.log("눈 중앙 : " + bean.getCenterX() + "," + bean.getCenterY());
-                }
-
-                if (rl_code === 1) {
-                    bean.setEyeRL(tot_fail_cnt);
-                    for (i = 0; i < 9; i++) {
-                        this.log("eye_r[" + i + "].X = " + c_r[i].X + "; eye_r[" + i + "].Y = " + c_r[i].Y + ";");
-                    }
-                } else {
-                    if (bean.getEyeRL() > tot_fail_cnt) bean.setEyeRL(2);
-                    else bean.setEyeRL(1);
-
-                    for (i = 0; i < 9; i++) {
-                        this.log("eye_l[" + i + "].X = " + c_r[i].X + "; eye_l[" + i + "].Y = " + c_r[i].Y + ";");
-                    }
-
-                    c_r = bean.getEye_r();
-                    for (i = 0; i < 9; i++) {
-                        this.log("eye_r[" + i + "].X = " + c_r[i].X + "; eye_r[" + i + "].Y = " + c_r[i].Y + ";");
-                    }
-                }
-
-                for (i = left_pos; i < right_pos; i++) {
-                    yUnity = (this.height - 1 - InclineAndPeak[i][1]) * this.width + InclineAndPeak[i][2];
-                    this.setPixelByIndex(yUnity, colorR);
-                    yUnity = (this.height - 1 - InclineAndPeak[i][1]) * this.width + InclineAndPeak[i][2] + 1;
-                    this.setPixelByIndex(yUnity, colorR);
-                    yUnity = (this.height - 1 - InclineAndPeak[i][1]) * this.width + InclineAndPeak[i][2] - 1;
-                    this.setPixelByIndex(yUnity, colorR);
-
-                    if (InclineAndPeak[i][7] > 0) {
-                        yUnity = (this.height - 1 - InclineAndPeak[i][7]) * this.width + InclineAndPeak[i][8];
-                        this.setPixelByIndex(yUnity, colorBLK);
-                        yUnity = (this.height - 1 - InclineAndPeak[i][7]) * this.width + InclineAndPeak[i][8] + 1;
-                        this.setPixelByIndex(yUnity, colorBLK);
-                        yUnity = (this.height - 1 - InclineAndPeak[i][7]) * this.width + InclineAndPeak[i][8] - 1;
-                        this.setPixelByIndex(yUnity, colorBLK);
-                    }
-
-                    if (InclineAndPeak[i][9] > 0) {
-                        yUnity = (this.height - 1 - InclineAndPeak[i][5]) * this.width + InclineAndPeak[i][6];
-                        this.setPixelByIndex(yUnity, colorG);
-                        yUnity = (this.height - 1 - InclineAndPeak[i][5]) * this.width + InclineAndPeak[i][6] + 1;
-                        this.setPixelByIndex(yUnity, colorG);
-                        yUnity = (this.height - 1 - InclineAndPeak[i][5]) * this.width + InclineAndPeak[i][6] - 1;
-                        this.setPixelByIndex(yUnity, colorG);
-                    }
-                }
-
-                for (i = left_pos; i < right_pos; i++) {
-                    for (j = 0; j < 6; j++) {
-                        if (InclineAndPeak2[i][j][0] > 0) {
-                            yUnity = (this.height - 1 - InclineAndPeak2[i][j][1]) * this.width + InclineAndPeak2[i][j][2];
-                            this.setPixelByIndex(yUnity, colorY);
-                            yUnity = (this.height - 1 - InclineAndPeak2[i][j][1]) * this.width + InclineAndPeak2[i][j][2] + 1;
-                            this.setPixelByIndex(yUnity, colorY);
-                            yUnity = (this.height - 1 - InclineAndPeak2[i][j][1]) * this.width + InclineAndPeak2[i][j][2] - 1;
-                            this.setPixelByIndex(yUnity, colorY);
-                        }
-                    }
-                }
-
-                bean.setTex(tex);
-                return bean;
             }
 
-            setPixelByIndex(index, color) {
-                if (index < 0 || index >= this.width * this.height) return;
-                const di = index * 4;
-                if (di < 0 || di + 3 >= this.pixels.length) return;
-                this.pixels[di] = color[0];
-                this.pixels[di + 1] = color[1];
-                this.pixels[di + 2] = color[2];
-                this.pixels[di + 3] = color[3];
+            drawPoint(previewCtx, data.leftCorner.x, data.leftCorner.y, 7, "#00e5ff");
+            drawPoint(previewCtx, data.rightCorner.x, data.rightCorner.y, 7, "#00e5ff");
+
+            const lEyeTop = getLm(LEFT_EYE_TOP);
+            const rEyeTop = getLm(RIGHT_EYE_TOP);
+            const noseL = getLm(NOSE_LEFT);
+            const noseR = getLm(NOSE_RIGHT);
+            const wingL = getLm(NOSE_LEFT_WING);
+            const wingR = getLm(NOSE_RIGHT_WING);
+            const jawL = getLm(JAW_LEFT);
+            const jawR = getLm(JAW_RIGHT);
+
+            drawPoint(previewCtx, lEyeTop.x, lEyeTop.y, 5, "#ffcc00");
+            drawPoint(previewCtx, rEyeTop.x, rEyeTop.y, 5, "#ffcc00");
+            drawPoint(previewCtx, noseL.x, noseL.y, 5, "#ff66aa");
+            drawPoint(previewCtx, noseR.x, noseR.y, 5, "#ff66aa");
+            drawPoint(previewCtx, wingL.x, wingL.y, 7, "#ff3b30");
+            drawPoint(previewCtx, wingR.x, wingR.y, 7, "#ff3b30");
+            drawPoint(previewCtx, jawL.x, jawL.y, 5, "#66ffcc");
+            drawPoint(previewCtx, jawR.x, jawR.y, 5, "#66ffcc");
+
+            drawPolygon(previewCtx, OUTER_LIPS, "rgba(255,90,160,0.72)");
+            drawPolygon(previewCtx, LEFT_EYEBROW, "rgba(255,255,255,0.55)");
+            drawPolygon(previewCtx, RIGHT_EYEBROW, "rgba(255,255,255,0.55)");
+
+            previewCtx.restore();
+        }
+
+        function renderSmile() {
+            if (!sourceMeta || !sourceImageBitmap) {
+                setStatus("이미지 또는 랜드마크 데이터가 없습니다.");
+                return;
             }
 
-            TryGetCircleFrom3Points(a, b, c) {
-                const ax = a[0], ay = a[1];
-                const bx = b[0], by = b[1];
-                const cx = c[0], cy = c[1];
+            leftLiftValue.textContent = leftLiftSlider.value;
+            rightLiftValue.textContent = rightLiftSlider.value;
+            sigmaXValue.textContent = sigmaXSlider.value;
+            sigmaYValue.textContent = sigmaYSlider.value;
+            roiPadValue.textContent = roiPadSlider.value;
+            faceBlurValue.textContent = faceBlurSlider.value;
+            faceSharpenValue.textContent = faceSharpenSlider.value;
+            globalBrightnessValue.textContent = globalBrightnessSlider.value;
+            faceLivelyValue.textContent = faceLivelySlider.value;
+            faceBlemishValue.textContent = faceBlemishSlider.value;
+            eyeLiftValue.textContent = eyeLiftSlider.value;
+            noseSlimValue.textContent = noseSlimSlider.value;
+            noseWingSlimValue.textContent = noseWingSlimSlider.value;
+            jawSlimValue.textContent = jawSlimSlider.value;
+            noseDepthValue.textContent = noseDepthSlider.value;
+            eyeLineValue.textContent = eyeLineSlider.value;
+            irisDeepenValue.textContent = irisDeepenSlider.value;
+            eyeOpenAutoValue.textContent = eyeOpenAutoSlider.value;
+            eyebrowCleanupValue.textContent = eyebrowCleanupSlider.value;
+            eyebrowTailTrimValue.textContent = eyebrowTailTrimSlider.value;
+            lipSaturationValue.textContent = lipSaturationSlider.value;
+            lipBrightnessValue.textContent = lipBrightnessSlider.value;
+            lipCenterGlowValue.textContent = lipCenterGlowSlider.value;
 
-                const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
-                const EPS = 1e-6;
-                if (Math.abs(d) < EPS) return { ok: false, circle: [0, 0, 0] };
+            drawBaseImage();
 
-                const ax2ay2 = ax * ax + ay * ay;
-                const bx2by2 = bx * bx + by * by;
-                const cx2cy2 = cx * cx + cy * cy;
+            const data = buildData();
+            applyWarp(data);
+            applyGlobalBrightness(data);
+            const faceBox = applyFaceEffects(data);
 
-                const ux = (ax2ay2 * (by - cy) + bx2by2 * (cy - ay) + cx2cy2 * (ay - by)) / d;
-                const uy = (ax2ay2 * (cx - bx) + bx2by2 * (ax - cx) + cx2cy2 * (bx - ax)) / d;
-                const r = Math.sqrt((ux - ax) * (ux - ax) + (uy - ay) * (uy - ay));
+            applyNoseDepth(data);
+            applyEyeLineEnhance(data);
+            applyEyeOpenHighlight(data);
+            applyEyebrowCleanup(data);
+            applyLipEnhancement(data);
 
-                return { ok: true, circle: [ux, uy, r] };
-            }
+            previewCtx.clearRect(0, 0, TARGET_W, TARGET_H);
+            previewCtx.drawImage(workCanvas, 0, 0);
+            drawGuides(data, faceBox);
 
-            Dist(x, y, cx, cy) {
-                const dx = x - cx;
-                const dy = y - cy;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
+            setInfo(
+                `mouth lift: ${data.leftLift}/${data.rightLift}\n` +
+                `nose slim: ${noseSlimSlider.value} wing:${noseWingSlimSlider.value}\n` +
+                `eye ratio: ${data.leftEyeOpenRatio.toFixed(3)} / ${data.rightEyeOpenRatio.toFixed(3)}\n` +
+                `eye line:${eyeLineSlider.value} iris:${irisDeepenSlider.value}\n` +
+                `lip sat:${lipSaturationSlider.value} bright:${lipBrightnessSlider.value}\n` +
+                `brow:${eyebrowCleanupSlider.value} tail:${eyebrowTailTrimSlider.value}`
+            );
 
-            IntersectCircles(c1, c2) {
-                let points = [null, null];
-                const x0 = c1[0], y0 = c1[1], r0 = c1[2];
-                const x1 = c2[0], y1 = c2[1], r1 = c2[2];
+            setStatus(
+                `콧볼 축소, 코 입체감, 눈 라인 강화, 살짝 감긴 눈 자동 보정,\n` +
+                `눈썹 정리, 눈동자 진하게, 입술 채도/밝기/중앙 생기 효과를 적용합니다.\n` +
+                `가이드를 켜서 콧볼·입술·눈썹 위치를 확인하세요.`
+            );
+        }
 
-                const dx = x1 - x0;
-                const dy = y1 - y0;
-                const d = Math.sqrt(dx * dx + dy * dy);
-                const EPS = 1e-6;
-
-                if (d > r0 + r1 || d < Math.abs(r0 - r1) || d < EPS) {
-                    return { count: 0, points };
-                }
-
-                const a = (r0 * r0 - r1 * r1 + d * d) / (2 * d);
-                const h2 = r0 * r0 - a * a;
-
-                if (h2 < EPS) {
-                    const xm = x0 + a * dx / d;
-                    const ym = y0 + a * dy / d;
-                    points[0] = [xm, ym];
-                    return { count: 1, points };
-                }
-
-                const h = Math.sqrt(h2);
-                const xm2 = x0 + a * dx / d;
-                const ym2 = y0 + a * dy / d;
-                const rx = -dy * (h / d);
-                const ry = dx * (h / d);
-
-                points[0] = [xm2 + rx, ym2 + ry];
-                points[1] = [xm2 - rx, ym2 - ry];
-                return { count: 2, points };
-            }
-
-            Distance(a, b) {
-                const dx = a[0] - b[0];
-                const dy = a[1] - b[1];
-                return Math.sqrt(dx * dx + dy * dy);
-            }
-
-            PickClosestIntersection(intersections, count, refPoint) {
-                if (count === 0) return { ok: false, result: null };
-                let result = intersections[0];
-                let minDist = this.Distance(intersections[0], refPoint);
-
-                if (count === 2) {
-                    const d2 = this.Distance(intersections[1], refPoint);
-                    if (d2 < minDist) result = intersections[1];
-                }
-                return { ok: true, result };
-            }
-
-            GetRgbTopLeft(x, yTop) {
-                let r = 0, g = 0, b = 0;
-
-                if (x < 0 || x >= this.width || yTop < 0 || yTop >= this.height)
-                    return { r, g, b };
-
-                const idx = (this.height - 1 - yTop) * this.width + x;
-                const di = idx * 4;
-
-                r = this.pixels[di];
-                g = this.pixels[di + 1];
-                b = this.pixels[di + 2];
-
-                return { r, g, b };
-            }
-
-            Run(input, eps = 10.0, minPts = 5, maxYDeviation = 4, maxGapX = 4,
-                enableCurvatureSplit = true, curvatureSplitTol = 0.06, minSegmentPts = 6, curvatureStep = 2) {
-                if (!input || input.length === 0) {
-                    return { cleaned: [], labels: [] };
-                }
-
-                const cleanedList = this.Preprocess(input, maxYDeviation, maxGapX);
-                const n = cleanedList.length;
-                if (n === 0) return { cleaned: [], labels: [] };
-
-                const cleaned = cleanedList;
-                let labels = this.DBSCAN(cleaned, eps, minPts);
-
-                if (enableCurvatureSplit) {
-                    labels = this.SplitByCurvatureAlongX(
-                        cleaned,
-                        labels,
-                        maxGapX,
-                        curvatureSplitTol,
-                        minSegmentPts,
-                        curvatureStep
-                    );
-                }
-
-                return { cleaned, labels };
-            }
-
-            Preprocess(input, maxYDeviation, maxGapX) {
-                const set = new Set();
-                const list = [];
-
-                for (let i = 0; i < input.length; i++) {
-                    const x = input[i][0];
-                    const y = input[i][1];
-                    const key = `${x}_${y}`;
-                    if (!set.has(key)) {
-                        set.add(key);
-                        list.push({ x, y });
-                    }
-                }
-
-                list.sort((a, b) => {
-                    const c = a.x - b.x;
-                    return c !== 0 ? c : a.y - b.y;
-                });
-
-                if (list.length <= 2) return list;
-
-                const cleaned = [];
-                cleaned.push(list[0]);
-                cleaned.push(list[1]);
-
-                for (let i = 2; i < list.length; i++) {
-                    const p0 = cleaned[cleaned.length - 2];
-                    const p1 = cleaned[cleaned.length - 1];
-                    const p2 = list[i];
-
-                    const dx01 = p1.x - p0.x;
-                    const dx12 = p2.x - p1.x;
-
-                    if (dx12 > maxGapX || dx12 <= 0 || dx01 <= 0) {
-                        cleaned.push(p2);
-                        continue;
+        async function savePreviewToFile() {
+            return new Promise((resolve, reject) => {
+                previewCanvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error("previewCanvas toBlob failed"));
+                        return;
                     }
 
-                    const slope = (p1.y - p0.y) / dx01;
-                    const yPred = p1.y + slope * dx12;
+                    const a = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = "face_fx_compare.png";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
 
-                    if (Math.abs(p2.y - yPred) <= maxYDeviation) {
-                        cleaned.push(p2);
-                    }
-                }
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    resolve();
+                }, "image/png");
+            });
+        }
 
-                return cleaned;
+        async function loadSourceData() {
+            sourceBlob = await getFromDB(IMAGE_KEY);
+            sourceMeta = await getFromDB(META_KEY);
+
+            if (!sourceBlob) {
+                throw new Error("저장된 capturedImage가 없습니다.");
+            }
+            if (!sourceMeta || !Array.isArray(sourceMeta.landmarks) || sourceMeta.landmarks.length === 0) {
+                throw new Error("저장된 capturedMeta.landmarks가 없습니다.");
             }
 
-            DBSCAN(pts, eps, minPts) {
-                const n = pts.length;
-                const labels = new Array(n).fill(0);
-                const eps2 = eps * eps;
-                const cell = Math.max(1e-3, eps);
-                const grid = new Map();
+            sourceImageBitmap = await createImageBitmap(sourceBlob);
 
-                for (let i = 0; i < n; i++) {
-                    const c = this.CellOf(pts[i], cell);
-                    const key = this.Pack(c.cx, c.cy);
-                    if (!grid.has(key)) grid.set(key, []);
-                    grid.get(key).push(i);
-                }
-
-                let clusterId = 0;
-                const neighbors = [];
-                const queue = [];
-
-                for (let i = 0; i < n; i++) {
-                    if (labels[i] !== 0) continue;
-
-                    neighbors.length = 0;
-                    this.RegionQuery(i, pts, grid, cell, eps2, neighbors);
-
-                    if (neighbors.length < minPts) {
-                        labels[i] = -1;
-                        continue;
-                    }
-
-                    clusterId++;
-                    labels[i] = clusterId;
-
-                    queue.length = 0;
-                    for (let k = 0; k < neighbors.length; k++) {
-                        const p = neighbors[k];
-                        if (p === i) continue;
-                        queue.push(p);
-                    }
-
-                    while (queue.length > 0) {
-                        const p = queue.shift();
-
-                        if (labels[p] === -1) labels[p] = clusterId;
-                        if (labels[p] !== 0) continue;
-
-                        labels[p] = clusterId;
-
-                        neighbors.length = 0;
-                        this.RegionQuery(p, pts, grid, cell, eps2, neighbors);
-
-                        if (neighbors.length >= minPts) {
-                            for (let k = 0; k < neighbors.length; k++) {
-                                const q = neighbors[k];
-                                if (labels[q] === 0 || labels[q] === -1) {
-                                    queue.push(q);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return labels;
-            }
-
-            RegionQuery(idx, pts, grid, cell, eps2, outNeighbors) {
-                const c = this.CellOf(pts[idx], cell);
-
-                for (let dy = -1; dy <= 1; dy++) {
-                    for (let dx = -1; dx <= 1; dx++) {
-                        const key = this.Pack(c.cx + dx, c.cy + dy);
-                        if (!grid.has(key)) continue;
-                        const cand = grid.get(key);
-
-                        for (let i = 0; i < cand.length; i++) {
-                            const j = cand[i];
-                            const ddx = pts[j].x - pts[idx].x;
-                            const ddy = pts[j].y - pts[idx].y;
-                            if (ddx * ddx + ddy * ddy <= eps2) outNeighbors.push(j);
-                        }
-                    }
-                }
-            }
-
-            CellOf(p, cell) {
-                return {
-                    cx: Math.floor(p.x / cell),
-                    cy: Math.floor(p.y / cell)
-                };
-            }
-
-            Pack(a, b) {
-                return `${a}:${b}`;
-            }
-
-            SplitByCurvatureAlongX(pts, labels, maxGapX, curvatureSplitTol, minSegmentPts, step) {
-                const n = pts.length;
-                step = Math.max(1, Math.min(step, 5));
-
-                const clusters = new Map();
-                for (let i = 0; i < n; i++) {
-                    const lb = labels[i];
-                    if (lb <= 0) continue;
-                    if (!clusters.has(lb)) clusters.set(lb, []);
-                    clusters.get(lb).push(i);
-                }
-
-                const newLabels = new Array(n).fill(-1);
-                let nextLabel = 0;
-
-                for (const [_, idxs] of clusters.entries()) {
-                    idxs.sort((a, b) => {
-                        const c = pts[a].x - pts[b].x;
-                        return c !== 0 ? c : pts[a].y - pts[b].y;
-                    });
-
-                    const k = this.ComputeCurvatureSeries(pts, idxs, step);
-
-                    let start = 0;
-                    let mean = 0;
-                    let mcnt = 0;
-
-                    const init = Math.min(minSegmentPts, idxs.length);
-                    for (let i = 0; i < init; i++) {
-                        mean += k[i];
-                        mcnt++;
-                    }
-                    mean /= Math.max(1, mcnt);
-
-                    for (let i = init; i < idxs.length; i++) {
-                        const prevIdx = idxs[i - 1];
-                        const curIdx = idxs[i];
-                        const dx = pts[curIdx].x - pts[prevIdx].x;
-                        const gapBreak = dx > maxGapX;
-                        const curvBreak = Math.abs(k[i] - mean) > curvatureSplitTol;
-
-                        if (gapBreak || curvBreak) {
-                            const leftLen = i - start;
-                            const rightLen = idxs.length - i;
-
-                            if (leftLen >= minSegmentPts && rightLen >= minSegmentPts) {
-                                for (let t = start; t < i; t++) {
-                                    newLabels[idxs[t]] = nextLabel;
-                                }
-                                nextLabel++;
-                                start = i;
-                                mean = k[i];
-                                mcnt = 1;
-                                continue;
-                            }
-                        }
-
-                        mean = (mean * mcnt + k[i]) / (mcnt + 1);
-                        mcnt++;
-                    }
-
-                    const lastLen = idxs.length - start;
-                    if (lastLen >= minSegmentPts) {
-                        for (let t = start; t < idxs.length; t++) {
-                            newLabels[idxs[t]] = nextLabel;
-                        }
-                        nextLabel++;
-                    }
-                }
-
-                return newLabels;
-            }
-
-            ComputeCurvatureSeries(pts, idxList, step) {
-                const m = idxList.length;
-                const k = new Array(m).fill(0);
-
-                for (let i = 0; i < m; i++) {
-                    const i0 = i - step;
-                    const i2 = i + step;
-                    if (i0 < 0 || i2 >= m) {
-                        k[i] = 0;
-                        continue;
-                    }
-
-                    const A = pts[idxList[i0]];
-                    const B = pts[idxList[i]];
-                    const C = pts[idxList[i2]];
-
-                    const AB = { x: B.x - A.x, y: B.y - A.y };
-                    const AC = { x: C.x - A.x, y: C.y - A.y };
-                    const BC = { x: C.x - B.x, y: C.y - B.y };
-                    const CA = { x: A.x - C.x, y: A.y - C.y };
-
-                    const a = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
-                    const b = Math.sqrt(BC.x * BC.x + BC.y * BC.y);
-                    const c = Math.sqrt(CA.x * CA.x + CA.y * CA.y);
-                    const denom = a * b * c;
-
-                    if (denom < 1e-6) {
-                        k[i] = 0;
-                        continue;
-                    }
-
-                    const twiceArea = AB.x * AC.y - AB.y * AC.x;
-                    const curv = (2 * twiceArea) / denom;
-                    k[i] = Math.abs(curv);
-                }
-
-                return k;
+            if (sourceImageBitmap.width !== TARGET_W || sourceImageBitmap.height !== TARGET_H) {
+                const temp = document.createElement("canvas");
+                temp.width = TARGET_W;
+                temp.height = TARGET_H;
+                const tctx = temp.getContext("2d");
+                tctx.drawImage(sourceImageBitmap, 0, 0, TARGET_W, TARGET_H);
+                sourceImageBitmap.close();
+                sourceImageBitmap = await createImageBitmap(temp);
             }
         }
 
-        function buildResultText(bean) {
-            const lines = [];
-            lines.push("errCode: " + (bean.getErrCode() || ""));
-            lines.push("center: " + bean.getCenterX() + ", " + bean.getCenterY());
-            lines.push("eyeRL: " + bean.getEyeRL());
-            lines.push("");
-            lines.push("[eye_r]");
-            bean.getEye_r().forEach((p, idx) => {
-                lines.push(idx + ": (" + p.X + ", " + p.Y + ")");
-            });
-            lines.push("");
-            lines.push("[eye_l]");
-            bean.getEye_l().forEach((p, idx) => {
-                lines.push(idx + ": (" + p.X + ", " + p.Y + ")");
-            });
-            return lines.join("\n");
-        }
-
-        async function loadAndRender() {
-            const debugLines = [];
-            const logger = (msg) => debugLines.push(msg);
-
+        function safeRender() {
             try {
-                statusText.textContent = '저장된 이미지를 확인하는 중...';
-
-                const blob = await loadBlobFromDB();
-
-                if (!blob) {
-                    statusText.textContent = '저장된 이미지가 없습니다.';
-                    imageInfo.textContent = 'capture.html에서 먼저 촬영 또는 업로드를 진행하세요.';
-                    detectInfo.textContent = '이미지가 없습니다.';
-                    debugLogEl.textContent = '이미지가 없습니다.';
-                    return;
-                }
-
-                const { img } = await loadImageFromBlob(blob);
-
-                hiddenCanvas.width = img.naturalWidth || img.width;
-                hiddenCanvas.height = img.naturalHeight || img.height;
-                const hiddenCtx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
-                hiddenCtx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
-                hiddenCtx.drawImage(img, 0, 0);
-
-                const imageData = hiddenCtx.getImageData(0, 0, hiddenCanvas.width, hiddenCanvas.height);
-                const bean = new FaceBean(imageData, hiddenCanvas.width, hiddenCanvas.height);
-
-                const detector = new DetectEyesJS(logger);
-                detector.DetectMain(bean);
-
-                hiddenCtx.putImageData(bean.imageData, 0, 0);
-
-                displayCanvas.width = hiddenCanvas.width;
-                displayCanvas.height = hiddenCanvas.height;
-                displayCtx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
-                displayCtx.drawImage(hiddenCanvas, 0, 0);
-
-                imageInfo.textContent =
-                    `해상도: ${hiddenCanvas.width} × ${hiddenCanvas.height} / 타입: ${blob.type || 'unknown'} / 크기: ${(blob.size / 1024 / 1024).toFixed(2)} MB`;
-
-                detectInfo.textContent = buildResultText(bean);
-                debugLogEl.textContent = debugLines.join('\n');
-                statusText.textContent = '이미지 로드 및 분석 완료';
+                renderSmile();
             } catch (err) {
                 console.error(err);
-                statusText.textContent = '이미지 불러오기에 실패했습니다.';
-                imageInfo.textContent = 'IndexedDB 또는 이미지 디코딩 과정에서 오류가 발생했습니다.';
-                detectInfo.textContent = '눈 분석 중 오류가 발생했습니다.';
-                debugLogEl.textContent = String(err && err.stack ? err.stack : err);
+                setStatus("렌더링에 실패했습니다.");
+                setInfo("렌더링 실패");
             }
         }
 
-        document.getElementById('backBtn').addEventListener('click', () => {
-            history.back();
+        renderBtn.addEventListener("click", safeRender);
+
+        function bindSliderValue(slider, label, formatter = (v) => v) {
+            slider.addEventListener("input", () => {
+                label.textContent = formatter(slider.value);
+            });
+            slider.addEventListener("change", safeRender);
+        }
+
+        bindSliderValue(leftLiftSlider, leftLiftValue);
+        bindSliderValue(rightLiftSlider, rightLiftValue);
+        bindSliderValue(sigmaXSlider, sigmaXValue);
+        bindSliderValue(sigmaYSlider, sigmaYValue);
+        bindSliderValue(roiPadSlider, roiPadValue);
+        bindSliderValue(faceBlurSlider, faceBlurValue);
+        bindSliderValue(faceSharpenSlider, faceSharpenValue);
+        bindSliderValue(globalBrightnessSlider, globalBrightnessValue);
+        bindSliderValue(faceLivelySlider, faceLivelyValue);
+        bindSliderValue(faceBlemishSlider, faceBlemishValue);
+        bindSliderValue(eyeLiftSlider, eyeLiftValue);
+        bindSliderValue(noseSlimSlider, noseSlimValue);
+        bindSliderValue(noseWingSlimSlider, noseWingSlimValue);
+        bindSliderValue(jawSlimSlider, jawSlimValue);
+        bindSliderValue(noseDepthSlider, noseDepthValue);
+        bindSliderValue(eyeLineSlider, eyeLineValue);
+        bindSliderValue(irisDeepenSlider, irisDeepenValue);
+        bindSliderValue(eyeOpenAutoSlider, eyeOpenAutoValue);
+        bindSliderValue(eyebrowCleanupSlider, eyebrowCleanupValue);
+        bindSliderValue(eyebrowTailTrimSlider, eyebrowTailTrimValue);
+        bindSliderValue(lipSaturationSlider, lipSaturationValue);
+        bindSliderValue(lipBrightnessSlider, lipBrightnessValue);
+        bindSliderValue(lipCenterGlowSlider, lipCenterGlowValue);
+
+        toggleBtn.addEventListener("click", () => {
+            showGuides = !showGuides;
+            toggleBtn.textContent = `가이드 표시: ${showGuides ? "ON" : "OFF"}`;
+            safeRender();
         });
 
-        document.getElementById('reloadBtn').addEventListener('click', async () => {
-            await loadAndRender();
+        saveBtn.addEventListener("click", async () => {
+            try {
+                await savePreviewToFile();
+                setStatus("변형된 이미지를 파일로 저장했습니다.");
+            } catch (err) {
+                console.error(err);
+                setStatus("파일 저장에 실패했습니다.");
+            }
         });
 
-        loadAndRender();
+        backBtn.addEventListener("click", () => {
+            location.href = "capture.html";
+        });
+
+        (async function init() {
+            try {
+                setStatus("저장된 이미지와 랜드마크를 불러오는 중입니다.");
+                setInfo("로딩중.");
+                await loadSourceData();
+                safeRender();
+            } catch (err) {
+                console.error(err);
+                setStatus(
+                    "analysis.html 초기화에 실패했습니다.\n" +
+                    "먼저 capture.html에서 사진을 촬영하고 랜드마크를 저장한 뒤 다시 열어주세요."
+                );
+                setInfo("초기화 실패");
+            }
+        })();
     </script>
 </body>
 </html>

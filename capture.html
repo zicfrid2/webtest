@@ -2,123 +2,126 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Capture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>capture.html</title>
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100%;
             background: #0f1115;
             color: #fff;
             font-family: Arial, sans-serif;
-            overflow: hidden;
         }
 
         body {
             display: flex;
             justify-content: center;
-            align-items: center;
+            background: #0f1115;
         }
 
         .app {
-            position: relative;
-            width: min(100vw, 430px);
-            height: 100vh;
+            width: 100%;
+            max-width: 430px;
+            min-height: 100dvh;
             background: #11151c;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .topbar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 58px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 20;
-            font-size: 18px;
-            font-weight: 700;
-            backdrop-filter: blur(8px);
+            padding: 18px 16px 14px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.2px;
         }
 
         .camera-wrap {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4.4;
             background: #000;
+            overflow: hidden;
         }
 
         video,
-        img#capturedImage {
+        #capturedImage {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             background: #000;
-        }
-
-        /* 보이는 화면은 항상 좌우반전 */
-        video {
             transform: scaleX(-1);
         }
 
-        img#capturedImage {
-            transform: scaleX(-1);
+        #capturedImage {
+            transform: none;
         }
 
         .face-guide {
             position: absolute;
-            width: 68%;
-            aspect-ratio: 3 / 4;
-            border: 2px dashed rgba(255,255,255,0.28);
-            border-radius: 48% 48% 42% 42% / 38% 38% 56% 56%;
-            z-index: 10;
+            left: 50%;
+            top: 50%;
+            width: 62%;
+            height: 66%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255,255,255,0.45);
+            border-radius: 46% 46% 43% 43% / 38% 38% 48% 48%;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.16), inset 0 0 0 1px rgba(255,255,255,0.2);
             pointer-events: none;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.28);
-            opacity: 0.8;
+            z-index: 10;
+        }
+
+        .info-badge {
+            position: absolute;
+            right: 12px;
+            top: 70px;
+            z-index: 22;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.45);
+            font-size: 12px;
+            line-height: 1.45;
+            color: #e7edf7;
+            white-space: pre-line;
+            backdrop-filter: blur(8px);
+            max-width: 62%;
         }
 
         .bottom-panel {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            padding: 18px 16px 22px;
-            background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.2), rgba(0,0,0,0));
-            z-index: 30;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
         .status {
-            min-height: 22px;
-            margin-bottom: 12px;
-            text-align: center;
-            font-size: 13px;
-            color: #d0d7e2;
-            opacity: 0.95;
+            min-height: 46px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.92);
             white-space: pre-line;
         }
 
         .btn-row {
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
             flex-wrap: wrap;
+            gap: 10px;
         }
 
         button {
-            appearance: none;
             border: none;
             border-radius: 14px;
             padding: 14px 18px;
@@ -163,21 +166,6 @@
             display: none !important;
         }
 
-        .info-badge {
-            position: absolute;
-            right: 12px;
-            top: 70px;
-            z-index: 22;
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: rgba(0,0,0,0.45);
-            font-size: 12px;
-            line-height: 1.4;
-            color: #e7edf7;
-            white-space: pre-line;
-            backdrop-filter: blur(8px);
-        }
-
         canvas {
             display: none;
         }
@@ -191,12 +179,11 @@
             <video id="video" playsinline autoplay muted></video>
             <img id="capturedImage" class="hidden" alt="captured result" />
             <div id="faceGuide" class="face-guide"></div>
+            <div id="infoBadge" class="info-badge">카메라 준비중.</div>
         </div>
 
-        <div id="infoBadge" class="info-badge">카메라 준비중...</div>
-
         <div class="bottom-panel">
-            <div id="status" class="status">고해상도 카메라를 요청합니다.</div>
+            <div id="status" class="status">고해상도 카메라와 MediaPipe를 준비합니다.</div>
 
             <div class="btn-row">
                 <button id="startBtn" class="primary">Start</button>
@@ -208,27 +195,42 @@
             </div>
         </div>
 
+        <canvas id="sourceCanvas"></canvas>
         <canvas id="workCanvas"></canvas>
     </div>
 
-    <script>
-        const MIN_KEEP_W = 2208;
-        const MIN_KEEP_H = 3076;
+    <script type="module">
+        import {
+            FaceLandmarker,
+            FilesetResolver
+        } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-        const UPSCALE_TARGET_W = 2208;
-        const UPSCALE_TARGET_H = 3306;
+        const TARGET_W = 2208;
+        const TARGET_H = 3306;
+
+        const TARGET_EYE_TO_CHIN = 870;
+        const TARGET_EYE_INNER_Y = 1400;
+        const TARGET_EYE_CENTER_X = 1104;
+
+        const MODEL_ASSET_PATH =
+            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
         const DB_NAME = "CaptureImageDB";
         const STORE_NAME = "images";
         const IMAGE_KEY = "capturedImage";
+        const META_KEY = "capturedMeta";
+
+        const IDX_LEFT_EYE_OUTER = 33;
+        const IDX_LEFT_EYE_INNER = 133;
+        const IDX_RIGHT_EYE_INNER = 362;
+        const IDX_RIGHT_EYE_OUTER = 263;
+        const IDX_CHIN = 152;
 
         const video = document.getElementById("video");
         const capturedImage = document.getElementById("capturedImage");
-        const workCanvas = document.getElementById("workCanvas");
-
-        const statusEl = document.getElementById("status");
-        const infoBadge = document.getElementById("infoBadge");
         const faceGuide = document.getElementById("faceGuide");
+        const infoBadge = document.getElementById("infoBadge");
+        const statusEl = document.getElementById("status");
 
         const startBtn = document.getElementById("startBtn");
         const stopBtn = document.getElementById("stopBtn");
@@ -236,14 +238,16 @@
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
 
+        const sourceCanvas = document.getElementById("sourceCanvas");
+        const workCanvas = document.getElementById("workCanvas");
+
         let stream = null;
         let imageCapture = null;
+        let faceLandmarker = null;
+        let mpLoadingPromise = null;
         let currentPreviewUrl = null;
         let lastSavedBlob = null;
-
-        function isMobile() {
-            return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        }
+        let lastSavedMeta = null;
 
         function setStatus(msg) {
             statusEl.textContent = msg;
@@ -258,6 +262,10 @@
                 URL.revokeObjectURL(currentPreviewUrl);
                 currentPreviewUrl = null;
             }
+        }
+
+        function isMobile() {
+            return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
         }
 
         function openDB() {
@@ -289,7 +297,19 @@
                 const req = store.put(blob, IMAGE_KEY);
 
                 req.onsuccess = () => resolve();
-                req.onerror = () => reject(req.error || new Error("IndexedDB save failed"));
+                req.onerror = () => reject(req.error || new Error("IndexedDB image save failed"));
+            });
+        }
+
+        async function saveMetaToDB(meta) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.put(meta, META_KEY);
+
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error || new Error("IndexedDB meta save failed"));
             });
         }
 
@@ -301,7 +321,7 @@
                 const req = store.get(IMAGE_KEY);
 
                 req.onsuccess = () => resolve(req.result || null);
-                req.onerror = () => reject(req.error || new Error("IndexedDB read failed"));
+                req.onerror = () => reject(req.error || new Error("IndexedDB image read failed"));
             });
         }
 
@@ -336,65 +356,78 @@
             };
         }
 
-        async function startCamera() {
-            try {
-                setStatus("카메라를 시작하는 중...");
-                setInfo("카메라 연결중...");
-                revokePreviewUrl();
-                stopTracks();
-                lastSavedBlob = null;
+        async function ensureFaceLandmarker() {
+            if (faceLandmarker) return faceLandmarker;
+            if (mpLoadingPromise) return mpLoadingPromise;
 
+            mpLoadingPromise = (async () => {
+                setStatus("MediaPipe Face Landmarker 로딩중.");
+                setInfo("MediaPipe 준비중.");
+
+                const vision = await FilesetResolver.forVisionTasks(
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+                );
+
+                faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                    baseOptions: {
+                        modelAssetPath: MODEL_ASSET_PATH
+                    },
+                    runningMode: "IMAGE",
+                    numFaces: 1,
+                    outputFaceBlendshapes: false,
+                    outputFacialTransformationMatrixes: false,
+                    minFaceDetectionConfidence: 0.5,
+                    minFacePresenceConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                setStatus("MediaPipe 준비 완료\n촬영할 수 있습니다.");
+                setInfo("MediaPipe 준비 완료");
+                return faceLandmarker;
+            })();
+
+            return mpLoadingPromise;
+        }
+
+        async function startCamera() {
+            stopTracks();
+
+            try {
                 const constraints = getRequestedConstraints();
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
-
                 video.srcObject = stream;
                 await video.play();
 
                 const track = stream.getVideoTracks()[0];
-                const settings = track.getSettings ? track.getSettings() : {};
-                const capabilities = track.getCapabilities ? track.getCapabilities() : null;
-
-                if (window.ImageCapture) {
-                    try {
-                        imageCapture = new ImageCapture(track);
-                    } catch (e) {
-                        imageCapture = null;
-                    }
-                } else {
+                try {
+                    imageCapture = new ImageCapture(track);
+                } catch (e) {
                     imageCapture = null;
                 }
 
-                const previewW = video.videoWidth || settings.width || 0;
-                const previewH = video.videoHeight || settings.height || 0;
-
-                let capText = `미리보기 ${previewW} x ${previewH}`;
-                if (settings.width && settings.height) {
-                    capText += `\ntrack ${settings.width} x ${settings.height}`;
-                }
-                if (capabilities && capabilities.width && capabilities.height) {
-                    capText += `\nmax ${capabilities.width.max || "-"} x ${capabilities.height.max || "-"}`;
-                }
-                setInfo(capText);
-
-                setStatus(
-                    imageCapture
-                        ? "고해상도 촬영 준비 완료\nStop을 누르면 촬영 후 화면에 표시합니다."
-                        : "ImageCapture 미지원 환경입니다.\n현재 비디오 프레임으로 촬영합니다."
-                );
-
-                video.classList.remove("hidden");
-                capturedImage.classList.add("hidden");
-                faceGuide.classList.remove("hidden");
-
                 startBtn.classList.add("hidden");
                 stopBtn.classList.remove("hidden");
-
                 retakeBtn.classList.add("hidden");
                 saveBtn.classList.add("hidden");
                 analyzeBtn.classList.add("hidden");
+
+                capturedImage.classList.add("hidden");
+                video.classList.remove("hidden");
+                faceGuide.classList.remove("hidden");
+
+                revokePreviewUrl();
+
+                const settings = track.getSettings ? track.getSettings() : {};
+                setStatus("카메라 준비 완료\n정면으로 얼굴을 맞춘 뒤 Stop을 누르세요.");
+                setInfo(
+                    `video ${settings.width || "-"} x ${settings.height || "-"}\n` +
+                    `모바일: ${isMobile() ? "Y" : "N"}`
+                );
+
+                ensureFaceLandmarker().catch(console.error);
             } catch (err) {
                 console.error(err);
-                setStatus("카메라를 열 수 없습니다.\n브라우저 권한과 HTTPS 환경을 확인하세요.");
+                setStatus("카메라를 시작할 수 없습니다.\n브라우저 권한과 HTTPS/localhost 여부를 확인하세요.");
                 setInfo("카메라 실패");
             }
         }
@@ -403,8 +436,6 @@
             if (!stream) {
                 throw new Error("No active camera stream");
             }
-
-            const track = stream.getVideoTracks()[0];
 
             if (imageCapture) {
                 try {
@@ -430,6 +461,61 @@
             };
         }
 
+        function drawMirroredBitmapToCanvas(bitmap, canvas) {
+            const ctx = canvas.getContext("2d", { alpha: false });
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+        }
+
+        function getLandmarkPx(landmarks, index, width, height) {
+            const lm = landmarks[index];
+            return {
+                x: lm.x * width,
+                y: lm.y * height,
+                z: lm.z ?? 0
+            };
+        }
+
+        function computeFacePlacement(landmarks, width, height) {
+            const leftEyeOuter = getLandmarkPx(landmarks, IDX_LEFT_EYE_OUTER, width, height);
+            const leftEyeInner = getLandmarkPx(landmarks, IDX_LEFT_EYE_INNER, width, height);
+            const rightEyeInner = getLandmarkPx(landmarks, IDX_RIGHT_EYE_INNER, width, height);
+            const rightEyeOuter = getLandmarkPx(landmarks, IDX_RIGHT_EYE_OUTER, width, height);
+            const chin = getLandmarkPx(landmarks, IDX_CHIN, width, height);
+
+            const eyeInnerY = (leftEyeInner.y + rightEyeInner.y) * 0.5;
+
+            const leftEyeCenterX = (leftEyeOuter.x + leftEyeInner.x) * 0.5;
+            const rightEyeCenterX = (rightEyeOuter.x + rightEyeInner.x) * 0.5;
+            const eyeCenterX = (leftEyeCenterX + rightEyeCenterX) * 0.5;
+
+            const eyeToChin = chin.y - eyeInnerY;
+
+            if (!Number.isFinite(eyeToChin) || eyeToChin <= 1) {
+                throw new Error("Invalid eye-to-chin distance");
+            }
+
+            const scale = TARGET_EYE_TO_CHIN / eyeToChin;
+            const drawX = TARGET_EYE_CENTER_X - (eyeCenterX * scale);
+            const drawY = TARGET_EYE_INNER_Y - (eyeInnerY * scale);
+
+            return {
+                scale,
+                drawX,
+                drawY,
+                eyeToChin,
+                eyeInnerY,
+                eyeCenterX
+            };
+        }
+
         async function canvasToBlob(canvas, quality = 0.96) {
             return new Promise((resolve, reject) => {
                 canvas.toBlob(
@@ -443,82 +529,132 @@
             });
         }
 
-        async function renderToTargetBlob() {
+        async function detectLandmarksOnCanvas(canvas) {
+            await ensureFaceLandmarker();
+
+            const result = faceLandmarker.detect(canvas);
+
+            if (!result || !result.faceLandmarks || result.faceLandmarks.length === 0) {
+                throw new Error("얼굴이 감지되지 않았습니다.");
+            }
+
+            return result.faceLandmarks[0];
+        }
+
+        function transformPointToTarget(pt, placement) {
+            return {
+                x: pt.x * placement.scale + placement.drawX,
+                y: pt.y * placement.scale + placement.drawY,
+                z: pt.z * placement.scale
+            };
+        }
+
+        function buildAllLandmarksMeta(landmarks, width, height, placement) {
+            const transformed = [];
+
+            for (let i = 0; i < landmarks.length; i++) {
+                const src = getLandmarkPx(landmarks, i, width, height);
+                const dst = transformPointToTarget(src, placement);
+
+                transformed.push({
+                    index: i,
+                    x: Number(dst.x.toFixed(4)),
+                    y: Number(dst.y.toFixed(4)),
+                    z: Number(dst.z.toFixed(4))
+                });
+            }
+
+            return transformed;
+        }
+
+        async function renderAlignedTargetBlob() {
             const { bitmap, sourceType, rawWidth, rawHeight } = await getHighResSourceBitmap();
+
+            drawMirroredBitmapToCanvas(bitmap, sourceCanvas);
+            bitmap.close();
+
+            const landmarks = await detectLandmarksOnCanvas(sourceCanvas);
+
+            const placement = computeFacePlacement(
+                landmarks,
+                sourceCanvas.width,
+                sourceCanvas.height
+            );
+
+            const transformedLandmarks = buildAllLandmarksMeta(
+                landmarks,
+                sourceCanvas.width,
+                sourceCanvas.height,
+                placement
+            );
 
             const canvas = workCanvas;
             const ctx = canvas.getContext("2d", { alpha: false });
+            canvas.width = TARGET_W;
+            canvas.height = TARGET_H;
 
-            const keepOriginal = rawWidth >= MIN_KEEP_W && rawHeight >= MIN_KEEP_H;
+            ctx.clearRect(0, 0, TARGET_W, TARGET_H);
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, TARGET_W, TARGET_H);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
 
-            if (keepOriginal) {
-                canvas.width = rawWidth;
-                canvas.height = rawHeight;
-                ctx.clearRect(0, 0, rawWidth, rawHeight);
+            const drawW = sourceCanvas.width * placement.scale;
+            const drawH = sourceCanvas.height * placement.scale;
 
-                /*
-                  화면이 좌우반전으로 보이므로
-                  저장 파일도 화면과 동일하게 좌우반전 저장
-                */
-                ctx.save();
-                ctx.translate(rawWidth, 0);
-                ctx.scale(-1, 1);
-                ctx.drawImage(bitmap, 0, 0, rawWidth, rawHeight);
-                ctx.restore();
-
-                bitmap.close();
-
-                const blob = await canvasToBlob(canvas);
-
-                return {
-                    blob,
-                    sourceType,
-                    rawWidth,
-                    rawHeight,
-                    finalWidth: rawWidth,
-                    finalHeight: rawHeight,
-                    isOriginal: true
-                };
-            }
-
-            canvas.width = UPSCALE_TARGET_W;
-            canvas.height = UPSCALE_TARGET_H;
-            ctx.clearRect(0, 0, UPSCALE_TARGET_W, UPSCALE_TARGET_H);
-
-            const scale = UPSCALE_TARGET_W / rawWidth;
-            const scaledH = rawHeight * scale;
-            const dy = (UPSCALE_TARGET_H - scaledH) * 0.5;
-
-            ctx.save();
-            ctx.translate(UPSCALE_TARGET_W, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(bitmap, 0, dy, UPSCALE_TARGET_W, scaledH);
-            ctx.restore();
-
-            bitmap.close();
+            ctx.drawImage(
+                sourceCanvas,
+                placement.drawX,
+                placement.drawY,
+                drawW,
+                drawH
+            );
 
             const blob = await canvasToBlob(canvas);
 
             return {
                 blob,
+                meta: {
+                    finalWidth: TARGET_W,
+                    finalHeight: TARGET_H,
+                    landmarkCount: transformedLandmarks.length,
+                    landmarks: transformedLandmarks,
+                    placement: {
+                        scale: Number(placement.scale.toFixed(8)),
+                        drawX: Number(placement.drawX.toFixed(4)),
+                        drawY: Number(placement.drawY.toFixed(4)),
+                        eyeToChin: Number(placement.eyeToChin.toFixed(4)),
+                        eyeInnerY: Number(placement.eyeInnerY.toFixed(4)),
+                        eyeCenterX: Number(placement.eyeCenterX.toFixed(4))
+                    },
+                    source: {
+                        width: sourceCanvas.width,
+                        height: sourceCanvas.height,
+                        mirrored: true
+                    },
+                    createdAt: new Date().toISOString()
+                },
                 sourceType,
                 rawWidth,
                 rawHeight,
-                finalWidth: UPSCALE_TARGET_W,
-                finalHeight: UPSCALE_TARGET_H,
-                isOriginal: false
+                finalWidth: TARGET_W,
+                finalHeight: TARGET_H,
+                scale: placement.scale,
+                eyeToChinBefore: placement.eyeToChin
             };
         }
 
         async function capturePhoto() {
             try {
-                setStatus("고해상도 사진을 생성하는 중...");
-                setInfo("촬영중...");
+                setStatus("촬영 후 얼굴 기준 정렬 중.");
+                setInfo("MediaPipe 분석중.");
 
-                const result = await renderToTargetBlob();
+                const result = await renderAlignedTargetBlob();
                 lastSavedBlob = result.blob;
+                lastSavedMeta = result.meta;
 
                 await saveBlobToDB(result.blob);
+                await saveMetaToDB(result.meta);
 
                 revokePreviewUrl();
                 currentPreviewUrl = URL.createObjectURL(result.blob);
@@ -537,31 +673,31 @@
                 saveBtn.classList.remove("hidden");
                 analyzeBtn.classList.remove("hidden");
 
-                if (result.isOriginal) {
-                    setStatus(
-                        `원본 그대로 저장됨\n${result.rawWidth} x ${result.rawHeight} (${result.sourceType})`
-                    );
-                    setInfo(`원본 유지\n${result.finalWidth} x ${result.finalHeight}`);
-                } else {
-                    setStatus(
-                        `리사이즈 적용\n${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → ${result.finalWidth} x ${result.finalHeight}`
-                    );
-                    setInfo(`리사이즈됨\n${result.finalWidth} x ${result.finalHeight}`);
-                }
+                const lm0 = result.meta.landmarks[0];
+                const lm61 = result.meta.landmarks[61];
+                const lm291 = result.meta.landmarks[291];
+
+                setStatus(
+                    `정렬 완료\n` +
+                    `${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → ${result.finalWidth} x ${result.finalHeight}\n` +
+                    `랜드마크 ${result.meta.landmarkCount}개 저장 완료`
+                );
+
+                setInfo(
+                    `final ${result.finalWidth} x ${result.finalHeight}\n` +
+                    `landmarks: ${result.meta.landmarkCount}\n` +
+                    `0: (${lm0.x.toFixed(1)}, ${lm0.y.toFixed(1)})\n` +
+                    `61: (${lm61.x.toFixed(1)}, ${lm61.y.toFixed(1)})\n` +
+                    `291: (${lm291.x.toFixed(1)}, ${lm291.y.toFixed(1)})`
+                );
             } catch (err) {
                 console.error(err);
-                setStatus("이미지 저장에 실패했습니다.");
-                setInfo("저장 실패");
+                setStatus("촬영 또는 얼굴 정렬에 실패했습니다.\n얼굴이 정면에 잘 보이게 다시 촬영하세요.");
+                setInfo("정렬 실패");
             }
         }
 
-        async function retakePhoto() {
-            revokePreviewUrl();
-            capturedImage.removeAttribute("src");
-            await startCamera();
-        }
-
-        async function downloadCapturedFile() {
+        async function saveToFile() {
             try {
                 let blob = lastSavedBlob;
                 if (!blob) {
@@ -569,62 +705,93 @@
                 }
 
                 if (!blob) {
-                    setStatus("저장된 이미지가 없습니다.");
+                    setStatus("저장된 결과 이미지가 없습니다.");
                     return;
                 }
 
-                const url = URL.createObjectURL(blob);
-                const now = new Date();
-
-                const pad = (n) => String(n).padStart(2, "0");
-                const fileName =
-                    `capture_${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_` +
-                    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.jpg`;
-
                 const a = document.createElement("a");
+                const url = URL.createObjectURL(blob);
                 a.href = url;
-                a.download = fileName;
+                a.download = "captured_2208x3306.jpg";
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
-
                 setTimeout(() => URL.revokeObjectURL(url), 1000);
-                setStatus(`파일 저장 완료\n${fileName}`);
+
+                setStatus("파일 저장을 시작했습니다.");
             } catch (err) {
                 console.error(err);
                 setStatus("파일 저장에 실패했습니다.");
             }
         }
 
-        async function goAnalyze() {
-            try {
-                const blob = await getBlobFromDB();
-                if (!blob) {
-                    setStatus("저장된 이미지가 없습니다.");
-                    return;
-                }
+        function resetToCameraMode() {
+            revokePreviewUrl();
+            capturedImage.removeAttribute("src");
+            capturedImage.classList.add("hidden");
+            video.classList.remove("hidden");
+            faceGuide.classList.remove("hidden");
 
-                /*
-                  analysis.html 에서는 이 Blob을 그대로 읽어서 써야 함.
-                  여기서는 추가 리사이즈 없이 그대로 전달.
-                */
-                window.location.href = "analysis.html";
-            } catch (err) {
-                console.error(err);
-                setStatus("저장된 이미지를 불러오지 못했습니다.");
-            }
+            startBtn.classList.remove("hidden");
+            stopBtn.classList.add("hidden");
+            retakeBtn.classList.add("hidden");
+            saveBtn.classList.add("hidden");
+            analyzeBtn.classList.add("hidden");
+
+            lastSavedBlob = null;
+            lastSavedMeta = null;
+
+            setStatus("카메라를 다시 시작합니다.");
+            setInfo("재촬영 준비중.");
+            startCamera();
         }
 
-        startBtn.addEventListener("click", startCamera);
-        stopBtn.addEventListener("click", capturePhoto);
-        retakeBtn.addEventListener("click", retakePhoto);
-        saveBtn.addEventListener("click", downloadCapturedFile);
-        analyzeBtn.addEventListener("click", goAnalyze);
+        function goToAnalysis() {
+            location.href = "analysis.html";
+        }
+
+        startBtn.addEventListener("click", async () => {
+            await startCamera();
+        });
+
+        stopBtn.addEventListener("click", async () => {
+            await capturePhoto();
+        });
+
+        retakeBtn.addEventListener("click", () => {
+            resetToCameraMode();
+        });
+
+        saveBtn.addEventListener("click", async () => {
+            await saveToFile();
+        });
+
+        analyzeBtn.addEventListener("click", () => {
+            goToAnalysis();
+        });
 
         window.addEventListener("beforeunload", () => {
             stopTracks();
             revokePreviewUrl();
         });
+
+        (async function init() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                setStatus("이 브라우저는 카메라를 지원하지 않습니다.");
+                setInfo("camera unsupported");
+                return;
+            }
+
+            if (location.protocol === "file:") {
+                setStatus("file:// 환경에서는 카메라나 MediaPipe가 정상 동작하지 않을 수 있습니다.\nlocalhost 또는 https:// 로 실행하세요.");
+                setInfo("file:// 실행중");
+            } else {
+                setStatus("고해상도 카메라와 MediaPipe를 준비합니다.");
+                setInfo("초기화중.");
+            }
+
+            await startCamera();
+        })();
     </script>
 </body>
 </html>
