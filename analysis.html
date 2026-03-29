@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
@@ -35,7 +35,6 @@
             padding: 18px 24px 14px;
             font-size: 24px;
             font-weight: 800;
-            letter-spacing: -0.2px;
             border-bottom: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(10px);
@@ -50,8 +49,7 @@
             align-items: start;
         }
 
-        .viewer-panel,
-        .control-panel {
+        .viewer-panel, .control-panel {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 20px;
@@ -59,8 +57,7 @@
             overflow: hidden;
         }
 
-        .viewer-head,
-        .control-head {
+        .viewer-head, .control-head {
             padding: 14px 16px;
             font-size: 15px;
             font-weight: 800;
@@ -236,9 +233,7 @@
                 <div class="viewer-wrap">
                     <canvas id="originalCanvas" width="2208" height="3306"></canvas>
                 </div>
-                <div class="compare-caption">
-                    저장된 원본 이미지를 그대로 표시합니다.
-                </div>
+                <div class="compare-caption">저장된 원본 이미지를 그대로 표시합니다.</div>
             </section>
 
             <section class="viewer-panel">
@@ -247,9 +242,7 @@
                     <canvas id="previewCanvas" width="2208" height="3306"></canvas>
                     <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
                 </div>
-                <div class="compare-caption">
-                    좌측 원본과 비교하면서 슬라이더 값을 조절하세요.
-                </div>
+                <div class="compare-caption">좌측 원본과 비교하면서 슬라이더 값을 조절하세요.</div>
             </section>
 
             <aside class="control-panel">
@@ -260,189 +253,164 @@
                     <div class="section-title">Warp / Shape</div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Left Lift (px)</span>
-                            <span id="leftLiftValue">18</span>
-                        </div>
-                        <input id="leftLiftSlider" type="range" min="0" max="80" step="1" value="18" />
+                        <div class="slider-head"><span>Left Lift (px)</span><span id="leftLiftValue">18</span></div>
+                        <input id="leftLiftSlider" type="range" min="0" max="80" step="1" value="41" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Right Lift (px)</span>
-                            <span id="rightLiftValue">18</span>
-                        </div>
-                        <input id="rightLiftSlider" type="range" min="0" max="80" step="1" value="18" />
+                        <div class="slider-head"><span>Right Lift (px)</span><span id="rightLiftValue">18</span></div>
+                        <input id="rightLiftSlider" type="range" min="0" max="80" step="1" value="41" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Sigma X</span>
-                            <span id="sigmaXValue">90</span>
-                        </div>
-                        <input id="sigmaXSlider" type="range" min="10" max="300" step="1" value="90" />
+                        <div class="slider-head"><span>Sigma X</span><span id="sigmaXValue">90</span></div>
+                        <input id="sigmaXSlider" type="range" min="10" max="300" step="1" value="36" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Sigma Y</span>
-                            <span id="sigmaYValue">70</span>
-                        </div>
+                        <div class="slider-head"><span>Sigma Y</span><span id="sigmaYValue">70</span></div>
                         <input id="sigmaYSlider" type="range" min="10" max="300" step="1" value="70" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>ROI Padding</span>
-                            <span id="roiPadValue">160</span>
-                        </div>
+                        <div class="slider-head"><span>ROI Padding</span><span id="roiPadValue">160</span></div>
                         <input id="roiPadSlider" type="range" min="20" max="500" step="1" value="160" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Eye Lift</span>
-                            <span id="eyeLiftValue">12</span>
-                        </div>
-                        <input id="eyeLiftSlider" type="range" min="0" max="40" step="1" value="12" />
+                        <div class="slider-head"><span>Eye Lift</span><span id="eyeLiftValue">12</span></div>
+                        <input id="eyeLiftSlider" type="range" min="0" max="40" step="1" value="16" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Nose Slim</span>
-                            <span id="noseSlimValue">8</span>
-                        </div>
+                        <div class="slider-head"><span>Nose Slim</span><span id="noseSlimValue">8</span></div>
                         <input id="noseSlimSlider" type="range" min="0" max="30" step="1" value="8" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Nose Wing Slim</span>
-                            <span id="noseWingSlimValue">8</span>
-                        </div>
+                        <div class="slider-head"><span>Nose Wing Slim</span><span id="noseWingSlimValue">8</span></div>
                         <input id="noseWingSlimSlider" type="range" min="0" max="30" step="1" value="8" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Jaw Slim</span>
-                            <span id="jawSlimValue">10</span>
-                        </div>
+                        <div class="slider-head"><span>Jaw Slim (Legacy)</span><span id="jawSlimValue">10</span></div>
                         <input id="jawSlimSlider" type="range" min="0" max="30" step="1" value="10" />
+                    </div>
+
+                    <!-- 새 턱 슬라이더 3개 -->
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Jaw Width</span><span id="jawWidthValue">18</span></div>
+                        <input id="jawWidthSlider" type="range" min="0" max="100" step="1" value="18" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Jaw Smooth</span><span id="jawSmoothValue">22</span></div>
+                        <input id="jawSmoothSlider" type="range" min="0" max="100" step="1" value="3" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Marionette Lift</span><span id="marionetteLiftValue">20</span></div>
+                        <input id="marionetteLiftSlider" type="range" min="0" max="100" step="1" value="60" />
                     </div>
 
                     <div class="section-title">Face / Eye / Brow / Lip</div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Global Brightness</span>
-                            <span id="globalBrightnessValue">0</span>
-                        </div>
-                        <input id="globalBrightnessSlider" type="range" min="-40" max="60" step="1" value="0" />
+                        <div class="slider-head"><span>Global Brightness</span><span id="globalBrightnessValue">0</span></div>
+                        <input id="globalBrightnessSlider" type="range" min="-40" max="60" step="1" value="5" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Face Blur</span>
-                            <span id="faceBlurValue">0</span>
-                        </div>
+                        <div class="slider-head"><span>Face Blur</span><span id="faceBlurValue">0</span></div>
                         <input id="faceBlurSlider" type="range" min="0" max="20" step="1" value="0" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Face Sharpen</span>
-                            <span id="faceSharpenValue">10</span>
-                        </div>
+                        <div class="slider-head"><span>Face Sharpen</span><span id="faceSharpenValue">10</span></div>
                         <input id="faceSharpenSlider" type="range" min="0" max="100" step="1" value="10" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Face Lively</span>
-                            <span id="faceLivelyValue">10</span>
-                        </div>
-                        <input id="faceLivelySlider" type="range" min="0" max="100" step="1" value="10" />
+                        <div class="slider-head"><span>Face Lively</span><span id="faceLivelyValue">10</span></div>
+                        <input id="faceLivelySlider" type="range" min="0" max="100" step="1" value="25" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Blemish Remove</span>
-                            <span id="faceBlemishValue">10</span>
-                        </div>
-                        <input id="faceBlemishSlider" type="range" min="0" max="100" step="1" value="10" />
+                        <div class="slider-head"><span>Blemish Remove</span><span id="faceBlemishValue">10</span></div>
+                        <input id="faceBlemishSlider" type="range" min="0" max="100" step="1" value="50" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Nose Depth</span>
-                            <span id="noseDepthValue">20</span>
-                        </div>
+                        <div class="slider-head"><span>Nose Depth</span><span id="noseDepthValue">20</span></div>
                         <input id="noseDepthSlider" type="range" min="0" max="100" step="1" value="20" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Eye Line</span>
-                            <span id="eyeLineValue">22</span>
-                        </div>
-                        <input id="eyeLineSlider" type="range" min="0" max="100" step="1" value="22" />
+                        <div class="slider-head"><span>Eye Line</span><span id="eyeLineValue">22</span></div>
+                        <input id="eyeLineSlider" type="range" min="0" max="100" step="1" value="90" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Iris Deepen</span>
-                            <span id="irisDeepenValue">20</span>
-                        </div>
-                        <input id="irisDeepenSlider" type="range" min="0" max="100" step="1" value="20" />
+                        <div class="slider-head"><span>Iris Deepen</span><span id="irisDeepenValue">20</span></div>
+                        <input id="irisDeepenSlider" type="range" min="0" max="100" step="1" value="60" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Eye Open Auto</span>
-                            <span id="eyeOpenAutoValue">20</span>
-                        </div>
-                        <input id="eyeOpenAutoSlider" type="range" min="0" max="100" step="1" value="20" />
+                        <div class="slider-head"><span>Eye Open Auto</span><span id="eyeOpenAutoValue">20</span></div>
+                        <input id="eyeOpenAutoSlider" type="range" min="0" max="100" step="1" value="16" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Eyebrow Cleanup</span>
-                            <span id="eyebrowCleanupValue">25</span>
-                        </div>
+                        <div class="slider-head"><span>Eyebrow Cleanup</span><span id="eyebrowCleanupValue">25</span></div>
                         <input id="eyebrowCleanupSlider" type="range" min="0" max="100" step="1" value="25" />
                     </div>
 
                     <div class="slider-card">
-                        <div class="slider-head">
-                            <span>Eyebrow Tail Trim</span>
-                            <span id="eyebrowTailTrimValue">18</span>
-                        </div>
+                        <div class="slider-head"><span>Eyebrow Tail Trim</span><span id="eyebrowTailTrimValue">18</span></div>
                         <input id="eyebrowTailTrimSlider" type="range" min="0" max="100" step="1" value="18" />
                     </div>
 
                     <div class="slider-card">
                         <div class="slider-head">
-                            <span>Lip Saturation</span>
-                            <span id="lipSaturationValue">28</span>
+                            <span>Eyebrow Inner Soft</span>
+                            <span id="eyebrowInnerSoftValue">18</span>
                         </div>
-                        <input id="lipSaturationSlider" type="range" min="0" max="100" step="1" value="28" />
+                        <input id="eyebrowInnerSoftSlider" type="range" min="0" max="100" step="1" value="18" />
                     </div>
 
                     <div class="slider-card">
                         <div class="slider-head">
-                            <span>Lip Brightness</span>
-                            <span id="lipBrightnessValue">18</span>
+                            <span>Eyebrow Outer Clean</span>
+                            <span id="eyebrowOuterCleanValue">22</span>
                         </div>
-                        <input id="lipBrightnessSlider" type="range" min="0" max="100" step="1" value="18" />
+                        <input id="eyebrowOuterCleanSlider" type="range" min="0" max="100" step="1" value="22" />
                     </div>
 
                     <div class="slider-card">
                         <div class="slider-head">
-                            <span>Lip Center Glow</span>
-                            <span id="lipCenterGlowValue">24</span>
+                            <span>Eyebrow Fill</span>
+                            <span id="eyebrowFillValue">26</span>
                         </div>
-                        <input id="lipCenterGlowSlider" type="range" min="0" max="100" step="1" value="24" />
+                        <input id="eyebrowFillSlider" type="range" min="0" max="100" step="1" value="26" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Lip Saturation</span><span id="lipSaturationValue">28</span></div>
+                        <input id="lipSaturationSlider" type="range" min="0" max="100" step="1" value="40" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Lip Brightness</span><span id="lipBrightnessValue">18</span></div>
+                        <input id="lipBrightnessSlider" type="range" min="0" max="100" step="1" value="25" />
+                    </div>
+
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Lip Center Glow</span><span id="lipCenterGlowValue">24</span></div>
+                        <input id="lipCenterGlowSlider" type="range" min="0" max="100" step="1" value="30" />
+                    </div>
+                    <div class="slider-card">
+                        <div class="slider-head"><span>Lip Volume</span><span id="lipVolumeValue">12</span></div>
+                        <input id="lipVolumeSlider" type="range" min="0" max="40" step="1" value="15" />
                     </div>
 
                     <div class="btn-row">
@@ -465,1312 +433,6 @@
         <canvas id="regionCanvas2" class="offscreen" width="2208" height="3306"></canvas>
     </div>
 
-    <script>
-        const DB_NAME = "CaptureImageDB";
-        const STORE_NAME = "images";
-        const IMAGE_KEY = "capturedImage";
-        const META_KEY = "capturedMeta";
-
-        const TARGET_W = 2208;
-        const TARGET_H = 3306;
-
-        const IDX_LEFT_CORNER = 61;
-        const IDX_RIGHT_CORNER = 291;
-
-        const LEFT_EYE_TOP = 159;
-        const LEFT_EYE_BOTTOM = 145;
-        const RIGHT_EYE_TOP = 386;
-        const RIGHT_EYE_BOTTOM = 374;
-        const LEFT_EYE_OUTER = 33;
-        const LEFT_EYE_INNER = 133;
-        const RIGHT_EYE_OUTER = 362;
-        const RIGHT_EYE_INNER = 263;
-
-        const LEFT_IRIS = [468, 469, 470, 471, 472];
-        const RIGHT_IRIS = [473, 474, 475, 476, 477];
-
-        const NOSE_LEFT = 98;
-        const NOSE_RIGHT = 327;
-        const NOSE_LEFT_WING = 49;
-        const NOSE_RIGHT_WING = 279;
-        const NOSE_TIP = 1;
-        const NOSE_BRIDGE_UP = 168;
-        const NOSE_BRIDGE_MID = 6;
-        const NOSE_BASE = 2;
-
-        const JAW_LEFT = 234;
-        const JAW_RIGHT = 454;
-
-        const FACE_OVAL = [
-            10, 338, 297, 332, 284, 251, 389, 356, 454, 323,
-            361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
-            176, 149, 150, 136, 172, 58, 132, 93, 234, 127,
-            162, 21, 54, 103, 67, 109
-        ];
-
-        const OUTER_LIPS = [
-            61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
-            291, 409, 270, 269, 267, 0, 37, 39, 40, 185
-        ];
-
-        const INNER_LIPS = [
-            78, 95, 88, 178, 87, 14, 317, 402, 318, 324,
-            308, 415, 310, 311, 312, 13, 82, 81, 80, 191
-        ];
-
-        const UPPER_LIP_CENTER = 13;
-        const LOWER_LIP_CENTER = 14;
-        const LIP_LEFT = 61;
-        const LIP_RIGHT = 291;
-
-        const LEFT_EYEBROW = [70, 63, 105, 66, 107, 55, 65, 52, 53, 46];
-        const RIGHT_EYEBROW = [300, 293, 334, 296, 336, 285, 295, 282, 283, 276];
-
-        const LEFT_EYE_RING = [33, 160, 159, 158, 157, 173, 133, 155, 145, 144, 163, 7];
-        const RIGHT_EYE_RING = [362, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380];
-
-        const originalCanvas = document.getElementById("originalCanvas");
-        const previewCanvas = document.getElementById("previewCanvas");
-        const srcCanvas = document.getElementById("srcCanvas");
-        const workCanvas = document.getElementById("workCanvas");
-        const maskCanvas = document.getElementById("maskCanvas");
-        const tempCanvas = document.getElementById("tempCanvas");
-        const tempCanvas2 = document.getElementById("tempCanvas2");
-        const tempCanvas3 = document.getElementById("tempCanvas3");
-        const regionCanvas = document.getElementById("regionCanvas");
-        const regionCanvas2 = document.getElementById("regionCanvas2");
-
-        const originalCtx = originalCanvas.getContext("2d");
-        const previewCtx = previewCanvas.getContext("2d");
-        const srcCtx = srcCanvas.getContext("2d", { willReadFrequently: true });
-        const workCtx = workCanvas.getContext("2d", { willReadFrequently: true });
-        const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
-        const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
-        const tempCtx2 = tempCanvas2.getContext("2d", { willReadFrequently: true });
-        const tempCtx3 = tempCanvas3.getContext("2d", { willReadFrequently: true });
-        const regionCtx = regionCanvas.getContext("2d", { willReadFrequently: true });
-        const regionCtx2 = regionCanvas2.getContext("2d", { willReadFrequently: true });
-
-        const statusEl = document.getElementById("status");
-        const infoBadge = document.getElementById("infoBadge");
-
-        const leftLiftSlider = document.getElementById("leftLiftSlider");
-        const rightLiftSlider = document.getElementById("rightLiftSlider");
-        const sigmaXSlider = document.getElementById("sigmaXSlider");
-        const sigmaYSlider = document.getElementById("sigmaYSlider");
-        const roiPadSlider = document.getElementById("roiPadSlider");
-        const faceBlurSlider = document.getElementById("faceBlurSlider");
-        const faceSharpenSlider = document.getElementById("faceSharpenSlider");
-        const globalBrightnessSlider = document.getElementById("globalBrightnessSlider");
-        const faceLivelySlider = document.getElementById("faceLivelySlider");
-        const faceBlemishSlider = document.getElementById("faceBlemishSlider");
-        const eyeLiftSlider = document.getElementById("eyeLiftSlider");
-        const noseSlimSlider = document.getElementById("noseSlimSlider");
-        const noseWingSlimSlider = document.getElementById("noseWingSlimSlider");
-        const jawSlimSlider = document.getElementById("jawSlimSlider");
-        const noseDepthSlider = document.getElementById("noseDepthSlider");
-        const eyeLineSlider = document.getElementById("eyeLineSlider");
-        const irisDeepenSlider = document.getElementById("irisDeepenSlider");
-        const eyeOpenAutoSlider = document.getElementById("eyeOpenAutoSlider");
-        const eyebrowCleanupSlider = document.getElementById("eyebrowCleanupSlider");
-        const eyebrowTailTrimSlider = document.getElementById("eyebrowTailTrimSlider");
-        const lipSaturationSlider = document.getElementById("lipSaturationSlider");
-        const lipBrightnessSlider = document.getElementById("lipBrightnessSlider");
-        const lipCenterGlowSlider = document.getElementById("lipCenterGlowSlider");
-
-        const leftLiftValue = document.getElementById("leftLiftValue");
-        const rightLiftValue = document.getElementById("rightLiftValue");
-        const sigmaXValue = document.getElementById("sigmaXValue");
-        const sigmaYValue = document.getElementById("sigmaYValue");
-        const roiPadValue = document.getElementById("roiPadValue");
-        const faceBlurValue = document.getElementById("faceBlurValue");
-        const faceSharpenValue = document.getElementById("faceSharpenValue");
-        const globalBrightnessValue = document.getElementById("globalBrightnessValue");
-        const faceLivelyValue = document.getElementById("faceLivelyValue");
-        const faceBlemishValue = document.getElementById("faceBlemishValue");
-        const eyeLiftValue = document.getElementById("eyeLiftValue");
-        const noseSlimValue = document.getElementById("noseSlimValue");
-        const noseWingSlimValue = document.getElementById("noseWingSlimValue");
-        const jawSlimValue = document.getElementById("jawSlimValue");
-        const noseDepthValue = document.getElementById("noseDepthValue");
-        const eyeLineValue = document.getElementById("eyeLineValue");
-        const irisDeepenValue = document.getElementById("irisDeepenValue");
-        const eyeOpenAutoValue = document.getElementById("eyeOpenAutoValue");
-        const eyebrowCleanupValue = document.getElementById("eyebrowCleanupValue");
-        const eyebrowTailTrimValue = document.getElementById("eyebrowTailTrimValue");
-        const lipSaturationValue = document.getElementById("lipSaturationValue");
-        const lipBrightnessValue = document.getElementById("lipBrightnessValue");
-        const lipCenterGlowValue = document.getElementById("lipCenterGlowValue");
-
-        const renderBtn = document.getElementById("renderBtn");
-        const toggleBtn = document.getElementById("toggleBtn");
-        const saveBtn = document.getElementById("saveBtn");
-        const backBtn = document.getElementById("backBtn");
-
-        let sourceBlob = null;
-        let sourceMeta = null;
-        let sourceImageBitmap = null;
-        let showGuides = false;
-
-        function setStatus(msg) {
-            statusEl.textContent = msg;
-        }
-
-        function setInfo(msg) {
-            infoBadge.textContent = msg;
-        }
-
-        function clamp(v, min, max) {
-            return Math.max(min, Math.min(max, v));
-        }
-
-        function lerp(a, b, t) {
-            return a + (b - a) * t;
-        }
-
-        function gaussian2D(dx, dy, sigmaX, sigmaY) {
-            const sx = Math.max(1e-6, sigmaX);
-            const sy = Math.max(1e-6, sigmaY);
-            return Math.exp(-0.5 * ((dx * dx) / (sx * sx) + (dy * dy) / (sy * sy)));
-        }
-
-        function luminance(r, g, b) {
-            return 0.299 * r + 0.587 * g + 0.114 * b;
-        }
-
-        function bilinearSample(src, sw, sh, x, y) {
-            x = clamp(x, 0, sw - 1);
-            y = clamp(y, 0, sh - 1);
-
-            const x0 = Math.floor(x);
-            const y0 = Math.floor(y);
-            const x1 = Math.min(x0 + 1, sw - 1);
-            const y1 = Math.min(y0 + 1, sh - 1);
-
-            const dx = x - x0;
-            const dy = y - y0;
-
-            const i00 = (y0 * sw + x0) * 4;
-            const i10 = (y0 * sw + x1) * 4;
-            const i01 = (y1 * sw + x0) * 4;
-            const i11 = (y1 * sw + x1) * 4;
-
-            const out = [0, 0, 0, 0];
-
-            for (let c = 0; c < 4; c++) {
-                const v00 = src[i00 + c];
-                const v10 = src[i10 + c];
-                const v01 = src[i01 + c];
-                const v11 = src[i11 + c];
-
-                const v0 = v00 + (v10 - v00) * dx;
-                const v1 = v01 + (v11 - v01) * dx;
-                out[c] = v0 + (v1 - v0) * dy;
-            }
-
-            return out;
-        }
-
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-
-                request.onupgradeneeded = function (event) {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        db.createObjectStore(STORE_NAME);
-                    }
-                };
-
-                request.onsuccess = function () {
-                    resolve(request.result);
-                };
-
-                request.onerror = function () {
-                    reject(request.error || new Error("IndexedDB open failed"));
-                };
-            });
-        }
-
-        async function getFromDB(key) {
-            const db = await openDB();
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readonly");
-                const store = tx.objectStore(STORE_NAME);
-                const req = store.get(key);
-
-                req.onsuccess = () => resolve(req.result || null);
-                req.onerror = () => reject(req.error || new Error("IndexedDB read failed"));
-            });
-        }
-
-        function getLm(index) {
-            if (!sourceMeta || !sourceMeta.landmarks || !sourceMeta.landmarks[index]) {
-                throw new Error(`랜드마크 ${index}가 없습니다.`);
-            }
-            return sourceMeta.landmarks[index];
-        }
-
-        function getAveragePoint(indices) {
-            let x = 0;
-            let y = 0;
-            for (const idx of indices) {
-                const p = getLm(idx);
-                x += p.x;
-                y += p.y;
-            }
-            return { x: x / indices.length, y: y / indices.length };
-        }
-
-        function getBounds(indices, padX = 0, padY = padX) {
-            let minX = TARGET_W, minY = TARGET_H, maxX = 0, maxY = 0;
-            for (const idx of indices) {
-                const p = getLm(idx);
-                minX = Math.min(minX, p.x);
-                minY = Math.min(minY, p.y);
-                maxX = Math.max(maxX, p.x);
-                maxY = Math.max(maxY, p.y);
-            }
-            return {
-                left: Math.floor(clamp(minX - padX, 0, TARGET_W - 1)),
-                top: Math.floor(clamp(minY - padY, 0, TARGET_H - 1)),
-                right: Math.floor(clamp(maxX + padX, 0, TARGET_W - 1)),
-                bottom: Math.floor(clamp(maxY + padY, 0, TARGET_H - 1))
-            };
-        }
-
-        function drawBaseImage() {
-            srcCanvas.width = TARGET_W;
-            srcCanvas.height = TARGET_H;
-            srcCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            srcCtx.drawImage(sourceImageBitmap, 0, 0, TARGET_W, TARGET_H);
-
-            originalCanvas.width = TARGET_W;
-            originalCanvas.height = TARGET_H;
-            originalCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            originalCtx.drawImage(srcCanvas, 0, 0);
-
-            workCanvas.width = TARGET_W;
-            workCanvas.height = TARGET_H;
-            workCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            workCtx.drawImage(srcCanvas, 0, 0);
-
-            maskCanvas.width = TARGET_W;
-            maskCanvas.height = TARGET_H;
-            maskCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCanvas.width = TARGET_W;
-            tempCanvas.height = TARGET_H;
-            tempCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCanvas2.width = TARGET_W;
-            tempCanvas2.height = TARGET_H;
-            tempCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCanvas3.width = TARGET_W;
-            tempCanvas3.height = TARGET_H;
-            tempCtx3.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            regionCanvas.width = TARGET_W;
-            regionCanvas.height = TARGET_H;
-            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            regionCanvas2.width = TARGET_W;
-            regionCanvas2.height = TARGET_H;
-            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
-        }
-
-        function getEyeOpenRatio(isLeft) {
-            const top = getLm(isLeft ? LEFT_EYE_TOP : RIGHT_EYE_TOP);
-            const bottom = getLm(isLeft ? LEFT_EYE_BOTTOM : RIGHT_EYE_BOTTOM);
-            const outer = getLm(isLeft ? LEFT_EYE_OUTER : RIGHT_EYE_OUTER);
-            const inner = getLm(isLeft ? LEFT_EYE_INNER : RIGHT_EYE_INNER);
-            const h = Math.abs(top.y - bottom.y);
-            const w = Math.max(1, Math.abs(outer.x - inner.x));
-            return h / w;
-        }
-
-        function buildData() {
-            const leftCorner = getLm(IDX_LEFT_CORNER);
-            const rightCorner = getLm(IDX_RIGHT_CORNER);
-
-            const leftLift = Number(leftLiftSlider.value);
-            const rightLift = Number(rightLiftSlider.value);
-            const sigmaX = Number(sigmaXSlider.value);
-            const sigmaY = Number(sigmaYSlider.value);
-            const roiPad = Number(roiPadSlider.value);
-
-            const faceBlur = Number(faceBlurSlider.value);
-            const faceSharpen = Number(faceSharpenSlider.value);
-            const globalBrightness = Number(globalBrightnessSlider.value);
-            const faceLively = Number(faceLivelySlider.value);
-            const faceBlemish = Number(faceBlemishSlider.value);
-
-            const eyeLift = Number(eyeLiftSlider.value) / 100;
-            const noseSlim = Number(noseSlimSlider.value) / 100;
-            const noseWingSlim = Number(noseWingSlimSlider.value) / 100;
-            const jawSlim = Number(jawSlimSlider.value) / 100;
-
-            const noseDepth = Number(noseDepthSlider.value) / 100;
-            const eyeLine = Number(eyeLineSlider.value) / 100;
-            const irisDeepen = Number(irisDeepenSlider.value) / 100;
-            const eyeOpenAuto = Number(eyeOpenAutoSlider.value) / 100;
-            const eyebrowCleanup = Number(eyebrowCleanupSlider.value) / 100;
-            const eyebrowTailTrim = Number(eyebrowTailTrimSlider.value) / 100;
-            const lipSaturation = Number(lipSaturationSlider.value) / 100;
-            const lipBrightness = Number(lipBrightnessSlider.value) / 100;
-            const lipCenterGlow = Number(lipCenterGlowSlider.value) / 100;
-
-            const roi = {
-                left: Math.floor(clamp(Math.min(leftCorner.x, rightCorner.x) - roiPad, 0, TARGET_W - 1)),
-                right: Math.floor(clamp(Math.max(leftCorner.x, rightCorner.x) + roiPad, 0, TARGET_W - 1)),
-                top: Math.floor(clamp(Math.min(leftCorner.y, rightCorner.y) - roiPad, 0, TARGET_H - 1)),
-                bottom: Math.floor(clamp(Math.max(leftCorner.y, rightCorner.y) + roiPad, 0, TARGET_H - 1))
-            };
-
-            const leftEyeOpenRatio = getEyeOpenRatio(true);
-            const rightEyeOpenRatio = getEyeOpenRatio(false);
-
-            return {
-                leftCorner,
-                rightCorner,
-                leftLift,
-                rightLift,
-                sigmaX,
-                sigmaY,
-                roi,
-                faceBlur,
-                faceSharpen,
-                globalBrightness,
-                faceLively,
-                faceBlemish,
-                eyeLift,
-                noseSlim,
-                noseWingSlim,
-                jawSlim,
-                noseDepth,
-                eyeLine,
-                irisDeepen,
-                eyeOpenAuto,
-                eyebrowCleanup,
-                eyebrowTailTrim,
-                lipSaturation,
-                lipBrightness,
-                lipCenterGlow,
-                leftEyeOpenRatio,
-                rightEyeOpenRatio
-            };
-        }
-
-        function computeDisplacement(x, y, data) {
-            const gL = gaussian2D(
-                x - data.leftCorner.x,
-                y - data.leftCorner.y,
-                data.sigmaX,
-                data.sigmaY
-            );
-
-            const gR = gaussian2D(
-                x - data.rightCorner.x,
-                y - data.rightCorner.y,
-                data.sigmaX,
-                data.sigmaY
-            );
-
-            let dy = -(data.leftLift * gL + data.rightLift * gR);
-            let dx = 0;
-
-            const lEyeTop = getLm(LEFT_EYE_TOP);
-            const lEyeBot = getLm(LEFT_EYE_BOTTOM);
-            const rEyeTop = getLm(RIGHT_EYE_TOP);
-            const rEyeBot = getLm(RIGHT_EYE_BOTTOM);
-
-            const lEyeCx = (lEyeTop.x + lEyeBot.x) * 0.5;
-            const lEyeCy = (lEyeTop.y + lEyeBot.y) * 0.5;
-            const rEyeCx = (rEyeTop.x + rEyeBot.x) * 0.5;
-            const rEyeCy = (rEyeTop.y + rEyeBot.y) * 0.5;
-
-            const gEyeL = gaussian2D(x - lEyeCx, y - lEyeCy, 70, 45);
-            const gEyeR = gaussian2D(x - rEyeCx, y - rEyeCy, 70, 45);
-
-            dy -= data.eyeLift * 8 * (gEyeL + gEyeR);
-
-            const leftClosedBoost = clamp((0.18 - data.leftEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
-            const rightClosedBoost = clamp((0.18 - data.rightEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
-
-            dy -= leftClosedBoost * 10 * gEyeL;
-            dy -= rightClosedBoost * 10 * gEyeR;
-
-            const noseL = getLm(NOSE_LEFT);
-            const noseR = getLm(NOSE_RIGHT);
-
-            const gNoseL = gaussian2D(x - noseL.x, y - noseL.y, 90, 110);
-            const gNoseR = gaussian2D(x - noseR.x, y - noseR.y, 90, 110);
-
-            dx += data.noseSlim * 6 * (gNoseL - gNoseR);
-
-            const wingL = getLm(NOSE_LEFT_WING);
-            const wingR = getLm(NOSE_RIGHT_WING);
-
-            const gWingL = gaussian2D(x - wingL.x, y - wingL.y, 60, 80);
-            const gWingR = gaussian2D(x - wingR.x, y - wingR.y, 60, 80);
-
-            dx += data.noseWingSlim * 10 * (gWingL - gWingR);
-
-            const jawL = getLm(JAW_LEFT);
-            const jawR = getLm(JAW_RIGHT);
-
-            const gJawL = gaussian2D(x - jawL.x, y - jawL.y, 140, 160);
-            const gJawR = gaussian2D(x - jawR.x, y - jawR.y, 140, 160);
-
-            dx += data.jawSlim * 7 * (gJawL - gJawR);
-
-            return {
-                dx,
-                dy,
-                influence: Math.max(gL, gR, gEyeL, gEyeR, gNoseL, gNoseR, gWingL, gWingR, gJawL, gJawR)
-            };
-        }
-
-        function applyWarp(data) {
-            const srcImg = srcCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const dstImg = workCtx.createImageData(TARGET_W, TARGET_H);
-
-            const src = srcImg.data;
-            const dst = dstImg.data;
-            dst.set(src);
-
-            for (let y = 0; y < TARGET_H; y++) {
-                for (let x = 0; x < TARGET_W; x++) {
-                    const disp = computeDisplacement(x, y, data);
-                    if (disp.influence < 0.001) continue;
-
-                    const srcX = x - disp.dx;
-                    const srcY = y - disp.dy;
-
-                    const rgba = bilinearSample(src, TARGET_W, TARGET_H, srcX, srcY);
-                    const di = (y * TARGET_W + x) * 4;
-
-                    dst[di] = rgba[0];
-                    dst[di + 1] = rgba[1];
-                    dst[di + 2] = rgba[2];
-                    dst[di + 3] = 255;
-                }
-            }
-
-            workCtx.putImageData(dstImg, 0, 0);
-        }
-
-        function buildFaceMask() {
-            maskCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            maskCtx.fillStyle = "black";
-            maskCtx.fillRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            tempCtx.fillStyle = "black";
-            tempCtx.fillRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCtx.save();
-            tempCtx.beginPath();
-
-            let minX = TARGET_W, minY = TARGET_H, maxX = 0, maxY = 0;
-
-            for (let i = 0; i < FACE_OVAL.length; i++) {
-                const p = getLm(FACE_OVAL[i]);
-                if (i === 0) tempCtx.moveTo(p.x, p.y);
-                else tempCtx.lineTo(p.x, p.y);
-
-                if (p.x < minX) minX = p.x;
-                if (p.y < minY) minY = p.y;
-                if (p.x > maxX) maxX = p.x;
-                if (p.y > maxY) maxY = p.y;
-            }
-
-            tempCtx.closePath();
-            tempCtx.fillStyle = "white";
-            tempCtx.fill();
-            tempCtx.restore();
-
-            const feather = 24;
-            maskCtx.save();
-            maskCtx.filter = `blur(${feather}px)`;
-            maskCtx.drawImage(tempCanvas, 0, 0);
-            maskCtx.restore();
-
-            return {
-                left: Math.floor(clamp(minX - 40, 0, TARGET_W - 1)),
-                top: Math.floor(clamp(minY - 60, 0, TARGET_H - 1)),
-                right: Math.floor(clamp(maxX + 40, 0, TARGET_W - 1)),
-                bottom: Math.floor(clamp(maxY + 60, 0, TARGET_H - 1))
-            };
-        }
-
-        function applyGlobalBrightness(data) {
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-            const brightness = data.globalBrightness;
-
-            if (brightness === 0) return;
-
-            for (let i = 0; i < px.length; i += 4) {
-                px[i] = clamp(px[i] + brightness, 0, 255);
-                px[i + 1] = clamp(px[i + 1] + brightness, 0, 255);
-                px[i + 2] = clamp(px[i + 2] + brightness, 0, 255);
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function applyFaceVibrance(data, bbox) {
-            const w = bbox.right - bbox.left + 1;
-            const h = bbox.bottom - bbox.top + 1;
-
-            const img = workCtx.getImageData(bbox.left, bbox.top, w, h);
-            const mask = maskCtx.getImageData(bbox.left, bbox.top, w, h);
-
-            const px = img.data;
-            const mx = mask.data;
-
-            const lively = data.faceLively;
-            const contrast = 1 + lively * 0.22;
-            const vibrance = lively * 0.55;
-
-            for (let i = 0; i < px.length; i += 4) {
-                const alpha = mx[i] / 255;
-                if (alpha <= 0.001) continue;
-
-                let r = px[i];
-                let g = px[i + 1];
-                let b = px[i + 2];
-
-                const avg = (r + g + b) / 3;
-                r = avg + (r - avg) * contrast;
-                g = avg + (g - avg) * contrast;
-                b = avg + (b - avg) * contrast;
-
-                const maxC = Math.max(r, g, b);
-                const minC = Math.min(r, g, b);
-                const sat = maxC - minC;
-                const satBoost = 1 + vibrance * (1 - sat / 255);
-
-                r = avg + (r - avg) * satBoost;
-                g = avg + (g - avg) * satBoost;
-                b = avg + (b - avg) * satBoost;
-
-                px[i] = clamp(px[i] * (1 - alpha) + clamp(r, 0, 255) * alpha, 0, 255);
-                px[i + 1] = clamp(px[i + 1] * (1 - alpha) + clamp(g, 0, 255) * alpha, 0, 255);
-                px[i + 2] = clamp(px[i + 2] * (1 - alpha) + clamp(b, 0, 255) * alpha, 0, 255);
-            }
-
-            workCtx.putImageData(img, bbox.left, bbox.top);
-        }
-
-        function createBlurredFaceVersion(radius) {
-            tempCanvas2.width = TARGET_W;
-            tempCanvas2.height = TARGET_H;
-            tempCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCtx2.save();
-            tempCtx2.filter = `blur(${radius}px)`;
-            tempCtx2.drawImage(workCanvas, 0, 0);
-            tempCtx2.restore();
-        }
-
-        function blendBlurWithMask(data, bbox) {
-            const radius = data.faceBlur;
-            if (radius <= 0) return;
-
-            createBlurredFaceVersion(radius);
-
-            const w = bbox.right - bbox.left + 1;
-            const h = bbox.bottom - bbox.top + 1;
-
-            const baseImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
-            const blurImg = tempCtx2.getImageData(bbox.left, bbox.top, w, h);
-            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
-
-            const base = baseImg.data;
-            const blur = blurImg.data;
-            const mask = maskImg.data;
-
-            const blurMix = clamp(radius / 20, 0, 1);
-
-            for (let i = 0; i < base.length; i += 4) {
-                const alpha = (mask[i] / 255) * blurMix;
-                if (alpha <= 0.001) continue;
-
-                base[i] = base[i] * (1 - alpha) + blur[i] * alpha;
-                base[i + 1] = base[i + 1] * (1 - alpha) + blur[i + 1] * alpha;
-                base[i + 2] = base[i + 2] * (1 - alpha) + blur[i + 2] * alpha;
-            }
-
-            workCtx.putImageData(baseImg, bbox.left, bbox.top);
-        }
-
-        function applySharpen(data, bbox) {
-            const amount = data.faceSharpen / 100;
-            if (amount <= 0) return;
-
-            const w = bbox.right - bbox.left + 1;
-            const h = bbox.bottom - bbox.top + 1;
-
-            const srcImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
-            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
-
-            const src = srcImg.data;
-            const out = new Uint8ClampedArray(src);
-            const mask = maskImg.data;
-
-            const kCenter = 1 + 4 * amount;
-            const kSide = -amount;
-
-            function idx(x, y) {
-                return (y * w + x) * 4;
-            }
-
-            for (let y = 1; y < h - 1; y++) {
-                for (let x = 1; x < w - 1; x++) {
-                    const i = idx(x, y);
-                    const alpha = mask[i] / 255;
-                    if (alpha <= 0.001) continue;
-
-                    for (let c = 0; c < 3; c++) {
-                        const v =
-                            src[idx(x, y) + c] * kCenter +
-                            src[idx(x - 1, y) + c] * kSide +
-                            src[idx(x + 1, y) + c] * kSide +
-                            src[idx(x, y - 1) + c] * kSide +
-                            src[idx(x, y + 1) + c] * kSide;
-
-                        out[i + c] = clamp(
-                            src[i + c] * (1 - alpha) + clamp(v, 0, 255) * alpha,
-                            0,
-                            255
-                        );
-                    }
-                }
-            }
-
-            const outImg = new ImageData(out, w, h);
-            workCtx.putImageData(outImg, bbox.left, bbox.top);
-        }
-
-        function createBlemishSmoothVersion(radius) {
-            tempCanvas3.width = TARGET_W;
-            tempCanvas3.height = TARGET_H;
-            tempCtx3.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            tempCtx3.save();
-            tempCtx3.filter = `blur(${radius}px)`;
-            tempCtx3.drawImage(workCanvas, 0, 0);
-            tempCtx3.restore();
-        }
-
-        function applyBlemishRemoval(data, bbox) {
-            const amount = data.faceBlemish;
-            if (amount <= 0) return;
-
-            const blurRadius = 2 + amount * 4.5;
-            createBlemishSmoothVersion(blurRadius);
-
-            const w = bbox.right - bbox.left + 1;
-            const h = bbox.bottom - bbox.top + 1;
-
-            const baseImg = workCtx.getImageData(bbox.left, bbox.top, w, h);
-            const smoothImg = tempCtx3.getImageData(bbox.left, bbox.top, w, h);
-            const maskImg = maskCtx.getImageData(bbox.left, bbox.top, w, h);
-
-            const base = baseImg.data;
-            const smooth = smoothImg.data;
-            const mask = maskImg.data;
-
-            for (let i = 0; i < base.length; i += 4) {
-                const maskAlpha = mask[i] / 255;
-                if (maskAlpha <= 0.001) continue;
-
-                const r = base[i];
-                const g = base[i + 1];
-                const b = base[i + 2];
-
-                const sr = smooth[i];
-                const sg = smooth[i + 1];
-                const sb = smooth[i + 2];
-
-                const lum = luminance(r, g, b);
-                const smoothLum = luminance(sr, sg, sb);
-
-                const darkDefect = clamp((smoothLum - lum - 3) / 28, 0, 1);
-                const edgeStrength = clamp(Math.abs(lum - smoothLum) / 42, 0, 1);
-                const edgeProtect = 1 - edgeStrength;
-
-                let blend = darkDefect * edgeProtect * amount * maskAlpha;
-                blend = Math.pow(blend, 0.85);
-
-                if (blend <= 0.001) continue;
-
-                const repairMix = 0.72 * blend;
-
-                base[i] = r * (1 - repairMix) + sr * repairMix;
-                base[i + 1] = g * (1 - repairMix) + sg * repairMix;
-                base[i + 2] = b * (1 - repairMix) + sb * repairMix;
-            }
-
-            workCtx.putImageData(baseImg, bbox.left, bbox.top);
-        }
-
-        function applyFaceEffects(data) {
-            const bbox = buildFaceMask();
-            applyFaceVibrance(data, bbox);
-            blendBlurWithMask(data, bbox);
-            applyBlemishRemoval(data, bbox);
-            applySharpen(data, bbox);
-            return bbox;
-        }
-
-        function buildPolygonMask(indices, blurPx = 10) {
-            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            regionCtx.fillStyle = "black";
-            regionCtx.fillRect(0, 0, TARGET_W, TARGET_H);
-
-            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
-            regionCtx2.fillStyle = "black";
-            regionCtx2.fillRect(0, 0, TARGET_W, TARGET_H);
-
-            regionCtx.beginPath();
-            for (let i = 0; i < indices.length; i++) {
-                const p = getLm(indices[i]);
-                if (i === 0) regionCtx.moveTo(p.x, p.y);
-                else regionCtx.lineTo(p.x, p.y);
-            }
-            regionCtx.closePath();
-            regionCtx.fillStyle = "white";
-            regionCtx.fill();
-
-            regionCtx2.save();
-            regionCtx2.filter = `blur(${blurPx}px)`;
-            regionCtx2.drawImage(regionCanvas, 0, 0);
-            regionCtx2.restore();
-
-            return regionCtx2.getImageData(0, 0, TARGET_W, TARGET_H);
-        }
-
-        function buildEyeEllipseMask(isLeft, extraScale = 1.0, blurPx = 10) {
-            regionCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            regionCtx.fillStyle = "black";
-            regionCtx.fillRect(0, 0, TARGET_W, TARGET_H);
-            regionCtx2.clearRect(0, 0, TARGET_W, TARGET_H);
-
-            const top = getLm(isLeft ? LEFT_EYE_TOP : RIGHT_EYE_TOP);
-            const bottom = getLm(isLeft ? LEFT_EYE_BOTTOM : RIGHT_EYE_BOTTOM);
-            const outer = getLm(isLeft ? LEFT_EYE_OUTER : RIGHT_EYE_OUTER);
-            const inner = getLm(isLeft ? LEFT_EYE_INNER : RIGHT_EYE_INNER);
-
-            const cx = (outer.x + inner.x) * 0.5;
-            const cy = (top.y + bottom.y) * 0.5;
-            const rx = Math.abs(outer.x - inner.x) * 0.62 * extraScale;
-            const ry = Math.max(8, Math.abs(top.y - bottom.y) * 1.8 * extraScale);
-
-            regionCtx.beginPath();
-            regionCtx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-            regionCtx.fillStyle = "white";
-            regionCtx.fill();
-
-            regionCtx2.save();
-            regionCtx2.filter = `blur(${blurPx}px)`;
-            regionCtx2.drawImage(regionCanvas, 0, 0);
-            regionCtx2.restore();
-
-            return regionCtx2.getImageData(0, 0, TARGET_W, TARGET_H);
-        }
-
-        function applyNoseDepth(data) {
-            if (data.noseDepth <= 0) return;
-
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-
-            const bridgeUp = getLm(NOSE_BRIDGE_UP);
-            const bridgeMid = getLm(NOSE_BRIDGE_MID);
-            const tip = getLm(NOSE_TIP);
-            const base = getLm(NOSE_BASE);
-            const leftWing = getLm(NOSE_LEFT_WING);
-            const rightWing = getLm(NOSE_RIGHT_WING);
-
-            const cx = (bridgeMid.x + tip.x) * 0.5;
-            const cy = (bridgeUp.y + base.y) * 0.5;
-            const sx = Math.abs(rightWing.x - leftWing.x) * 0.34;
-            const sy = Math.abs(base.y - bridgeUp.y) * 0.60 + 20;
-
-            for (let y = Math.max(0, Math.floor(cy - sy * 2)); y < Math.min(TARGET_H, Math.ceil(cy + sy * 2)); y++) {
-                for (let x = Math.max(0, Math.floor(cx - sx * 3)); x < Math.min(TARGET_W, Math.ceil(cx + sx * 3)); x++) {
-                    const i = (y * TARGET_W + x) * 4;
-                    const gCenter = gaussian2D(x - cx, y - cy, sx, sy);
-                    const gLeftShadow = gaussian2D(x - (cx - sx * 0.95), y - cy, sx * 0.85, sy * 1.15);
-                    const gRightShadow = gaussian2D(x - (cx + sx * 0.95), y - cy, sx * 0.85, sy * 1.15);
-                    const effect = (gCenter * 1.0 - gLeftShadow * 0.55 - gRightShadow * 0.55) * data.noseDepth;
-
-                    px[i] = clamp(px[i] + effect * 26, 0, 255);
-                    px[i + 1] = clamp(px[i + 1] + effect * 22, 0, 255);
-                    px[i + 2] = clamp(px[i + 2] + effect * 18, 0, 255);
-                }
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function applyEyeLineEnhance(data) {
-            if (data.eyeLine <= 0 && data.irisDeepen <= 0) return;
-
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-
-            const leftMask = buildEyeEllipseMask(true, 1.1, 10).data;
-            const rightMask = buildEyeEllipseMask(false, 1.1, 10).data;
-
-            const leftCenter = getAveragePoint(LEFT_IRIS);
-            const rightCenter = getAveragePoint(RIGHT_IRIS);
-
-            for (let y = 0; y < TARGET_H; y++) {
-                for (let x = 0; x < TARGET_W; x++) {
-                    const i = (y * TARGET_W + x) * 4;
-                    const m = Math.max(leftMask[i], rightMask[i]) / 255;
-                    if (m <= 0.001) continue;
-
-                    const lTop = getLm(LEFT_EYE_TOP);
-                    const lBottom = getLm(LEFT_EYE_BOTTOM);
-                    const rTop = getLm(RIGHT_EYE_TOP);
-                    const rBottom = getLm(RIGHT_EYE_BOTTOM);
-
-                    const gUpperLeft = gaussian2D(x - lTop.x, y - lTop.y, 85, 20);
-                    const gUpperRight = gaussian2D(x - rTop.x, y - rTop.y, 85, 20);
-                    const gLowerLeft = gaussian2D(x - lBottom.x, y - lBottom.y, 90, 24);
-                    const gLowerRight = gaussian2D(x - rBottom.x, y - rBottom.y, 90, 24);
-
-                    const upperLine = Math.max(gUpperLeft, gUpperRight) * data.eyeLine;
-                    const lowerSoft = Math.max(gLowerLeft, gLowerRight) * data.eyeLine * 0.35;
-
-                    const gIrisL = gaussian2D(x - leftCenter.x, y - leftCenter.y, 24, 24);
-                    const gIrisR = gaussian2D(x - rightCenter.x, y - rightCenter.y, 24, 24);
-                    const irisEffect = Math.max(gIrisL, gIrisR) * data.irisDeepen;
-
-                    const darken = upperLine * 18 + irisEffect * 26;
-                    const brighten = lowerSoft * 7;
-
-                    px[i] = clamp(px[i] - darken + brighten, 0, 255);
-                    px[i + 1] = clamp(px[i + 1] - darken + brighten, 0, 255);
-                    px[i + 2] = clamp(px[i + 2] - darken + brighten, 0, 255);
-                }
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function applyEyeOpenHighlight(data) {
-            if (data.eyeOpenAuto <= 0) return;
-
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-
-            const leftEyeCenter = getAveragePoint([LEFT_EYE_TOP, LEFT_EYE_BOTTOM, LEFT_EYE_OUTER, LEFT_EYE_INNER]);
-            const rightEyeCenter = getAveragePoint([RIGHT_EYE_TOP, RIGHT_EYE_BOTTOM, RIGHT_EYE_OUTER, RIGHT_EYE_INNER]);
-
-            const leftBoost = clamp((0.18 - data.leftEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
-            const rightBoost = clamp((0.18 - data.rightEyeOpenRatio) / 0.08, 0, 1) * data.eyeOpenAuto;
-
-            if (leftBoost <= 0 && rightBoost <= 0) return;
-
-            for (let y = 0; y < TARGET_H; y++) {
-                for (let x = 0; x < TARGET_W; x++) {
-                    const i = (y * TARGET_W + x) * 4;
-
-                    const gL = gaussian2D(x - leftEyeCenter.x, y - (leftEyeCenter.y - 8), 60, 28) * leftBoost;
-                    const gR = gaussian2D(x - rightEyeCenter.x, y - (rightEyeCenter.y - 8), 60, 28) * rightBoost;
-                    const g = Math.max(gL, gR);
-
-                    if (g <= 0.001) continue;
-
-                    px[i] = clamp(px[i] + g * 10, 0, 255);
-                    px[i + 1] = clamp(px[i + 1] + g * 9, 0, 255);
-                    px[i + 2] = clamp(px[i + 2] + g * 8, 0, 255);
-                }
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function applyEyebrowCleanup(data) {
-            const cleanup = data.eyebrowCleanup;
-            const tailTrim = data.eyebrowTailTrim;
-            if (cleanup <= 0 && tailTrim <= 0) return;
-
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-            const original = srcCtx.getImageData(0, 0, TARGET_W, TARGET_H).data;
-
-            const lBrowCenter = getAveragePoint(LEFT_EYEBROW);
-            const rBrowCenter = getAveragePoint(RIGHT_EYEBROW);
-            const lEye = getAveragePoint([LEFT_EYE_TOP, LEFT_EYE_BOTTOM, LEFT_EYE_OUTER, LEFT_EYE_INNER]);
-            const rEye = getAveragePoint([RIGHT_EYE_TOP, RIGHT_EYE_BOTTOM, RIGHT_EYE_OUTER, RIGHT_EYE_INNER]);
-
-            const lOuter = getLm(LEFT_EYEBROW[0]);
-            const rOuter = getLm(RIGHT_EYEBROW[0]);
-
-            for (let y = 0; y < TARGET_H; y++) {
-                for (let x = 0; x < TARGET_W; x++) {
-                    const i = (y * TARGET_W + x) * 4;
-
-                    const gLBrow = gaussian2D(x - lBrowCenter.x, y - lBrowCenter.y, 95, 36);
-                    const gRBrow = gaussian2D(x - rBrowCenter.x, y - rBrowCenter.y, 95, 36);
-                    const gBrow = Math.max(gLBrow, gRBrow);
-
-                    const gLEye = gaussian2D(x - lEye.x, y - lEye.y, 90, 40);
-                    const gREye = gaussian2D(x - rEye.x, y - rEye.y, 90, 40);
-                    const eyeProtect = Math.max(gLEye, gREye);
-
-                    const tailL = gaussian2D(x - (lOuter.x - 18), y - (lOuter.y - 2), 42, 18);
-                    const tailR = gaussian2D(x - (rOuter.x + 18), y - (rOuter.y - 2), 42, 18);
-                    const tailMask = Math.max(tailL, tailR);
-
-                    const lum = luminance(px[i], px[i + 1], px[i + 2]);
-                    const originalLum = luminance(original[i], original[i + 1], original[i + 2]);
-
-                    let alpha = 0;
-
-                    if (gBrow > 0.08 && eyeProtect < 0.55 && lum < 110 && originalLum < 120) {
-                        alpha += cleanup * gBrow * 0.22;
-                    }
-
-                    if (tailMask > 0.05 && lum < 130) {
-                        alpha += tailTrim * tailMask * 0.40;
-                    }
-
-                    alpha = clamp(alpha, 0, 0.75);
-                    if (alpha <= 0.001) continue;
-
-                    const skinR = clamp(original[i] + 18, 0, 255);
-                    const skinG = clamp(original[i + 1] + 12, 0, 255);
-                    const skinB = clamp(original[i + 2] + 10, 0, 255);
-
-                    px[i] = lerp(px[i], skinR, alpha);
-                    px[i + 1] = lerp(px[i + 1], skinG, alpha);
-                    px[i + 2] = lerp(px[i + 2], skinB, alpha);
-                }
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function applyLipEnhancement(data) {
-            if (data.lipSaturation <= 0 && data.lipBrightness <= 0 && data.lipCenterGlow <= 0) return;
-
-            const img = workCtx.getImageData(0, 0, TARGET_W, TARGET_H);
-            const px = img.data;
-
-            const lipMask = buildPolygonMask(OUTER_LIPS, 12).data;
-            const innerMask = buildPolygonMask(INNER_LIPS, 10).data;
-
-            const left = getLm(LIP_LEFT);
-            const right = getLm(LIP_RIGHT);
-            const upper = getLm(UPPER_LIP_CENTER);
-            const lower = getLm(LOWER_LIP_CENTER);
-
-            const cx = (left.x + right.x) * 0.5;
-            const cy = (upper.y + lower.y) * 0.5;
-            const sx = Math.max(20, Math.abs(right.x - left.x) * 0.22);
-            const sy = Math.max(12, Math.abs(lower.y - upper.y) * 1.25);
-
-            for (let i = 0; i < px.length; i += 4) {
-                const outerA = lipMask[i] / 255;
-                if (outerA <= 0.001) continue;
-
-                const idx = i / 4;
-                const x = idx % TARGET_W;
-                const y = Math.floor(idx / TARGET_W);
-
-                const innerA = innerMask[i] / 255;
-                const centerGlow = gaussian2D(x - cx, y - cy, sx, sy) * data.lipCenterGlow;
-
-                let r = px[i];
-                let g = px[i + 1];
-                let b = px[i + 2];
-
-                const avg = (r + g + b) / 3;
-                const satBoost = 1 + data.lipSaturation * (0.45 + innerA * 0.15);
-                const brightnessBoost = data.lipBrightness * (12 + (avg < 110 ? 10 : 0));
-                const centerBoost = centerGlow * 18;
-
-                r = avg + (r - avg) * satBoost + brightnessBoost + centerBoost;
-                g = avg + (g - avg) * (1 + data.lipSaturation * 0.14) + brightnessBoost * 0.25 + centerBoost * 0.30;
-                b = avg + (b - avg) * (1 + data.lipSaturation * 0.10) + brightnessBoost * 0.18 + centerBoost * 0.25;
-
-                px[i] = clamp(lerp(px[i], r, outerA), 0, 255);
-                px[i + 1] = clamp(lerp(px[i + 1], g, outerA), 0, 255);
-                px[i + 2] = clamp(lerp(px[i + 2], b, outerA), 0, 255);
-            }
-
-            workCtx.putImageData(img, 0, 0);
-        }
-
-        function drawPoint(ctx, x, y, r, color) {
-            ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-        }
-
-        function drawPolygon(ctx, indices, color) {
-            ctx.beginPath();
-            for (let i = 0; i < indices.length; i++) {
-                const p = getLm(indices[i]);
-                if (i === 0) ctx.moveTo(p.x, p.y);
-                else ctx.lineTo(p.x, p.y);
-            }
-            ctx.closePath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-
-        function drawGuides(data, faceBox) {
-            if (!showGuides) return;
-
-            previewCtx.save();
-
-            previewCtx.strokeStyle = "rgba(255,255,0,0.7)";
-            previewCtx.lineWidth = 2;
-            previewCtx.strokeRect(
-                data.roi.left,
-                data.roi.top,
-                data.roi.right - data.roi.left,
-                data.roi.bottom - data.roi.top
-            );
-
-            if (faceBox) {
-                previewCtx.strokeStyle = "rgba(0,255,128,0.65)";
-                previewCtx.lineWidth = 2;
-                previewCtx.strokeRect(
-                    faceBox.left,
-                    faceBox.top,
-                    faceBox.right - faceBox.left,
-                    faceBox.bottom - faceBox.top
-                );
-            }
-
-            drawPoint(previewCtx, data.leftCorner.x, data.leftCorner.y, 7, "#00e5ff");
-            drawPoint(previewCtx, data.rightCorner.x, data.rightCorner.y, 7, "#00e5ff");
-
-            const lEyeTop = getLm(LEFT_EYE_TOP);
-            const rEyeTop = getLm(RIGHT_EYE_TOP);
-            const noseL = getLm(NOSE_LEFT);
-            const noseR = getLm(NOSE_RIGHT);
-            const wingL = getLm(NOSE_LEFT_WING);
-            const wingR = getLm(NOSE_RIGHT_WING);
-            const jawL = getLm(JAW_LEFT);
-            const jawR = getLm(JAW_RIGHT);
-
-            drawPoint(previewCtx, lEyeTop.x, lEyeTop.y, 5, "#ffcc00");
-            drawPoint(previewCtx, rEyeTop.x, rEyeTop.y, 5, "#ffcc00");
-            drawPoint(previewCtx, noseL.x, noseL.y, 5, "#ff66aa");
-            drawPoint(previewCtx, noseR.x, noseR.y, 5, "#ff66aa");
-            drawPoint(previewCtx, wingL.x, wingL.y, 7, "#ff3b30");
-            drawPoint(previewCtx, wingR.x, wingR.y, 7, "#ff3b30");
-            drawPoint(previewCtx, jawL.x, jawL.y, 5, "#66ffcc");
-            drawPoint(previewCtx, jawR.x, jawR.y, 5, "#66ffcc");
-
-            drawPolygon(previewCtx, OUTER_LIPS, "rgba(255,90,160,0.72)");
-            drawPolygon(previewCtx, LEFT_EYEBROW, "rgba(255,255,255,0.55)");
-            drawPolygon(previewCtx, RIGHT_EYEBROW, "rgba(255,255,255,0.55)");
-
-            previewCtx.restore();
-        }
-
-        function renderSmile() {
-            if (!sourceMeta || !sourceImageBitmap) {
-                setStatus("이미지 또는 랜드마크 데이터가 없습니다.");
-                return;
-            }
-
-            leftLiftValue.textContent = leftLiftSlider.value;
-            rightLiftValue.textContent = rightLiftSlider.value;
-            sigmaXValue.textContent = sigmaXSlider.value;
-            sigmaYValue.textContent = sigmaYSlider.value;
-            roiPadValue.textContent = roiPadSlider.value;
-            faceBlurValue.textContent = faceBlurSlider.value;
-            faceSharpenValue.textContent = faceSharpenSlider.value;
-            globalBrightnessValue.textContent = globalBrightnessSlider.value;
-            faceLivelyValue.textContent = faceLivelySlider.value;
-            faceBlemishValue.textContent = faceBlemishSlider.value;
-            eyeLiftValue.textContent = eyeLiftSlider.value;
-            noseSlimValue.textContent = noseSlimSlider.value;
-            noseWingSlimValue.textContent = noseWingSlimSlider.value;
-            jawSlimValue.textContent = jawSlimSlider.value;
-            noseDepthValue.textContent = noseDepthSlider.value;
-            eyeLineValue.textContent = eyeLineSlider.value;
-            irisDeepenValue.textContent = irisDeepenSlider.value;
-            eyeOpenAutoValue.textContent = eyeOpenAutoSlider.value;
-            eyebrowCleanupValue.textContent = eyebrowCleanupSlider.value;
-            eyebrowTailTrimValue.textContent = eyebrowTailTrimSlider.value;
-            lipSaturationValue.textContent = lipSaturationSlider.value;
-            lipBrightnessValue.textContent = lipBrightnessSlider.value;
-            lipCenterGlowValue.textContent = lipCenterGlowSlider.value;
-
-            drawBaseImage();
-
-            const data = buildData();
-            applyWarp(data);
-            applyGlobalBrightness(data);
-            const faceBox = applyFaceEffects(data);
-
-            applyNoseDepth(data);
-            applyEyeLineEnhance(data);
-            applyEyeOpenHighlight(data);
-            applyEyebrowCleanup(data);
-            applyLipEnhancement(data);
-
-            previewCtx.clearRect(0, 0, TARGET_W, TARGET_H);
-            previewCtx.drawImage(workCanvas, 0, 0);
-            drawGuides(data, faceBox);
-
-            setInfo(
-                `mouth lift: ${data.leftLift}/${data.rightLift}\n` +
-                `nose slim: ${noseSlimSlider.value} wing:${noseWingSlimSlider.value}\n` +
-                `eye ratio: ${data.leftEyeOpenRatio.toFixed(3)} / ${data.rightEyeOpenRatio.toFixed(3)}\n` +
-                `eye line:${eyeLineSlider.value} iris:${irisDeepenSlider.value}\n` +
-                `lip sat:${lipSaturationSlider.value} bright:${lipBrightnessSlider.value}\n` +
-                `brow:${eyebrowCleanupSlider.value} tail:${eyebrowTailTrimSlider.value}`
-            );
-
-            setStatus(
-                `콧볼 축소, 코 입체감, 눈 라인 강화, 살짝 감긴 눈 자동 보정,\n` +
-                `눈썹 정리, 눈동자 진하게, 입술 채도/밝기/중앙 생기 효과를 적용합니다.\n` +
-                `가이드를 켜서 콧볼·입술·눈썹 위치를 확인하세요.`
-            );
-        }
-
-        async function savePreviewToFile() {
-            return new Promise((resolve, reject) => {
-                previewCanvas.toBlob((blob) => {
-                    if (!blob) {
-                        reject(new Error("previewCanvas toBlob failed"));
-                        return;
-                    }
-
-                    const a = document.createElement("a");
-                    const url = URL.createObjectURL(blob);
-                    a.href = url;
-                    a.download = "face_fx_compare.png";
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
-                    resolve();
-                }, "image/png");
-            });
-        }
-
-        async function loadSourceData() {
-            sourceBlob = await getFromDB(IMAGE_KEY);
-            sourceMeta = await getFromDB(META_KEY);
-
-            if (!sourceBlob) {
-                throw new Error("저장된 capturedImage가 없습니다.");
-            }
-            if (!sourceMeta || !Array.isArray(sourceMeta.landmarks) || sourceMeta.landmarks.length === 0) {
-                throw new Error("저장된 capturedMeta.landmarks가 없습니다.");
-            }
-
-            sourceImageBitmap = await createImageBitmap(sourceBlob);
-
-            if (sourceImageBitmap.width !== TARGET_W || sourceImageBitmap.height !== TARGET_H) {
-                const temp = document.createElement("canvas");
-                temp.width = TARGET_W;
-                temp.height = TARGET_H;
-                const tctx = temp.getContext("2d");
-                tctx.drawImage(sourceImageBitmap, 0, 0, TARGET_W, TARGET_H);
-                sourceImageBitmap.close();
-                sourceImageBitmap = await createImageBitmap(temp);
-            }
-        }
-
-        function safeRender() {
-            try {
-                renderSmile();
-            } catch (err) {
-                console.error(err);
-                setStatus("렌더링에 실패했습니다.");
-                setInfo("렌더링 실패");
-            }
-        }
-
-        renderBtn.addEventListener("click", safeRender);
-
-        function bindSliderValue(slider, label, formatter = (v) => v) {
-            slider.addEventListener("input", () => {
-                label.textContent = formatter(slider.value);
-            });
-            slider.addEventListener("change", safeRender);
-        }
-
-        bindSliderValue(leftLiftSlider, leftLiftValue);
-        bindSliderValue(rightLiftSlider, rightLiftValue);
-        bindSliderValue(sigmaXSlider, sigmaXValue);
-        bindSliderValue(sigmaYSlider, sigmaYValue);
-        bindSliderValue(roiPadSlider, roiPadValue);
-        bindSliderValue(faceBlurSlider, faceBlurValue);
-        bindSliderValue(faceSharpenSlider, faceSharpenValue);
-        bindSliderValue(globalBrightnessSlider, globalBrightnessValue);
-        bindSliderValue(faceLivelySlider, faceLivelyValue);
-        bindSliderValue(faceBlemishSlider, faceBlemishValue);
-        bindSliderValue(eyeLiftSlider, eyeLiftValue);
-        bindSliderValue(noseSlimSlider, noseSlimValue);
-        bindSliderValue(noseWingSlimSlider, noseWingSlimValue);
-        bindSliderValue(jawSlimSlider, jawSlimValue);
-        bindSliderValue(noseDepthSlider, noseDepthValue);
-        bindSliderValue(eyeLineSlider, eyeLineValue);
-        bindSliderValue(irisDeepenSlider, irisDeepenValue);
-        bindSliderValue(eyeOpenAutoSlider, eyeOpenAutoValue);
-        bindSliderValue(eyebrowCleanupSlider, eyebrowCleanupValue);
-        bindSliderValue(eyebrowTailTrimSlider, eyebrowTailTrimValue);
-        bindSliderValue(lipSaturationSlider, lipSaturationValue);
-        bindSliderValue(lipBrightnessSlider, lipBrightnessValue);
-        bindSliderValue(lipCenterGlowSlider, lipCenterGlowValue);
-
-        toggleBtn.addEventListener("click", () => {
-            showGuides = !showGuides;
-            toggleBtn.textContent = `가이드 표시: ${showGuides ? "ON" : "OFF"}`;
-            safeRender();
-        });
-
-        saveBtn.addEventListener("click", async () => {
-            try {
-                await savePreviewToFile();
-                setStatus("변형된 이미지를 파일로 저장했습니다.");
-            } catch (err) {
-                console.error(err);
-                setStatus("파일 저장에 실패했습니다.");
-            }
-        });
-
-        backBtn.addEventListener("click", () => {
-            location.href = "capture.html";
-        });
-
-        (async function init() {
-            try {
-                setStatus("저장된 이미지와 랜드마크를 불러오는 중입니다.");
-                setInfo("로딩중.");
-                await loadSourceData();
-                safeRender();
-            } catch (err) {
-                console.error(err);
-                setStatus(
-                    "analysis.html 초기화에 실패했습니다.\n" +
-                    "먼저 capture.html에서 사진을 촬영하고 랜드마크를 저장한 뒤 다시 열어주세요."
-                );
-                setInfo("초기화 실패");
-            }
-        })();
-    </script>
+    <script type="module" src="./js/app.js"></script>
 </body>
 </html>

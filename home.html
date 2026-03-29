@@ -2,8 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>첫인상 트레이닝 | AI First Impression Lab</title>
     <style>
         :root {
@@ -21,7 +20,7 @@
             --text: #223253;
             --muted: #6c7a98;
             --line: rgba(32, 56, 108, 0.08);
-            --card: rgba(255, 255, 255, 0.92);
+            --card: rgba(255, 255, 255, 0.96);
             --shadow-xl: 0 28px 56px rgba(24, 42, 92, 0.14);
             --shadow-lg: 0 18px 36px rgba(24, 42, 92, 0.12);
             --shadow-md: 0 14px 28px rgba(24, 42, 92, 0.09);
@@ -30,33 +29,57 @@
             --radius-xl: 28px;
             --radius-lg: 22px;
             --radius-md: 18px;
+            --page-max: 760px;
+            --bottom-nav-h: 82px;
         }
 
         * {
             box-sizing: border-box;
+            min-width: 0;
         }
 
-        html,
+        html {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 42%, var(--bg-3) 100%);
+        }
+
         body {
             margin: 0;
+            padding: 0;
             min-height: 100%;
             font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             color: var(--text);
             background: radial-gradient(circle at 12% 10%, rgba(255,255,255,0.95), transparent 18%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.72), transparent 20%), linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 42%, var(--bg-3) 100%);
+            overflow-x: hidden;
         }
 
-        body {
-            display: flex;
-            justify-content: center;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
 
-        .phone {
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        a,
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .page {
             position: relative;
             width: 100%;
-            max-width: 430px;
-            min-height: 100vh;
-            overflow-x: hidden;
+            max-width: var(--page-max);
+            margin: 0 auto;
+            overflow-x: clip;
             background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(245,249,255,0.96));
             box-shadow: 0 0 0 1px rgba(255,255,255,0.75) inset;
         }
@@ -65,9 +88,9 @@
             position: absolute;
             border-radius: 999px;
             pointer-events: none;
-            filter: blur(14px);
             opacity: 0.58;
             z-index: 0;
+            filter: blur(18px);
         }
 
         .orb-a {
@@ -97,7 +120,8 @@
         .content {
             position: relative;
             z-index: 1;
-            padding: 20px 16px 124px;
+            width: 100%;
+            padding: calc(18px + env(safe-area-inset-top)) 16px calc(var(--bottom-nav-h) + 34px + env(safe-area-inset-bottom)) 16px;
         }
 
         .topbar {
@@ -127,6 +151,8 @@
             font-weight: 900;
             letter-spacing: -0.05em;
             color: var(--navy);
+            line-height: 1.15;
+            word-break: keep-all;
         }
 
         .ghost-btn {
@@ -134,202 +160,190 @@
             cursor: pointer;
             padding: 12px 16px;
             border-radius: 999px;
-            background: rgba(255,255,255,0.72);
+            background: rgba(255,255,255,0.94);
             color: var(--navy);
             font-size: 14px;
             font-weight: 900;
             box-shadow: 0 10px 20px rgba(28, 48, 97, 0.08);
-            backdrop-filter: blur(10px);
+            flex-shrink: 0;
         }
 
-        .hero {
-            position: relative;
-            overflow: hidden;
-            border-radius: var(--radius-2xl);
-            min-height: 560px;
-            background: linear-gradient( 180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100% ), url('./images/main3.png') center top / cover no-repeat;
-            border: 1px solid rgba(58,88,166,0.08);
-            box-shadow: var(--shadow-xl);
-        }
-
-            .hero::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(17,28,63,0.10) 56%, rgba(17,28,63,0.28) 100%);
-                pointer-events: none;
-            }
-
-        .hero-overlay {
-            position: relative;
-            z-index: 2;
-            min-height: 560px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 28px 22px 28px;
-        }
-
-        .hero-spacer {
-            flex: 1 1 auto;
-        }
-
-        .hero-bottom {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .hero-copy-block {
-            text-align: center;
-            color: #fff;
-            text-shadow: 0 4px 18px rgba(15, 24, 52, 0.35);
-        }
-
-            .hero-copy-block h1 {
-                margin: 0;
-                font-size: 50px;
-                line-height: 1.2;
-                letter-spacing: -0.08em;
-                font-weight: 900;
-            }
-
-                .hero-copy-block h1 .accent {
-                    display: incline;
-                    color: #8dc2ff;
-                }
-
-
-        .hero-copy-block h2 {
-            margin: 0;
-            font-size: 44px;
-            line-height: 1.2;
-            letter-spacing: -0.08em;
-            font-weight: 900;
-        }
-
-                .hero-copy-block h2 .accent {
-                    display: incline;
-                    color: #8dc2ff;
-                }
-
-
-            .hero-copy-block .sub-title {
-                margin: 14px 0 0;
-                font-size: 24px;
-                line-height: 1.35;
-                font-weight: 900;
-                letter-spacing: -0.05em;
-                word-break: keep-all;
-            }
-
-            .hero-copy-block .desc {
-                margin: 12px 0 0;
-                font-size: 17px;
-                line-height: 1.55;
-                font-weight: 700;
-                color: rgba(255,255,255,0.94);
-                word-break: keep-all;
-            }
-
-        .hero-actions {
-            display: grid;
-            gap: 12px;
-            margin-top: 6px;
-        }
-
+        .hero,
         .hero2 {
             position: relative;
             overflow: hidden;
             border-radius: var(--radius-2xl);
-            min-height: 400px;
-            background: linear-gradient( 180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100% ), url('./images/main5.png') center top / cover no-repeat;
             border: 1px solid rgba(58,88,166,0.08);
             box-shadow: var(--shadow-xl);
+            background-color: #d9e8fb;
         }
 
+        .hero {
+            background: linear-gradient(180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100%), url('./images/main6.png') center top / cover no-repeat;
+        }
+
+        .hero2 {
+            background: linear-gradient(180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100%), url('./images/main5.png') center top / cover no-repeat;
+            margin-top: 18px;
+        }
+
+            .hero::after,
+            .hero2::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(17,28,63,0.12) 56%, rgba(17,28,63,0.30) 100%);
+                pointer-events: none;
+            }
+
+        .hero-overlay,
         .hero-overlay2 {
             position: relative;
             z-index: 2;
-            min-height: 400px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            padding: 28px 22px 28px;
+            padding: clamp(22px, 4vw, 30px);
         }
 
+        .hero-overlay {
+            min-height: clamp(500px, 78svh, 760px);
+        }
+
+        .hero-overlay2 {
+            min-height: clamp(260px, 42svh, 420px);
+        }
+
+        .hero-spacer,
         .hero-spacer2 {
             flex: 1 1 auto;
         }
 
+        .hero-bottom,
         .hero-bottom2 {
             display: flex;
             flex-direction: column;
             gap: 14px;
         }
 
+        .hero-copy-block,
         .hero-copy-block2 {
             text-align: center;
             color: #fff;
             text-shadow: 0 4px 18px rgba(15, 24, 52, 0.35);
         }
 
-            .hero-copy-block2 h1 {
-                margin: 0;
-                font-size: 50px;
-                line-height: 1.2;
-                letter-spacing: -0.08em;
-                font-weight: 900;
-            }
-
-                .hero-copy-block2 h1 .accent {
-                    display: incline;
-                    color: #8dc2ff;
-                }
-
-
-            .hero-copy-block2 h2 {
-                margin: 0;
-                font-size: 44px;
-                line-height: 1.2;
-                letter-spacing: -0.08em;
-                font-weight: 900;
-            }
-
-                .hero-copy-block2 h2 .accent {
-                    display: incline;
-                    color: #8dc2ff;
-                }
-
-
+            .hero-copy-block h1,
+            .hero-copy-block h2,
+            .hero-copy-block2 h1,
+            .hero-copy-block2 h2,
+            .hero-copy-block .sub-title,
+            .hero-copy-block .desc,
             .hero-copy-block2 .sub-title {
-                margin: 14px 0 0;
-                font-size: 24px;
+                margin-left: auto;
+                margin-right: auto;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+
+            .hero-copy-block h1 {
+                margin-top: 0;
+                margin-bottom: 0;
+                font-size: clamp(31px, 8vw, 46px);
+                line-height: 1.18;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block h2 {
+                margin-top: 0;
+                margin-bottom: 0;
+                font-size: clamp(27px, 7vw, 38px);
+                line-height: 1.18;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block .sub-title {
+                margin-top: 14px;
+                margin-bottom: 0;
+                font-size: clamp(17px, 4.6vw, 20px);
                 line-height: 1.35;
                 font-weight: 900;
                 letter-spacing: -0.05em;
-                word-break: keep-all;
+                text-align: center;
             }
 
+            .hero-copy-block .desc {
+                margin-top: 12px;
+                margin-bottom: 0;
+                font-size: clamp(14px, 3.9vw, 17px);
+                line-height: 1.55;
+                font-weight: 700;
+                color: rgba(255,255,255,0.94);
+                text-align: center;
+            }
+
+            .hero-copy-block2 h1 {
+                margin: 0;
+                font-size: clamp(32px, 8vw, 50px);
+                line-height: 1.2;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block2 h2 {
+                margin: 0;
+                font-size: clamp(28px, 7vw, 44px);
+                line-height: 1.2;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block2 .sub-title {
+                margin-top: 14px;
+                margin-bottom: 0;
+                font-size: clamp(18px, 4.8vw, 24px);
+                line-height: 1.35;
+                font-weight: 900;
+                letter-spacing: -0.05em;
+                text-align: center;
+            }
+
+        .hero-actions,
         .hero-actions2 {
             display: grid;
             gap: 12px;
             margin-top: 6px;
         }
 
+        .accent-blue {
+            color: var(--blue-2);
+            font-weight: 900;
+        }
+
+        .accent-orange {
+            color: var(--orange);
+            font-weight: 900;
+        }
+
+        .accent-white {
+            color: #ffffff;
+            font-weight: 900;
+        }
 
         .cta-main {
             border: 0;
             cursor: pointer;
             width: 100%;
             border-radius: 999px;
-            padding: 10px 10px;
+            padding: 14px 14px;
             text-align: center;
             color: #fff;
             background: linear-gradient(180deg, #67a8ff 0%, #2d73de 100%);
             box-shadow: 0 18px 34px rgba(42, 102, 211, 0.30), inset 0 1px 0 rgba(255,255,255,0.38);
             transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
-            font-size: 20px;
+            font-size: clamp(17px, 4.7vw, 20px);
             font-weight: 900;
             letter-spacing: -0.04em;
         }
@@ -338,29 +352,25 @@
                 transform: scale(0.985);
             }
 
-        .hero-actions .small {
-            display: incline;
-            color: #8dc2ff;
-            font-size: 14px;
-        }
-
         .cta-sub-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .cta-sub {
+            flex: 1 1 0;
+            min-width: 140px;
             border: 0;
             cursor: pointer;
             border-radius: 18px;
-            padding: 8px 8px;
-            background: rgba(255,255,255,0.86);
+            padding: 12px 10px;
+            background: rgba(255,255,255,0.94);
             color: var(--navy);
             font-size: 14px;
             font-weight: 900;
             box-shadow: var(--shadow-sm);
-            backdrop-filter: blur(10px);
+            text-align: center;
         }
 
         .section {
@@ -377,10 +387,12 @@
         }
 
         .section-title {
-            font-size: 23px;
+            font-size: clamp(21px, 5.5vw, 23px);
             font-weight: 900;
             letter-spacing: -0.05em;
             color: var(--navy);
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .section-sub {
@@ -388,6 +400,8 @@
             font-size: 14px;
             color: var(--muted);
             font-weight: 700;
+            line-height: 1.5;
+            word-break: keep-all;
         }
 
         .section-link {
@@ -396,9 +410,12 @@
             color: var(--blue);
             font-size: 14px;
             font-weight: 900;
+            flex-shrink: 0;
         }
 
-        .menu-list {
+        .menu-list,
+        .pricing-grid,
+        .feature-list {
             display: grid;
             gap: 12px;
         }
@@ -407,7 +424,7 @@
             position: relative;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 58px 1fr auto;
+            grid-template-columns: 58px minmax(0, 1fr) auto;
             align-items: center;
             gap: 12px;
             padding: 18px 16px 18px 15px;
@@ -442,7 +459,6 @@
             justify-content: center;
             background: rgba(255,255,255,0.16);
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
             font-size: 28px;
             flex-shrink: 0;
         }
@@ -450,9 +466,11 @@
         .menu-copy strong {
             display: block;
             margin-bottom: 4px;
-            font-size: 21px;
+            font-size: clamp(18px, 5vw, 21px);
             font-weight: 900;
             letter-spacing: -0.04em;
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .menu-copy p {
@@ -468,12 +486,13 @@
             font-size: 28px;
             font-weight: 700;
             opacity: 0.9;
+            align-self: center;
         }
 
         .pricing-intro {
             padding: 16px;
             border-radius: 22px;
-            background: linear-gradient(135deg, rgba(255,154,78,0.14), rgba(255,255,255,0.94));
+            background: linear-gradient(135deg, rgba(255,154,78,0.14), rgba(255,255,255,0.96));
             border: 1px solid rgba(255,146,69,0.18);
             box-shadow: var(--shadow-sm);
             margin-bottom: 12px;
@@ -486,6 +505,7 @@
                 font-weight: 900;
                 color: var(--navy);
                 letter-spacing: -0.03em;
+                word-break: keep-all;
             }
 
             .pricing-intro span {
@@ -495,6 +515,7 @@
                 line-height: 1.55;
                 color: #5d6d8c;
                 font-weight: 700;
+                word-break: keep-all;
             }
 
         .free-banner {
@@ -520,11 +541,12 @@
         .free-banner strong {
             display: block;
             margin-top: 10px;
-            font-size: 22px;
-            line-height: 1.2;
+            font-size: clamp(20px, 5.5vw, 22px);
+            line-height: 1.25;
             font-weight: 900;
             letter-spacing: -0.04em;
             color: var(--navy);
+            word-break: keep-all;
         }
 
         .free-banner p {
@@ -533,11 +555,7 @@
             line-height: 1.6;
             color: var(--muted);
             font-weight: 700;
-        }
-
-        .pricing-grid {
-            display: grid;
-            gap: 14px;
+            word-break: keep-all;
         }
 
         .pricing-card {
@@ -594,18 +612,21 @@
             }
 
         .plan-name {
-            font-size: 23px;
+            font-size: clamp(21px, 5.4vw, 23px);
             font-weight: 900;
             letter-spacing: -0.04em;
             color: var(--navy);
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .plan-price {
             margin-top: 6px;
-            font-size: 33px;
+            font-size: clamp(29px, 7vw, 33px);
             font-weight: 900;
             letter-spacing: -0.05em;
             color: var(--navy);
+            line-height: 1.1;
         }
 
             .plan-price small {
@@ -621,12 +642,7 @@
             line-height: 1.55;
             color: #5f6f8f;
             font-weight: 700;
-        }
-
-        .feature-list {
-            display: grid;
-            gap: 8px;
-            margin: 14px 0 16px;
+            word-break: keep-all;
         }
 
         .feature-item {
@@ -637,6 +653,7 @@
             line-height: 1.5;
             color: #39507d;
             font-weight: 700;
+            word-break: keep-all;
         }
 
             .feature-item::before {
@@ -644,6 +661,7 @@
                 margin-top: 1px;
                 color: var(--blue);
                 font-weight: 900;
+                flex-shrink: 0;
             }
 
         .featured .feature-item::before {
@@ -657,6 +675,7 @@
             line-height: 1.5;
             color: #7b89a4;
             font-weight: 800;
+            word-break: keep-all;
         }
 
         .pay-btn {
@@ -689,18 +708,20 @@
             line-height: 1.5;
             color: #6f7f9d;
             font-weight: 800;
+            word-break: keep-all;
         }
 
         .note-box {
             margin-top: 12px;
             padding: 14px;
             border-radius: 18px;
-            background: rgba(255,255,255,0.74);
+            background: rgba(255,255,255,0.82);
             border: 1px solid rgba(56,86,167,0.08);
             color: #52627f;
             font-size: 13px;
             line-height: 1.6;
             font-weight: 700;
+            word-break: keep-all;
         }
 
         .status {
@@ -709,21 +730,27 @@
             font-size: 14px;
             font-weight: 800;
             color: var(--navy-2);
+            line-height: 1.4;
+            word-break: keep-all;
         }
 
         .bottom-nav {
             position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
+            right: 0;
             bottom: 0;
             width: 100%;
-            max-width: 430px;
             padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(14px);
+            background: rgba(255,255,255,0.97);
             border-top: 1px solid rgba(49,74,143,0.09);
             box-shadow: 0 -10px 30px rgba(34,55,101,0.07);
             z-index: 20;
+        }
+
+        .bottom-nav-inner {
+            width: 100%;
+            max-width: var(--page-max);
+            margin: 0 auto;
         }
 
         .nav-grid {
@@ -749,42 +776,91 @@
             display: block;
             margin-bottom: 4px;
             font-size: 20px;
+            line-height: 1;
+        }
+
+        @media (max-width: 560px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-link {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .ghost-btn {
+                padding: 11px 14px;
+            }
+
+            .menu-card {
+                grid-template-columns: 52px minmax(0, 1fr) auto;
+                gap: 10px;
+                padding: 16px 14px 16px 14px;
+            }
+
+            .icon-circle {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+
+            .cta-sub-row {
+                flex-direction: column;
+            }
+
+            .cta-sub {
+                width: 100%;
+                min-width: 0;
+            }
         }
 
         @media (max-width: 390px) {
             .brand-title {
-                font-size: 25px;
-            }
-
-            .hero {
-                min-height: 690px;
+                font-size: 24px;
             }
 
             .hero-overlay {
-                min-height: 690px;
-                padding: 22px 18px 24px;
+                min-height: 460px;
+                padding: 20px 16px 22px;
             }
 
-            .hero-copy-block h1 {
-                font-size: 50px;
-            }
-
-            .hero-copy-block .sub-title {
-                font-size: 21px;
+            .hero-overlay2 {
+                min-height: 240px;
+                padding: 20px 16px 22px;
             }
 
             .hero-copy-block .desc {
-                font-size: 15px;
+                font-size: 14px;
             }
 
-            .cta-sub-row {
-                grid-template-columns: 1fr;
+            .menu-copy strong {
+                font-size: 17px;
+            }
+
+            .menu-copy p {
+                font-size: 12px;
+            }
+
+            .arrow {
+                font-size: 22px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="phone">
+    <div class="page">
         <div class="bg-orb orb-a"></div>
         <div class="bg-orb orb-b"></div>
         <div class="bg-orb orb-c"></div>
@@ -805,21 +881,23 @@
                     <div class="hero-bottom">
                         <div class="hero-copy-block">
                             <h1>
-                                당신의 <span class="accent">첫인상</span> 을
+                                당신의 <span class="accent-blue">첫인상</span>을
                             </h1>
                             <h2>
-                                <span class="accent">호감</span>  있게 바꿔보세요
+                                <span class="accent-orange">호감</span> 있게 바꿔보세요
                             </h2>
-                            <p class="sub-title">첫인상 하나로 인생이 달라집니다</p> 
+                            <p class="sub-title">
+                                <span class="accent-white">첫인상 하나로</span> 인생이 달라집니다
+                            </p>
                             <p class="desc">
-                                AI 기반 인상 개선 시뮬레이션<br />
+                                <span class="accent-blue">AI 기반</span> 인상 개선 시뮬레이션<br />
                                 지금 바로 확인하세요
                             </p>
                         </div>
 
                         <div class="hero-actions">
                             <button class="cta-main" id="mainCTA" type="button">
-                                3초 만에 첫인상 점수 확인하기
+                                <span class="accent-white">3초 만에</span> 첫인상 점수 확인하기
                             </button>
 
                             <div class="cta-sub-row">
@@ -834,12 +912,16 @@
             <section class="hero2">
                 <div class="hero-overlay2">
                     <div class="hero-spacer2"></div>
+
                     <div class="hero-bottom2">
                         <div class="hero-copy-block2">
-                            <p class="sub-title">당신의 인상은 현재 상위 36% 입니다</p>
+                            <p class="sub-title">
+                                당신의 인상은 현재 <span class="accent-orange">상위 36%</span> 입니다
+                            </p>
                         </div>
+
                         <div class="hero-actions2">
-                            <button class="cta-main" id="mainCTA" type="button">
+                            <button class="cta-main" id="scoreCTA" type="button">
                                 지금 내 점수 확인하기
                             </button>
                         </div>
@@ -861,7 +943,7 @@
                         <div class="icon-circle">😊</div>
                         <div class="menu-copy">
                             <strong>첫인상 분석</strong>
-                            <p>얼굴 분석, 점수 산출, 핵심 감점 요소를 빠르게 확인</p>
+                            <p>얼굴 분석, 점수 산출, <span class="accent-white">핵심 감점 요소</span>를 빠르게 확인</p>
                         </div>
                         <div class="arrow">›</div>
                     </a>
@@ -904,7 +986,11 @@
                 </div>
 
                 <div class="pricing-intro">
-                    <strong>먼저 무료로 확인하고, 필요하면 결과만 열거나 월 구독으로 계속 개선하세요.</strong>
+                    <strong>
+                        먼저 <span class="accent-blue">무료</span>로 확인하고,
+                        필요하면 <span class="accent-orange">결과만 열거나</span>
+                        월 구독으로 계속 개선하세요.
+                    </strong>
                     <span>
                         무료 진단으로 관심을 만들고, 1회 결제로 결과를 열어보게 한 뒤,
                         반복 훈련이 필요한 사용자를 월 구독으로 전환시키는 구조입니다.
@@ -913,7 +999,7 @@
 
                 <div class="free-banner">
                     <div class="free-badge">무료 시작</div>
-                    <strong>현재 점수 + 핵심 문제는 무료로 확인</strong>
+                    <strong><span class="accent-blue">현재 점수</span> + 핵심 문제는 무료로 확인</strong>
                     <p>
                         첫 촬영 후 현재 첫인상 점수, 위험 포인트, 핵심 개선 항목 일부를 바로 공개합니다.
                         전후 비교, 전체 분석, 반복 훈련은 잠금 상태로 제공합니다.
@@ -945,7 +1031,7 @@
                         </div>
 
                         <button class="pay-btn" data-plan="result_once" type="button">
-                            2,000원으로 전체 결과 열기
+                            <span class="accent-white">2,000원</span>으로 전체 결과 열기
                         </button>
                     </div>
 
@@ -974,7 +1060,7 @@
                         </div>
 
                         <button class="pay-btn orange" data-plan="membership_month" type="button">
-                            월 9,900원으로 계속 개선하기
+                            <span class="accent-white">월 9,900원</span>으로 계속 개선하기
                         </button>
                         <div class="sub-note">다음 결제 전 언제든 해지 가능</div>
                     </div>
@@ -989,21 +1075,24 @@
                 <div class="status" id="statusText"></div>
             </section>
         </main>
+    </div>
 
-        <nav class="bottom-nav" aria-label="하단 메뉴">
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+        <div class="bottom-nav-inner">
             <div class="nav-grid">
                 <a href="#" class="nav-item active"><span class="nav-ico">🏠</span>홈</a>
                 <a href="#" class="nav-item"><span class="nav-ico">🎯</span>훈련</a>
                 <a href="#" class="nav-item"><span class="nav-ico">📈</span>리포트</a>
                 <a href="#" class="nav-item"><span class="nav-ico">👤</span>마이</a>
             </div>
-        </nav>
-    </div>
+        </div>
+    </nav>
 
     <script>
         const statusText = document.getElementById("statusText");
         const payButtons = document.querySelectorAll(".pay-btn");
         const mainCTA = document.getElementById("mainCTA");
+        const scoreCTA = document.getElementById("scoreCTA");
         const uploadBtn = document.getElementById("uploadBtn");
         const demoBtn = document.getElementById("demoBtn");
 
@@ -1013,12 +1102,16 @@
 
         function setLoading(button, loading) {
             if (!button) return;
+
             button.disabled = loading;
-            const original = button.dataset.originalText || button.textContent;
-            if (!button.dataset.originalText) {
-                button.dataset.originalText = original;
+
+            if (!button.dataset.originalHtml) {
+                button.dataset.originalHtml = button.innerHTML;
             }
-            button.textContent = loading ? "결제 페이지로 이동 중..." : button.dataset.originalText;
+
+            button.innerHTML = loading
+                ? "결제 페이지로 이동 중..."
+                : button.dataset.originalHtml;
         }
 
         async function startCheckout(planKey, clickedButton) {
@@ -1062,15 +1155,19 @@
             });
         });
 
-        mainCTA.addEventListener("click", () => {
+        mainCTA?.addEventListener("click", () => {
             alert("여기에 촬영 / 업로드 → 분석 페이지를 연결하면 됩니다.");
         });
 
-        uploadBtn.addEventListener("click", () => {
+        scoreCTA?.addEventListener("click", () => {
+            alert("여기에 점수 확인 페이지를 연결하면 됩니다.");
+        });
+
+        uploadBtn?.addEventListener("click", () => {
             alert("사진 업로드 화면으로 연결하면 됩니다.");
         });
 
-        demoBtn.addEventListener("click", () => {
+        demoBtn?.addEventListener("click", () => {
             alert("예시 결과 보기 페이지로 연결하면 됩니다.");
         });
     </script>
