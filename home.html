@@ -2,102 +2,126 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>첫인상 트레이닝 | AI First Impression Lab</title>
     <style>
         :root {
-            --bg-start: #f8fbff;
-            --bg-mid: #edf5ff;
-            --bg-end: #dcecff;
-            --navy: #1d2f66;
-            --navy-soft: #324a85;
+            --bg-1: #f7fbff;
+            --bg-2: #eaf3ff;
+            --bg-3: #dcecff;
+            --navy: #162a5f;
+            --navy-2: #29427e;
             --blue: #2f73d9;
-            --blue-2: #65a8ff;
-            --sky: #dfeeff;
-            --orange: #ff9d42;
-            --orange-2: #ff7f4d;
-            --purple: #8e5cff;
-            --purple-2: #6f43e7;
-            --green: #29b56f;
-            --card: rgba(255,255,255,0.92);
-            --line: rgba(34,55,108,0.08);
-            --text: #203055;
-            --muted: #6b7a99;
-            --shadow-xl: 0 28px 52px rgba(23,41,90,0.15);
-            --shadow-lg: 0 20px 40px rgba(24,42,92,0.12);
-            --shadow-md: 0 14px 28px rgba(24,42,92,0.10);
+            --blue-2: #66a8ff;
+            --orange: #ff9b47;
+            --orange-2: #ff764f;
+            --purple: #835cff;
+            --green: #1faf67;
+            --text: #223253;
+            --muted: #6c7a98;
+            --line: rgba(32, 56, 108, 0.08);
+            --card: rgba(255, 255, 255, 0.96);
+            --shadow-xl: 0 28px 56px rgba(24, 42, 92, 0.14);
+            --shadow-lg: 0 18px 36px rgba(24, 42, 92, 0.12);
+            --shadow-md: 0 14px 28px rgba(24, 42, 92, 0.09);
+            --shadow-sm: 0 10px 22px rgba(24, 42, 92, 0.08);
             --radius-2xl: 34px;
-            --radius-xl: 26px;
+            --radius-xl: 28px;
             --radius-lg: 22px;
             --radius-md: 18px;
+            --page-max: 760px;
+            --bottom-nav-h: 82px;
         }
 
         * {
             box-sizing: border-box;
+            min-width: 0;
         }
 
-        html, body {
+        html {
             margin: 0;
-            min-height: 100%;
-            font-family: "Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-            color: var(--text);
-            background: radial-gradient(circle at 14% 8%, rgba(255,255,255,0.94), transparent 18%), radial-gradient(circle at 86% 10%, rgba(255,255,255,0.74), transparent 18%), linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 36%, var(--bg-end) 100%);
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 42%, var(--bg-3) 100%);
         }
 
         body {
-            display: flex;
-            justify-content: center;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-        }
-
-        .phone {
-            width: 100%;
-            max-width: 430px;
-            min-height: 100vh;
-            position: relative;
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at 12% 10%, rgba(255,255,255,0.95), transparent 18%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.72), transparent 20%), linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 42%, var(--bg-3) 100%);
             overflow-x: hidden;
-            background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(244,248,255,0.96));
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.72) inset;
         }
 
-        .content {
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        a,
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .page {
             position: relative;
-            z-index: 1;
-            padding: 20px 16px 120px;
+            width: 100%;
+            max-width: var(--page-max);
+            margin: 0 auto;
+            overflow-x: clip;
+            background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(245,249,255,0.96));
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.75) inset;
         }
 
         .bg-orb {
             position: absolute;
             border-radius: 999px;
-            filter: blur(12px);
-            opacity: 0.58;
             pointer-events: none;
+            opacity: 0.58;
             z-index: 0;
+            filter: blur(18px);
         }
 
         .orb-a {
             width: 180px;
             height: 180px;
-            top: 70px;
+            top: 72px;
             left: -50px;
-            background: radial-gradient(circle, rgba(118,183,255,0.62), rgba(118,183,255,0));
+            background: radial-gradient(circle, rgba(123,190,255,0.58), rgba(123,190,255,0));
         }
 
         .orb-b {
             width: 220px;
             height: 220px;
-            top: 340px;
-            right: -88px;
-            background: radial-gradient(circle, rgba(255,194,142,0.58), rgba(255,194,142,0));
+            top: 400px;
+            right: -90px;
+            background: radial-gradient(circle, rgba(255,186,127,0.55), rgba(255,186,127,0));
         }
 
         .orb-c {
-            width: 170px;
-            height: 170px;
-            bottom: 150px;
-            left: -36px;
-            background: radial-gradient(circle, rgba(164,129,255,0.35), rgba(164,129,255,0));
+            width: 180px;
+            height: 180px;
+            bottom: 120px;
+            left: -40px;
+            background: radial-gradient(circle, rgba(151,117,255,0.35), rgba(151,117,255,0));
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: calc(18px + env(safe-area-inset-top)) 16px calc(var(--bottom-nav-h) + 34px + env(safe-area-inset-bottom)) 16px;
         }
 
         .topbar {
@@ -117,347 +141,236 @@
 
         .brand-mini {
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
             color: var(--blue);
             letter-spacing: 0.02em;
         }
 
         .brand-title {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
-            color: var(--navy);
             letter-spacing: -0.05em;
+            color: var(--navy);
+            line-height: 1.15;
+            word-break: keep-all;
         }
 
-        .solid-btn {
+        .ghost-btn {
             border: 0;
             cursor: pointer;
             padding: 12px 16px;
             border-radius: 999px;
-            background: linear-gradient(135deg, var(--blue), #4a8cff);
-            color: #fff;
+            background: rgba(255,255,255,0.94);
+            color: var(--navy);
             font-size: 14px;
             font-weight: 900;
-            box-shadow: 0 14px 26px rgba(54,109,220,0.24);
-        }
-
-        .hero {
-            position: relative;
-            overflow: hidden;
-            border-radius: var(--radius-2xl);
-            padding: 20px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(239,246,255,0.97));
-            border: 1px solid rgba(56,86,167,0.08);
-            box-shadow: var(--shadow-xl);
-            backdrop-filter: blur(10px);
-        }
-
-        .hero-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .hero-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            max-width: calc(100% - 110px);
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 900;
-            color: #31589a;
-            background: rgba(111,180,255,0.14);
-            border: 1px solid rgba(95,161,241,0.16);
-        }
-
-            .chip.light-orange {
-                color: #b45a16;
-                background: rgba(255,176,107,0.16);
-                border: 1px solid rgba(255,165,82,0.16);
-            }
-
-        .hero-score {
-            min-width: 104px;
-            border-radius: 24px;
-            background: linear-gradient(180deg, #ffbc6f, #ff8746);
-            color: #fff;
-            padding: 14px 12px;
-            box-shadow: 0 16px 30px rgba(248,132,55,0.30);
-            border: 3px solid rgba(255,255,255,0.88);
-            text-align: center;
+            box-shadow: 0 10px 20px rgba(28, 48, 97, 0.08);
             flex-shrink: 0;
         }
 
-            .hero-score .score-label {
-                font-size: 12px;
-                line-height: 1.15;
-                font-weight: 900;
-                opacity: 0.96;
-            }
-
-            .hero-score .score-value {
-                display: block;
-                font-size: 42px;
-                line-height: 1;
-                margin-top: 6px;
-                letter-spacing: -0.06em;
-                font-weight: 900;
-            }
-
-            .hero-score .score-meta {
-                display: block;
-                margin-top: 7px;
-                font-size: 11px;
-                line-height: 1.35;
-                opacity: 0.94;
-                font-weight: 800;
-            }
-
-        .hero-copy h1 {
-            margin: 0;
-            font-size: 39px;
-            line-height: 1.03;
-            letter-spacing: -0.075em;
-            color: var(--navy);
-        }
-
-        .hero-copy .accent {
-            color: var(--blue);
-        }
-
-        .hero-copy p {
-            margin: 14px 0 0;
-            font-size: 16px;
-            line-height: 1.62;
-            color: var(--muted);
-            font-weight: 700;
-            word-break: keep-all;
-        }
-
-        .hero-ai-note {
-            margin-top: 10px;
-            font-size: 13px;
-            line-height: 1.5;
-            color: #6b7a99;
-            font-weight: 700;
-        }
-
-        .hero-compare-wrap {
+        .hero,
+        .hero2 {
             position: relative;
-            margin-top: 18px;
-            margin-bottom: 18px;
-            padding: 14px;
-            border-radius: 30px;
-            background: linear-gradient(180deg, rgba(227,240,255,0.72), rgba(255,255,255,0.7));
-            border: 1px solid rgba(66,105,191,0.08);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
-        }
-
-        .hero-compare-badge {
-            position: absolute;
-            top: 8px;
-            left: 12px;
-            z-index: 4;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.9);
-            color: #2a4e9b;
-            font-size: 12px;
-            font-weight: 900;
-            box-shadow: 0 10px 20px rgba(30,49,101,0.10);
-        }
-
-        .hero-compare-score {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            z-index: 4;
-            padding: 10px 13px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #ffb55d, #ff8247);
-            color: #fff;
-            text-align: center;
-            box-shadow: 0 16px 26px rgba(248,132,55,0.24);
-            border: 2px solid rgba(255,255,255,0.78);
-        }
-
-            .hero-compare-score small {
-                display: block;
-                font-size: 11px;
-                line-height: 1.1;
-                font-weight: 900;
-            }
-
-            .hero-compare-score strong {
-                display: block;
-                font-size: 26px;
-                line-height: 1;
-                margin-top: 4px;
-                font-weight: 900;
-                letter-spacing: -0.05em;
-            }
-
-        .compare-grid {
-            display: grid;
-            grid-template-columns: 1fr 34px 1fr;
-            gap: 12px;
-            align-items: center;
-            min-height: 230px;
-            padding-top: 28px;
-        }
-
-        .compare-card {
-            position: relative;
-            border-radius: 26px;
             overflow: hidden;
-            min-height: 230px;
-            background: linear-gradient(180deg, #dfeeff 0%, #bdd7ff 48%, #a5c9ff 100%);
-            border: 1px solid rgba(255,255,255,0.76);
-            box-shadow: 0 20px 34px rgba(37,57,108,0.16);
+            border-radius: var(--radius-2xl);
+            border: 1px solid rgba(58,88,166,0.08);
+            box-shadow: var(--shadow-xl);
+            background-color: #d9e8fb;
         }
 
-            .compare-card.after {
-                background: linear-gradient(180deg, #ffe6d2 0%, #ffc99d 46%, #ffa66f 100%);
+        .hero {
+            background: linear-gradient(180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100%), url('./images/main6.png') center top / cover no-repeat;
+        }
+
+        .hero2 {
+            background: linear-gradient(180deg, rgba(12, 22, 52, 0.02) 0%, rgba(12, 22, 52, 0.10) 72%, rgba(12, 22, 52, 0.18) 100%), url('./images/main5.png') center top / cover no-repeat;
+            margin-top: 18px;
+        }
+
+            .hero::after,
+            .hero2::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(17,28,63,0.12) 56%, rgba(17,28,63,0.30) 100%);
+                pointer-events: none;
             }
 
-        .compare-inner {
-            position: absolute;
-            inset: 0;
+        .hero-overlay,
+        .hero-overlay2 {
+            position: relative;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            padding: 18px;
-            z-index: 2;
+            padding: clamp(22px, 4vw, 30px);
         }
 
-        .compare-state {
-            position: absolute;
-            left: 12px;
-            top: 14px;
-            z-index: 3;
-            padding: 9px 13px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.9);
-            color: #2e4e92;
-            font-size: 12px;
-            font-weight: 900;
-            box-shadow: 0 8px 18px rgba(24,43,91,0.10);
+        .hero-overlay {
+            min-height: clamp(500px, 78svh, 760px);
         }
 
-        .compare-card.after .compare-state {
-            color: #b55b18;
+        .hero-overlay2 {
+            min-height: clamp(260px, 42svh, 420px);
         }
 
-        .compare-copy {
+        .hero-spacer,
+        .hero-spacer2 {
+            flex: 1 1 auto;
+        }
+
+        .hero-bottom,
+        .hero-bottom2 {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .hero-copy-block,
+        .hero-copy-block2 {
+            text-align: center;
             color: #fff;
-            text-shadow: 0 3px 12px rgba(17,28,63,0.28);
+            text-shadow: 0 4px 18px rgba(15, 24, 52, 0.35);
         }
 
-            .compare-copy strong {
-                display: block;
-                font-size: 24px;
-                line-height: 1.08;
+            .hero-copy-block h1,
+            .hero-copy-block h2,
+            .hero-copy-block2 h1,
+            .hero-copy-block2 h2,
+            .hero-copy-block .sub-title,
+            .hero-copy-block .desc,
+            .hero-copy-block2 .sub-title {
+                margin-left: auto;
+                margin-right: auto;
+                word-break: keep-all;
+                overflow-wrap: break-word;
+            }
+
+            .hero-copy-block h1 {
+                margin-top: 0;
+                margin-bottom: 0;
+                font-size: clamp(31px, 8vw, 46px);
+                line-height: 1.18;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block h2 {
+                margin-top: 0;
+                margin-bottom: 0;
+                font-size: clamp(27px, 7vw, 38px);
+                line-height: 1.18;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
+
+            .hero-copy-block .sub-title {
+                margin-top: 14px;
+                margin-bottom: 0;
+                font-size: clamp(17px, 4.6vw, 20px);
+                line-height: 1.35;
                 font-weight: 900;
                 letter-spacing: -0.05em;
-                margin-bottom: 10px;
+                text-align: center;
             }
 
-            .compare-copy span {
-                display: block;
-                font-size: 13px;
+            .hero-copy-block .desc {
+                margin-top: 12px;
+                margin-bottom: 0;
+                font-size: clamp(14px, 3.9vw, 17px);
                 line-height: 1.55;
-                font-weight: 800;
-                opacity: 0.98;
-                word-break: keep-all;
+                font-weight: 700;
+                color: rgba(255,255,255,0.94);
+                text-align: center;
             }
 
-        .compare-arrow {
-            width: 34px;
-            height: 34px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #9b68ff, #ff7dbc);
-            color: #fff;
-            font-weight: 900;
-            box-shadow: 0 14px 24px rgba(110,74,187,0.24);
-            font-size: 18px;
-        }
+            .hero-copy-block2 h1 {
+                margin: 0;
+                font-size: clamp(32px, 8vw, 50px);
+                line-height: 1.2;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
 
-        .compare-foot {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 14px;
-        }
+            .hero-copy-block2 h2 {
+                margin: 0;
+                font-size: clamp(28px, 7vw, 44px);
+                line-height: 1.2;
+                letter-spacing: -0.08em;
+                font-weight: 900;
+            }
 
-        .mini-pill {
-            padding: 9px 13px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.84);
-            border: 1px solid rgba(56,86,167,0.08);
-            color: #40557f;
-            font-size: 12px;
-            font-weight: 900;
-            box-shadow: 0 10px 20px rgba(31,48,92,0.05);
-        }
+            .hero-copy-block2 .sub-title {
+                margin-top: 14px;
+                margin-bottom: 0;
+                font-size: clamp(18px, 4.8vw, 24px);
+                line-height: 1.35;
+                font-weight: 900;
+                letter-spacing: -0.05em;
+                text-align: center;
+            }
 
-        .hero-actions {
+        .hero-actions,
+        .hero-actions2 {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
             gap: 12px;
-            margin-top: 14px;
+            margin-top: 6px;
         }
 
-        .cta-btn {
+        .accent-blue {
+            color: var(--blue-2);
+            font-weight: 900;
+        }
+
+        .accent-orange {
+            color: var(--orange);
+            font-weight: 900;
+        }
+
+        .accent-white {
+            color: #ffffff;
+            font-weight: 900;
+        }
+
+        .cta-main {
             border: 0;
             cursor: pointer;
-            border-radius: 24px;
-            padding: 20px 18px;
-            text-align: left;
+            width: 100%;
+            border-radius: 999px;
+            padding: 14px 14px;
+            text-align: center;
             color: #fff;
+            background: linear-gradient(180deg, #67a8ff 0%, #2d73de 100%);
+            box-shadow: 0 18px 34px rgba(42, 102, 211, 0.30), inset 0 1px 0 rgba(255,255,255,0.38);
             transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+            font-size: clamp(17px, 4.7vw, 20px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
         }
 
-            .cta-btn:active {
+            .cta-main:active {
                 transform: scale(0.985);
             }
 
-        .cta-main {
-            background: linear-gradient(135deg, var(--orange), var(--orange-2));
-            box-shadow: 0 18px 32px rgba(255,132,65,0.22);
+        .cta-sub-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .cta-sub {
-            background: linear-gradient(135deg, var(--purple), var(--purple-2));
-            box-shadow: 0 18px 32px rgba(110,74,187,0.18);
-        }
-
-        .cta-btn strong {
-            display: block;
-            font-size: 18px;
+            flex: 1 1 0;
+            min-width: 140px;
+            border: 0;
+            cursor: pointer;
+            border-radius: 18px;
+            padding: 12px 10px;
+            background: rgba(255,255,255,0.94);
+            color: var(--navy);
+            font-size: 14px;
             font-weight: 900;
-            margin-bottom: 6px;
-            letter-spacing: -0.03em;
-        }
-
-        .cta-btn span {
-            display: block;
-            font-size: 13px;
-            opacity: 0.95;
-            font-weight: 800;
-            line-height: 1.5;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
         }
 
         .section {
@@ -474,28 +387,35 @@
         }
 
         .section-title {
-            font-size: 22px;
+            font-size: clamp(21px, 5.5vw, 23px);
             font-weight: 900;
-            color: var(--navy);
             letter-spacing: -0.05em;
+            color: var(--navy);
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .section-sub {
+            margin-top: 4px;
             font-size: 14px;
             color: var(--muted);
             font-weight: 700;
-            margin-top: 4px;
+            line-height: 1.5;
+            word-break: keep-all;
         }
 
         .section-link {
+            text-decoration: none;
+            white-space: nowrap;
             color: var(--blue);
             font-size: 14px;
             font-weight: 900;
-            text-decoration: none;
-            white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        .menu-list {
+        .menu-list,
+        .pricing-grid,
+        .feature-list {
             display: grid;
             gap: 12px;
         }
@@ -503,53 +423,54 @@
         .menu-card {
             position: relative;
             overflow: hidden;
-            border-radius: 24px;
-            padding: 18px 16px 18px 15px;
             display: grid;
-            grid-template-columns: 56px 1fr auto;
+            grid-template-columns: 58px minmax(0, 1fr) auto;
             align-items: center;
             gap: 12px;
+            padding: 18px 16px 18px 15px;
+            border-radius: 24px;
             text-decoration: none;
             color: #fff;
             box-shadow: 0 18px 28px rgba(32,48,85,0.13);
         }
 
             .menu-card.blue {
-                background: linear-gradient(135deg, #3f90ff, #1f5ec0);
+                background: linear-gradient(135deg, #4294ff, #2161c3);
             }
 
             .menu-card.green {
-                background: linear-gradient(135deg, #42bb60, #257842);
+                background: linear-gradient(135deg, #43bf65, #277d44);
             }
 
             .menu-card.dark {
-                background: linear-gradient(135deg, #6c7893, #394964);
+                background: linear-gradient(135deg, #717f9c, #3c4a66);
             }
 
             .menu-card.orange {
-                background: linear-gradient(135deg, #ffb24d, #ff7d4f);
+                background: linear-gradient(135deg, #ffb14a, #ff7a50);
             }
 
         .icon-circle {
-            width: 56px;
-            height: 56px;
+            width: 58px;
+            height: 58px;
             border-radius: 18px;
-            background: rgba(255,255,255,0.16);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            background: rgba(255,255,255,0.16);
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
+            font-size: 28px;
             flex-shrink: 0;
         }
 
         .menu-copy strong {
             display: block;
-            font-size: 21px;
+            margin-bottom: 4px;
+            font-size: clamp(18px, 5vw, 21px);
             font-weight: 900;
             letter-spacing: -0.04em;
-            margin-bottom: 4px;
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .menu-copy p {
@@ -557,7 +478,7 @@
             font-size: 13px;
             line-height: 1.5;
             font-weight: 700;
-            opacity: 0.95;
+            opacity: 0.96;
             word-break: keep-all;
         }
 
@@ -565,26 +486,112 @@
             font-size: 28px;
             font-weight: 700;
             opacity: 0.9;
+            align-self: center;
         }
 
-        .pricing-grid {
-            display: grid;
-            gap: 14px;
+        .pricing-intro {
+            padding: 16px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(255,154,78,0.14), rgba(255,255,255,0.96));
+            border: 1px solid rgba(255,146,69,0.18);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 12px;
+        }
+
+            .pricing-intro strong {
+                display: block;
+                font-size: 18px;
+                line-height: 1.35;
+                font-weight: 900;
+                color: var(--navy);
+                letter-spacing: -0.03em;
+                word-break: keep-all;
+            }
+
+            .pricing-intro span {
+                display: block;
+                margin-top: 6px;
+                font-size: 13px;
+                line-height: 1.55;
+                color: #5d6d8c;
+                font-weight: 700;
+                word-break: keep-all;
+            }
+
+        .free-banner {
+            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(241,247,255,0.96));
+            border: 1px solid rgba(47,115,217,0.12);
+            box-shadow: var(--shadow-md);
+        }
+
+        .free-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(47,115,217,0.1);
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .free-banner strong {
+            display: block;
+            margin-top: 10px;
+            font-size: clamp(20px, 5.5vw, 22px);
+            line-height: 1.25;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: var(--navy);
+            word-break: keep-all;
+        }
+
+        .free-banner p {
+            margin: 8px 0 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--muted);
+            font-weight: 700;
+            word-break: keep-all;
         }
 
         .pricing-card {
+            position: relative;
+            padding: 18px 16px;
+            border-radius: 26px;
             background: var(--card);
             border: 1px solid var(--line);
-            border-radius: 26px;
-            padding: 18px 16px;
             box-shadow: var(--shadow-md);
         }
+
+            .pricing-card.featured {
+                background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(240,247,255,0.96));
+                border: 1.5px solid rgba(47,115,217,0.18);
+                box-shadow: 0 20px 34px rgba(42,89,180,0.14);
+                transform: translateY(-2px);
+            }
+
+                .pricing-card.featured::before {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    border-radius: 26px;
+                    padding: 1px;
+                    background: linear-gradient(135deg, rgba(70,138,255,0.34), rgba(255,153,76,0.22));
+                    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                    -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+                    pointer-events: none;
+                }
 
         .pricing-top {
             display: flex;
             justify-content: space-between;
-            gap: 12px;
             align-items: flex-start;
+            gap: 12px;
             margin-bottom: 12px;
         }
 
@@ -599,55 +606,77 @@
             color: var(--blue);
         }
 
-            .badge.green {
-                background: rgba(41,181,111,0.12);
-                color: var(--green);
+            .badge.orange {
+                background: rgba(255,145,72,0.14);
+                color: #d66d20;
             }
 
         .plan-name {
-            font-size: 22px;
+            font-size: clamp(21px, 5.4vw, 23px);
             font-weight: 900;
-            color: var(--navy);
             letter-spacing: -0.04em;
+            color: var(--navy);
+            line-height: 1.2;
+            word-break: keep-all;
         }
 
         .plan-price {
             margin-top: 6px;
-            font-size: 32px;
+            font-size: clamp(29px, 7vw, 33px);
             font-weight: 900;
-            color: var(--navy);
             letter-spacing: -0.05em;
+            color: var(--navy);
+            line-height: 1.1;
         }
 
             .plan-price small {
-                font-size: 14px;
-                color: var(--muted);
-                font-weight: 800;
                 margin-left: 4px;
+                font-size: 14px;
+                font-weight: 800;
+                color: var(--muted);
             }
 
-        .feature-list {
-            display: grid;
-            gap: 8px;
-            margin: 14px 0 16px;
+        .plan-desc {
+            margin-top: 8px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: #5f6f8f;
+            font-weight: 700;
+            word-break: keep-all;
         }
 
         .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
             font-size: 14px;
+            line-height: 1.5;
             color: #39507d;
             font-weight: 700;
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            line-height: 1.5;
+            word-break: keep-all;
         }
 
             .feature-item::before {
                 content: "✓";
+                margin-top: 1px;
                 color: var(--blue);
                 font-weight: 900;
-                margin-top: 1px;
+                flex-shrink: 0;
             }
+
+        .featured .feature-item::before {
+            color: #ff8d4f;
+        }
+
+        .price-mini-note {
+            margin-top: -2px;
+            margin-bottom: 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #7b89a4;
+            font-weight: 800;
+            word-break: keep-all;
+        }
 
         .pay-btn {
             width: 100%;
@@ -662,9 +691,9 @@
             box-shadow: 0 16px 26px rgba(54,109,220,0.22);
         }
 
-            .pay-btn.green {
-                background: linear-gradient(135deg, #35ba73, #1e8f56);
-                box-shadow: 0 16px 26px rgba(46,160,99,0.22);
+            .pay-btn.orange {
+                background: linear-gradient(135deg, #ff9e52, #ff7d4f);
+                box-shadow: 0 16px 26px rgba(255,132,65,0.24);
             }
 
             .pay-btn[disabled] {
@@ -672,44 +701,61 @@
                 cursor: wait;
             }
 
+        .sub-note {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #6f7f9d;
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
         .note-box {
             margin-top: 12px;
-            background: rgba(255,255,255,0.72);
-            border: 1px solid rgba(56,86,167,0.08);
-            border-radius: 18px;
             padding: 14px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.82);
+            border: 1px solid rgba(56,86,167,0.08);
             color: #52627f;
             font-size: 13px;
             line-height: 1.6;
             font-weight: 700;
+            word-break: keep-all;
         }
 
         .status {
-            margin-top: 12px;
             min-height: 22px;
+            margin-top: 12px;
             font-size: 14px;
-            color: var(--navy-soft);
             font-weight: 800;
+            color: var(--navy-2);
+            line-height: 1.4;
+            word-break: keep-all;
         }
 
         .bottom-nav {
             position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
+            right: 0;
             bottom: 0;
             width: 100%;
-            max-width: 430px;
             padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(14px);
+            background: rgba(255,255,255,0.97);
             border-top: 1px solid rgba(49,74,143,0.09);
             box-shadow: 0 -10px 30px rgba(34,55,101,0.07);
             z-index: 20;
         }
 
+        .bottom-nav-inner {
+            width: 100%;
+            max-width: var(--page-max);
+            margin: 0 auto;
+        }
+
         .nav-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0,1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
             text-align: center;
         }
@@ -728,8 +774,56 @@
 
         .nav-ico {
             display: block;
-            font-size: 20px;
             margin-bottom: 4px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        @media (max-width: 560px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-link {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .ghost-btn {
+                padding: 11px 14px;
+            }
+
+            .menu-card {
+                grid-template-columns: 52px minmax(0, 1fr) auto;
+                gap: 10px;
+                padding: 16px 14px 16px 14px;
+            }
+
+            .icon-circle {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+
+            .cta-sub-row {
+                flex-direction: column;
+            }
+
+            .cta-sub {
+                width: 100%;
+                min-width: 0;
+            }
         }
 
         @media (max-width: 390px) {
@@ -737,33 +831,36 @@
                 font-size: 24px;
             }
 
-            .hero-copy h1 {
-                font-size: 35px;
+            .hero-overlay {
+                min-height: 460px;
+                padding: 20px 16px 22px;
             }
 
-            .hero-tags {
-                max-width: calc(100% - 104px);
+            .hero-overlay2 {
+                min-height: 240px;
+                padding: 20px 16px 22px;
             }
 
-            .compare-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-                padding-top: 34px;
+            .hero-copy-block .desc {
+                font-size: 14px;
             }
 
-            .compare-arrow {
-                justify-self: center;
-                transform: rotate(90deg);
+            .menu-copy strong {
+                font-size: 17px;
             }
 
-            .hero-actions {
-                grid-template-columns: 1fr;
+            .menu-copy p {
+                font-size: 12px;
+            }
+
+            .arrow {
+                font-size: 22px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="phone">
+    <div class="page">
         <div class="bg-orb orb-a"></div>
         <div class="bg-orb orb-b"></div>
         <div class="bg-orb orb-c"></div>
@@ -774,88 +871,61 @@
                     <div class="brand-mini">AI First Impression Lab</div>
                     <div class="brand-title">첫인상 트레이닝</div>
                 </div>
-                <button class="solid-btn" type="button">로그인</button>
+                <button class="ghost-btn" type="button">로그인</button>
             </header>
 
             <section class="hero">
-                <div class="hero-top">
-                    <div class="hero-tags">
-                        <span class="chip">✨ 표정 · 말하기 · 면접 통합 개선</span>
-                        <span class="chip light-orange">3분 진단 · 7일 루틴</span>
-                    </div>
+                <div class="hero-overlay">
+                    <div class="hero-spacer"></div>
 
-                    <div class="hero-score">
-                        <div class="score-label">첫인상 점수</div>
-                        <span class="score-value">72</span>
-                        <span class="score-meta">상위 32%<br />평균 +12<br />AI 분석 기반</span>
-                    </div>
-                </div>
-
-                <div class="hero-copy">
-                    <h1>첫인상은 <span class="accent">타고나는 것</span>보다<br />훈련에 더 가깝습니다</h1>
-                    <p>
-                        표정, 미소, 시선, 답변 태도를 분석하고 Before → After 변화로 보여주는
-                        출시형 첫인상 트레이닝 서비스입니다.
-                    </p>
-                    <div class="hero-ai-note">
-                        AI가 표정, 시선, 말하기 패턴을 분석하여 첫인상을 정량화합니다.
-                    </div>
-                </div>
-
-                <div class="hero-compare-wrap" aria-hidden="true">
-                    <div class="hero-compare-badge">Before → After 변화 미리보기</div>
-                    <div class="hero-compare-score">
-                        <small>예상 개선</small>
-                        <strong>+14</strong>
-                    </div>
-
-                    <div class="compare-grid">
-                        <div class="compare-card before">
-                            <div class="compare-state">Before</div>
-                            <div class="compare-inner">
-                                <div class="compare-copy">
-                                    <strong>현재 인상</strong>
-                                    <span>
-                                        시선 분산 · 미소 약함 · 표정 긴장<br />
-                                        → 신뢰도 낮음 / 집중도 감소
-                                    </span>
-                                </div>
-                            </div>
+                    <div class="hero-bottom">
+                        <div class="hero-copy-block">
+                            <h1>
+                                당신의 <span class="accent-blue">첫인상</span>을
+                            </h1>
+                            <h2>
+                                <span class="accent-orange">호감</span> 있게 바꿔보세요
+                            </h2>
+                            <p class="sub-title">
+                                <span class="accent-white">첫인상 하나로</span> 인생이 달라집니다
+                            </p>
+                            <p class="desc">
+                                <span class="accent-blue">AI 기반</span> 인상 개선 시뮬레이션<br />
+                                지금 바로 확인하세요
+                            </p>
                         </div>
 
-                        <div class="compare-arrow">→</div>
+                        <div class="hero-actions">
+                            <button class="cta-main" id="mainCTA" type="button">
+                                <span class="accent-white">3초 만에</span> 첫인상 점수 확인하기
+                            </button>
 
-                        <div class="compare-card after">
-                            <div class="compare-state">After</div>
-                            <div class="compare-inner">
-                                <div class="compare-copy">
-                                    <strong>훈련 후 변화</strong>
-                                    <span>
-                                        눈맞춤 안정 · 자연스러운 미소 · 자신감 상승<br />
-                                        → 첫인상 전달력 상승 / 면접 대응 안정
-                                    </span>
-                                </div>
+                            <div class="cta-sub-row">
+                                <button class="cta-sub" type="button" id="uploadBtn">사진 업로드</button>
+                                <button class="cta-sub" type="button" id="demoBtn">예시 결과 보기</button>
                             </div>
                         </div>
                     </div>
-
-                    <div class="compare-foot">
-                        <div class="mini-pill">미소 자연스러움 개선</div>
-                        <div class="mini-pill">시선 안정감 향상</div>
-                        <div class="mini-pill">면접 태도 피드백</div>
-                    </div>
                 </div>
+            </section>
 
-                <div class="hero-actions">
-                    <button class="cta-btn cta-main" id="freeTrialBtn" type="button">
-                        <strong>3일 무료 체험 시작</strong>
-                        <span>프리미엄 첫인상 개선 + 전후 비교 기능 포함</span>
-                    </button>
+            <section class="hero2">
+                <div class="hero-overlay2">
+                    <div class="hero-spacer2"></div>
 
-                    <button class="cta-btn cta-sub" id="quickViewBtn" type="button">
-                        <strong>무료 분석만 해보기</strong>
-                        <span>현재 상태만 간단히 확인 (30초)</span>
-                    </button>
+                    <div class="hero-bottom2">
+                        <div class="hero-copy-block2">
+                            <p class="sub-title">
+                                당신의 인상은 현재 <span class="accent-orange">상위 36%</span> 입니다
+                            </p>
+                        </div>
+
+                        <div class="hero-actions2">
+                            <button class="cta-main" id="scoreCTA" type="button">
+                                지금 내 점수 확인하기
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -863,7 +933,7 @@
                 <div class="section-header">
                     <div>
                         <div class="section-title">핵심 메뉴</div>
-                        <div class="section-sub">핵심 기능 2가지로 빠르게 개선 시작</div>
+                        <div class="section-sub">분석 → 훈련 → 비교 → 리포트 흐름으로 설계</div>
                     </div>
                     <a href="#" class="section-link">전체보기</a>
                 </div>
@@ -872,26 +942,26 @@
                     <a href="#" class="menu-card blue">
                         <div class="icon-circle">😊</div>
                         <div class="menu-copy">
-                            <strong>첫인상 개선 🔒</strong>
-                            <p>얼굴 분석, 전후 비교, 미소와 시선 교정 루틴</p>
+                            <strong>첫인상 분석</strong>
+                            <p>얼굴 분석, 점수 산출, <span class="accent-white">핵심 감점 요소</span>를 빠르게 확인</p>
                         </div>
                         <div class="arrow">›</div>
                     </a>
 
                     <a href="#" class="menu-card green">
-                        <div class="icon-circle">🎤</div>
+                        <div class="icon-circle">🎯</div>
                         <div class="menu-copy">
-                            <strong>모의면접 코칭 🔒</strong>
-                            <p>실전 질문, 답변 구조, 표정과 태도를 함께 훈련</p>
+                            <strong>표정 훈련 🔒</strong>
+                            <p>미소, 눈맞춤, 긴장 완화 루틴으로 첫인상 개선</p>
                         </div>
                         <div class="arrow">›</div>
                     </a>
 
                     <a href="#" class="menu-card dark">
-                        <div class="icon-circle">🔊</div>
+                        <div class="icon-circle">🎤</div>
                         <div class="menu-copy">
-                            <strong>스피치 트레이닝</strong>
-                            <p>말 속도, 발음, 필러, 침묵 구간을 자동 분석</p>
+                            <strong>모의면접 코칭 🔒</strong>
+                            <p>답변 구조, 말 속도, 태도까지 실전형으로 점검</p>
                         </div>
                         <div class="arrow">›</div>
                     </a>
@@ -900,7 +970,7 @@
                         <div class="icon-circle">📈</div>
                         <div class="menu-copy">
                             <strong>성장 리포트</strong>
-                            <p>첫인상 점수, 개선 포인트, 주간 성장 흐름을 정리</p>
+                            <p>점수 변화와 반복 훈련 기록을 주간 단위로 추적</p>
                         </div>
                         <div class="arrow">›</div>
                     </a>
@@ -910,142 +980,196 @@
             <section class="section">
                 <div class="section-header">
                     <div>
-                        <div class="section-title">요금제</div>
-                        <div class="section-sub">실제 출시형 결제 구조</div>
+                        <div class="section-title">결제 옵션</div>
+                        <div class="section-sub">무료 확인 후, 결과만 열거나 계속 개선할 수 있습니다</div>
                     </div>
+                </div>
+
+                <div class="pricing-intro">
+                    <strong>
+                        먼저 <span class="accent-blue">무료</span>로 확인하고,
+                        필요하면 <span class="accent-orange">결과만 열거나</span>
+                        월 구독으로 계속 개선하세요.
+                    </strong>
+                    <span>
+                        무료 진단으로 관심을 만들고, 1회 결제로 결과를 열어보게 한 뒤,
+                        반복 훈련이 필요한 사용자를 월 구독으로 전환시키는 구조입니다.
+                    </span>
+                </div>
+
+                <div class="free-banner">
+                    <div class="free-badge">무료 시작</div>
+                    <strong><span class="accent-blue">현재 점수</span> + 핵심 문제는 무료로 확인</strong>
+                    <p>
+                        첫 촬영 후 현재 첫인상 점수, 위험 포인트, 핵심 개선 항목 일부를 바로 공개합니다.
+                        전후 비교, 전체 분석, 반복 훈련은 잠금 상태로 제공합니다.
+                    </p>
                 </div>
 
                 <div class="pricing-grid">
                     <div class="pricing-card">
                         <div class="pricing-top">
                             <div>
-                                <div class="badge">추천 입문</div>
-                                <div class="plan-name">베이직</div>
-                                <div class="plan-price">₩9,900<small>/월</small></div>
+                                <div class="badge">1회 결제</div>
+                                <div class="plan-name">결과 전체 보기</div>
+                                <div class="plan-price">₩2,000<small>/1회</small></div>
+                                <div class="plan-desc">
+                                    오늘 분석한 결과를 한 번만 전체 공개합니다.
+                                </div>
                             </div>
                         </div>
 
                         <div class="feature-list">
-                            <div class="feature-item">AI 첫인상 기본 분석</div>
-                            <div class="feature-item">주 1회 리포트</div>
-                            <div class="feature-item">기본 표정/시선 교정 루틴</div>
-                            <div class="feature-item">30초 셀프 분석 무제한</div>
+                            <div class="feature-item">잠금된 전체 결과 1회 공개</div>
+                            <div class="feature-item">Before → After 예상 변화 확인</div>
+                            <div class="feature-item">개선 포인트 전체 열람</div>
+                            <div class="feature-item">반복 훈련 / 무제한 분석은 미포함</div>
                         </div>
 
-                        <button class="pay-btn" data-plan="basic_month" type="button">
-                            베이직으로 시작하기
+                        <div class="price-mini-note">
+                            결과만 빠르게 보고 싶은 사용자에게 적합
+                        </div>
+
+                        <button class="pay-btn" data-plan="result_once" type="button">
+                            <span class="accent-white">2,000원</span>으로 전체 결과 열기
                         </button>
                     </div>
 
-                    <div class="pricing-card">
+                    <div class="pricing-card featured">
                         <div class="pricing-top">
                             <div>
-                                <div class="badge green">가장 인기</div>
-                                <div class="plan-name">프로</div>
-                                <div class="plan-price">₩19,900<small>/월</small></div>
+                                <div class="badge orange">가장 추천</div>
+                                <div class="plan-name">월 구독 멤버십</div>
+                                <div class="plan-price">₩9,900<small>/월</small></div>
+                                <div class="plan-desc">
+                                    첫인상 점수를 계속 올리고 싶다면 가장 효율적인 플랜입니다.
+                                </div>
                             </div>
                         </div>
 
                         <div class="feature-list">
-                            <div class="feature-item">전후 비교 시뮬레이션</div>
-                            <div class="feature-item">첫인상 개선 심화 루틴</div>
-                            <div class="feature-item">모의면접 + 스피치 분석</div>
-                            <div class="feature-item">주간 성장 리포트 + 개선 우선순위</div>
+                            <div class="feature-item">첫인상 분석 반복 이용</div>
+                            <div class="feature-item">전후 비교 시뮬레이션 반복 확인</div>
+                            <div class="feature-item">표정 · 시선 · 미소 훈련 루틴 제공</div>
+                            <div class="feature-item">모의면접 / 스피치 트레이닝 포함</div>
+                            <div class="feature-item">주간 성장 리포트와 점수 추적</div>
                         </div>
 
-                        <button class="pay-btn green" data-plan="pro_month" type="button">
-                            프로 3일 무료 체험 시작
+                        <div class="price-mini-note">
+                            반복 개선과 습관화가 필요한 사용자에게 가장 유리
+                        </div>
+
+                        <button class="pay-btn orange" data-plan="membership_month" type="button">
+                            <span class="accent-white">월 9,900원</span>으로 계속 개선하기
                         </button>
+                        <div class="sub-note">다음 결제 전 언제든 해지 가능</div>
                     </div>
                 </div>
 
                 <div class="note-box">
-                    결제는 Stripe Checkout으로 진행됩니다. 쿠폰 코드도 적용 가능하게 구성되어 있습니다.
+                    결제는 Stripe Checkout으로 연결할 수 있습니다.
+                    무료 진단 → 1회 잠금 해제 → 월 구독 업셀 흐름으로 설계하면
+                    초기 전환과 재구매를 함께 노리기 좋습니다.
                 </div>
 
                 <div class="status" id="statusText"></div>
             </section>
         </main>
+    </div>
 
-        <nav class="bottom-nav" aria-label="하단 메뉴">
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+        <div class="bottom-nav-inner">
             <div class="nav-grid">
                 <a href="#" class="nav-item active"><span class="nav-ico">🏠</span>홈</a>
                 <a href="#" class="nav-item"><span class="nav-ico">🎯</span>훈련</a>
                 <a href="#" class="nav-item"><span class="nav-ico">📈</span>리포트</a>
                 <a href="#" class="nav-item"><span class="nav-ico">👤</span>마이</a>
             </div>
-        </nav>
-    </div>
+        </div>
+    </nav>
 
     <script>
-    const statusText = document.getElementById("statusText");
-    const payButtons = document.querySelectorAll(".pay-btn");
-    const freeTrialBtn = document.getElementById("freeTrialBtn");
-    const quickViewBtn = document.getElementById("quickViewBtn");
+        const statusText = document.getElementById("statusText");
+        const payButtons = document.querySelectorAll(".pay-btn");
+        const mainCTA = document.getElementById("mainCTA");
+        const scoreCTA = document.getElementById("scoreCTA");
+        const uploadBtn = document.getElementById("uploadBtn");
+        const demoBtn = document.getElementById("demoBtn");
 
-    function setStatus(message) {
-      statusText.textContent = message || "";
-    }
+        function setStatus(message) {
+            statusText.textContent = message || "";
+        }
 
-    function setLoading(button, loading) {
-      if (!button) return;
-      button.disabled = loading;
-      const original = button.dataset.originalText || button.textContent;
-      if (!button.dataset.originalText) {
-        button.dataset.originalText = original;
-      }
-      button.textContent = loading ? "결제 페이지로 이동 중..." : button.dataset.originalText;
-    }
+        function setLoading(button, loading) {
+            if (!button) return;
 
-    async function startCheckout(planKey, clickedButton) {
-      try {
-        setLoading(clickedButton, true);
-        setStatus("결제 세션을 생성하고 있습니다...");
+            button.disabled = loading;
 
-        const res = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            planKey,
-            userId: "guest-user",
-            email: ""
-          })
+            if (!button.dataset.originalHtml) {
+                button.dataset.originalHtml = button.innerHTML;
+            }
+
+            button.innerHTML = loading
+                ? "결제 페이지로 이동 중..."
+                : button.dataset.originalHtml;
+        }
+
+        async function startCheckout(planKey, clickedButton) {
+            try {
+                setLoading(clickedButton, true);
+                setStatus("결제 세션을 생성하고 있습니다...");
+
+                const res = await fetch("/api/create-checkout-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        planKey,
+                        userId: "guest-user",
+                        email: ""
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || "결제 세션 생성 실패");
+                }
+
+                if (!data.url) {
+                    throw new Error("Stripe Checkout URL이 없습니다.");
+                }
+
+                setStatus("결제 페이지로 이동합니다.");
+                window.location.href = data.url;
+            } catch (err) {
+                console.error(err);
+                setStatus(err.message || "오류가 발생했습니다.");
+                setLoading(clickedButton, false);
+            }
+        }
+
+        payButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const planKey = button.dataset.plan;
+                startCheckout(planKey, button);
+            });
         });
 
-        const data = await res.json();
+        mainCTA?.addEventListener("click", () => {
+            alert("여기에 촬영 / 업로드 → 분석 페이지를 연결하면 됩니다.");
+        });
 
-        if (!res.ok) {
-          throw new Error(data.error || "결제 세션 생성 실패");
-        }
+        scoreCTA?.addEventListener("click", () => {
+            alert("여기에 점수 확인 페이지를 연결하면 됩니다.");
+        });
 
-        if (!data.url) {
-          throw new Error("Stripe Checkout URL이 없습니다.");
-        }
+        uploadBtn?.addEventListener("click", () => {
+            alert("사진 업로드 화면으로 연결하면 됩니다.");
+        });
 
-        setStatus("결제 페이지로 이동합니다.");
-        window.location.href = data.url;
-      } catch (err) {
-        console.error(err);
-        setStatus(err.message || "오류가 발생했습니다.");
-        setLoading(clickedButton, false);
-      }
-    }
-
-    payButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const planKey = button.dataset.plan;
-        startCheckout(planKey, button);
-      });
-    });
-
-    freeTrialBtn.addEventListener("click", () => {
-      const proButton = document.querySelector('[data-plan="pro_month"]');
-      startCheckout("pro_month", proButton);
-    });
-
-    quickViewBtn.addEventListener("click", () => {
-      alert("여기에 무료 30초 분석 페이지를 연결하면 됩니다.");
-    });
+        demoBtn?.addEventListener("click", () => {
+            alert("예시 결과 보기 페이지로 연결하면 됩니다.");
+        });
     </script>
 </body>
 </html>
