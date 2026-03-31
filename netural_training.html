@@ -1,0 +1,1055 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>무표정 안정화 트레이닝</title>
+    <style>
+        :root {
+            --bg-1: #f6faff;
+            --bg-2: #eaf2ff;
+            --bg-3: #dce9ff;
+            --navy: #243967;
+            --navy-2: #6d7fa3;
+            --blue: #5f95ef;
+            --green-2: #38af73;
+            --mint: #68d2b8;
+            --mint-2: #49be9c;
+            --orange: #f4c064;
+            --line: rgba(61, 91, 156, 0.08);
+            --text: #27375a;
+            --muted: #7384a5;
+            --shadow-xl: 0 22px 48px rgba(31, 53, 104, 0.12);
+            --shadow-lg: 0 16px 34px rgba(31, 53, 104, 0.10);
+            --shadow-md: 0 12px 24px rgba(31, 53, 104, 0.08);
+            --shadow-sm: 0 8px 16px rgba(31, 53, 104, 0.07);
+            --bottom-nav-h: 84px;
+            --page-max: 760px;
+        }
+
+        * {
+            box-sizing: border-box;
+            min-width: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            color: var(--text);
+            background: radial-gradient(circle at 12% 10%, rgba(255,255,255,0.95), transparent 18%), radial-gradient(circle at 88% 8%, rgba(255,255,255,0.76), transparent 18%), linear-gradient(180deg, var(--bg-1) 0%, #eaf2ff 48%, var(--bg-3) 100%);
+            overflow-x: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        img, video {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        button {
+            font: inherit;
+            border: 0;
+            cursor: pointer;
+            background: none;
+        }
+
+        .page {
+            width: 100%;
+            max-width: var(--page-max);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 0% 22%, rgba(255,255,255,0.48), transparent 24%), radial-gradient(circle at 100% 22%, rgba(255,255,255,0.38), transparent 22%), linear-gradient(180deg, rgba(255,255,255,0.56), rgba(245,249,255,0.97));
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.72) inset;
+        }
+
+        .content {
+            padding: calc(14px + env(safe-area-inset-top)) 12px calc(var(--bottom-nav-h) + 22px + env(safe-area-inset-bottom));
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.9);
+            color: var(--blue);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            place-items: center;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .title-wrap {
+            flex: 1 1 auto;
+            text-align: center;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: clamp(25px, 6.2vw, 38px);
+            line-height: 1.12;
+            letter-spacing: -0.08em;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        .page-sub {
+            margin: 8px 0 0;
+            font-size: clamp(13px, 3.7vw, 18px);
+            line-height: 1.35;
+            letter-spacing: -0.04em;
+            color: var(--navy-2);
+            font-weight: 800;
+        }
+
+        .camera-shell {
+            position: relative;
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 28px;
+            background: rgba(235,243,255,0.86);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .camera-card {
+            position: relative;
+            min-height: 560px;
+            overflow: hidden;
+            border-radius: 26px;
+            border: 1px solid rgba(67, 97, 161, 0.08);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, #eef3fa, #d7e4f8);
+        }
+
+        #webcam,
+        #cameraFallback,
+        .coach-top-visual {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #webcam {
+            object-fit: cover;
+            background: #eef3fa;
+            transform: scaleX(-1);
+            display: none;
+            z-index: 1;
+        }
+
+        #cameraFallback {
+            z-index: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(18,30,55,0.14)), url('./images/user-neutral-main.png') center center / cover no-repeat, linear-gradient(135deg, #eef3fa, #d7e4f8);
+        }
+
+        .coach-top-visual {
+            z-index: 2;
+            background: linear-gradient(180deg, rgba(255,255,255,0.00), rgba(14,24,46,0.08) 72%, rgba(14,24,46,0.16) 100%), url('./images/luna1.png') center center / cover no-repeat;
+            transition: opacity .28s ease, visibility .28s ease;
+        }
+
+            .coach-top-visual.hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+        .live-pill {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 6;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #69a5ff, #4b86ed);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .live-pill::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #fff;
+            }
+
+        .score-panel {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 7;
+            width: 146px;
+            padding: 14px 12px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.90);
+            backdrop-filter: blur(6px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .score-block + .score-block {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(82, 105, 152, 0.1);
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #5f7194;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .score-big {
+            margin-top: 3px;
+            font-size: 24px;
+            line-height: 1.1;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.04em;
+        }
+
+            .score-big.good {
+                color: var(--green-2);
+            }
+
+        .score-note {
+            margin-top: 6px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #536689;
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
+        .bar {
+            margin-top: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #dbe5f3;
+            overflow: hidden;
+        }
+
+            .bar > div {
+                height: 100%;
+                border-radius: inherit;
+                background: linear-gradient(90deg, #71d8bf, #56be91);
+            }
+
+        .guide-mouth-box {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 52px;
+            border: 3px dashed rgba(182,255,224,0.92);
+            border-radius: 999px;
+            background: rgba(126,215,192,0.10);
+            box-shadow: 0 0 0 10px rgba(126,215,192,0.05);
+            z-index: 5;
+            display: none;
+            pointer-events: none;
+        }
+
+        #userMouthBox {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 96px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid rgba(255,255,255,0.55);
+            background: linear-gradient(180deg, rgba(223,145,155,0.20), rgba(205,116,129,0.28));
+            box-shadow: 0 0 0 1px rgba(208,116,128,0.15);
+            z-index: 5;
+            display: none;
+            pointer-events: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 34px;
+            right: 34px;
+            bottom: 106px;
+            z-index: 4;
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, rgba(176,255,227,0.92), transparent);
+            box-shadow: 0 0 10px rgba(176,255,227,0.28);
+        }
+
+            .scan-line::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                border: 4px solid rgba(194,255,232,0.9);
+                background: rgba(194,255,232,0.18);
+            }
+
+        .coach-bubble-wrap {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 18px;
+            z-index: 8;
+            transition: opacity .28s ease, visibility .28s ease;
+        }
+
+            .coach-bubble-wrap.hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+        .coach-bubble {
+            width: 100%;
+            min-height: 84px;
+            padding: 14px 16px;
+            border-radius: 24px;
+            background: rgba(242,247,255,0.94);
+            box-shadow: var(--shadow-md);
+            text-align: left;
+        }
+
+        .coach-title {
+            margin: 0 0 6px;
+            color: var(--blue);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .coach-text {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.48;
+            color: #4d628b;
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
+        .camera-btn {
+            position: absolute;
+            right: 16px;
+            bottom: 18px;
+            z-index: 9;
+            width: 64px;
+            height: 64px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            box-shadow: var(--shadow-md);
+            display: grid;
+            place-items: center;
+            color: var(--blue);
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .control-card {
+            margin-top: 14px;
+            padding: 14px 14px 16px;
+            border-radius: 26px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .control-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .control-title {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.04em;
+        }
+
+            .control-title .lv {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 46px;
+                height: 28px;
+                padding: 0 10px;
+                border-radius: 999px;
+                margin-right: 8px;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 900;
+                background: linear-gradient(180deg, #f5c369, #e7a44a);
+            }
+
+        .control-desc {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 800;
+        }
+
+        .sound-btn {
+            flex-shrink: 0;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #f2f6ff;
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mic-start {
+            margin-top: 14px;
+            width: 100%;
+            min-height: 56px;
+            border-radius: 999px;
+            color: #fff;
+            background: linear-gradient(90deg, #60d4ba, #48bf9c);
+            box-shadow: 0 16px 24px rgba(72,191,156,0.18);
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+
+        .control-note {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 12px;
+            color: #97a3bb;
+            font-weight: 800;
+        }
+
+        .section-head {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--navy);
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+            .section-head small {
+                color: var(--muted);
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+        .slider-wrap {
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .sub-slider {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scroll-snap-type: x proximity;
+        }
+
+            .sub-slider::-webkit-scrollbar {
+                display: none;
+            }
+
+        .sub-card {
+            flex: 0 0 126px;
+            scroll-snap-align: start;
+            padding: 8px;
+            border-radius: 24px;
+            border: 0;
+            background: rgba(255,255,255,0.94);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            position: relative;
+        }
+
+            .sub-card.active {
+                outline: 3px solid rgba(255,194,101,0.42);
+                box-shadow: 0 14px 24px rgba(255,189,92,0.18);
+            }
+
+        .sub-thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1.08;
+            overflow: hidden;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #e6effb, #d4e3fa);
+        }
+
+            .sub-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .sub-badge {
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            min-width: 42px;
+            height: 24px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(180deg, #75aaff, #4a86ea);
+        }
+
+        .sub-card.active .sub-badge {
+            background: linear-gradient(180deg, #f4c264, #e9a748);
+        }
+
+        .sub-name {
+            margin: 10px 0 0;
+            font-size: 15px;
+            line-height: 1.25;
+            color: var(--navy);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+        }
+
+        .sub-dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+            .sub-dots span {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #c9d7ec;
+            }
+
+                .sub-dots span.on {
+                    background: #8cb0ea;
+                }
+
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            width: 100%;
+            padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+            background: rgba(255,255,255,0.97);
+            border-top: 1px solid rgba(49,74,143,0.09);
+            box-shadow: 0 -10px 30px rgba(34,55,101,0.07);
+        }
+
+        .bottom-nav-inner {
+            width: 100%;
+            max-width: var(--page-max);
+            margin: 0 auto;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            text-align: center;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #8a97b1;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 4px 0;
+        }
+
+            .nav-item.active {
+                color: var(--blue);
+            }
+
+        .nav-ico {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        @media (max-width: 420px) {
+            .camera-card {
+                min-height: 500px;
+            }
+
+            .score-panel {
+                width: 134px;
+                padding: 12px 11px;
+            }
+
+            .score-big {
+                font-size: 22px;
+            }
+
+            .sub-card {
+                flex-basis: 118px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <main class="content">
+            <header class="topbar">
+                <button class="icon-btn" aria-label="뒤로가기">‹</button>
+                <div class="title-wrap">
+                    <h1 class="page-title">무표정 안정화 트레이닝</h1>
+                    <p class="page-sub">입술 힘부터 차근차근 풀고 편안한 기본 표정을 만들어보세요</p>
+                </div>
+                <button class="icon-btn" aria-label="설정">⚙</button>
+            </header>
+
+            <section class="camera-shell">
+                <div class="camera-card">
+                    <video id="webcam" autoplay playsinline muted></video>
+                    <div id="cameraFallback"></div>
+
+                    <div class="coach-top-visual" id="coachTopVisual"></div>
+
+                    <div class="live-pill">LIVE</div>
+
+                    <div class="score-panel">
+                        <div class="score-block">
+                            <div class="score-label">현재 점수</div>
+                            <div class="score-big" id="scoreValue">82<span style="font-size:15px; margin-left:2px;">점</span></div>
+                            <div class="bar"><div id="scoreFill" style="width:82%"></div></div>
+                        </div>
+
+                        <div class="score-block">
+                            <div class="score-label">평가 상태</div>
+                            <div class="score-big good" id="statusValue">Good 👍</div>
+                            <div class="bar"><div style="width:74%"></div></div>
+                        </div>
+
+                        <div class="score-block">
+                            <div class="score-label">입 모양 변화</div>
+                            <div class="score-note" id="mouthMetrics">입 가로 증가 0%<br>입 세로 증가 0%</div>
+                        </div>
+
+                        <div class="score-block">
+                            <div class="score-label">남은 시간</div>
+                            <div class="score-big" id="timeLeft">10초</div>
+                            <div class="bar"><div id="timeFill" style="width:100%"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="guide-mouth-box" id="guideBox"></div>
+                    <div id="userMouthBox"></div>
+                    <div class="scan-line"></div>
+
+                    <div class="coach-bubble-wrap" id="coachBubbleWrap">
+                        <div class="coach-bubble">
+                            <p class="coach-title">AI 강사 루나 🔊</p>
+                            <p class="coach-text" id="coachText">입술에 힘을 빼고 자연스럽게 다물어주세요. 너무 꽉 다물지 않는 게 포인트예요.</p>
+                        </div>
+                    </div>
+
+                    <button class="camera-btn" aria-label="카메라">📷</button>
+                </div>
+            </section>
+
+            <section class="control-card">
+                <div class="control-head">
+                    <div>
+                        <h2 class="control-title"><span class="lv" id="levelTag">Lv.1</span><span id="stepTitle">입술 힘 빼기</span></h2>
+                        <p class="control-desc" id="stepDesc">거울을 보며 편안한 입모양을 만들어보세요</p>
+                    </div>
+                    <button class="sound-btn" id="guideBtn">▶ 설명 재생</button>
+                </div>
+
+                <button class="mic-start" id="startTrainingBtn">🎤 마이크를 눌러 훈련 시작</button>
+                <div class="control-note">⏱ 카운트다운 후 10초간 측정합니다</div>
+            </section>
+
+            <div class="section-head">✨ 무표정 안정화 <small>· 총 5단계</small></div>
+
+            <section class="slider-wrap">
+                <div class="sub-slider" id="subSlider">
+                    <button class="sub-card active" data-step="0">
+                        <div class="sub-thumb">
+                            <img src="./images/neutral-lip.png" alt="입술 힘 빼기" />
+                            <div class="sub-badge">Lv.1</div>
+                        </div>
+                        <div class="sub-name">입술 힘 빼기</div>
+                        <div class="sub-dots"><span class="on"></span><span class="on"></span><span></span><span></span><span></span></div>
+                    </button>
+
+                    <button class="sub-card" data-step="1">
+                        <div class="sub-thumb">
+                            <img src="./images/neutral-balance.png" alt="좌우 균형" />
+                            <div class="sub-badge">Lv.2</div>
+                        </div>
+                        <div class="sub-name">좌우 균형</div>
+                        <div class="sub-dots"><span class="on"></span><span></span><span></span><span></span><span></span></div>
+                    </button>
+
+                    <button class="sub-card" data-step="2">
+                        <div class="sub-thumb">
+                            <img src="./images/neutral-eye.png" alt="눈 긴장 완화" />
+                            <div class="sub-badge">Lv.3</div>
+                        </div>
+                        <div class="sub-name">눈 긴장 완화</div>
+                        <div class="sub-dots"><span class="on"></span><span class="on"></span><span></span><span></span><span></span></div>
+                    </button>
+
+                    <button class="sub-card" data-step="3">
+                        <div class="sub-thumb">
+                            <img src="./images/neutral-jaw.png" alt="턱 이완" />
+                            <div class="sub-badge">Lv.4</div>
+                        </div>
+                        <div class="sub-name">턱 이완</div>
+                        <div class="sub-dots"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+                    </button>
+
+                    <button class="sub-card" data-step="4">
+                        <div class="sub-thumb">
+                            <img src="./images/neutral-total.png" alt="3초 안정 유지" />
+                            <div class="sub-badge">Lv.5</div>
+                        </div>
+                        <div class="sub-name">3초 안정 유지</div>
+                        <div class="sub-dots"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+        <div class="bottom-nav-inner">
+            <div class="nav-grid">
+                <a href="#" class="nav-item"><span class="nav-ico">🏠</span>홈</a>
+                <a href="#" class="nav-item active"><span class="nav-ico">🎬</span>훈련</a>
+                <a href="#" class="nav-item"><span class="nav-ico">🎯</span>목표</a>
+            </div>
+        </div>
+    </nav>
+
+    <script type="module">
+        import {
+            FaceLandmarker,
+            FilesetResolver
+        } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+        const MODEL_ASSET_PATH =
+            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+
+        const MOUTH_LEFT = 61;
+        const MOUTH_RIGHT = 291;
+        const MOUTH_TOP = 13;
+        const MOUTH_BOTTOM = 14;
+
+        const steps = [
+            {
+                level: "Lv.1",
+                title: "입술 힘 빼기",
+                desc: "거울을 보며 편안한 입모양을 만들어보세요",
+                coach: "입술에 힘을 빼고 자연스럽게 다물어주세요. 너무 꽉 다물지 않는 게 포인트예요."
+            },
+            {
+                level: "Lv.2",
+                title: "좌우 균형",
+                desc: "왼쪽과 오른쪽 입꼬리 높이를 비슷하게 맞춰보세요",
+                coach: "입꼬리가 한쪽만 올라가지 않도록 좌우 균형을 신경 써주세요."
+            },
+            {
+                level: "Lv.3",
+                title: "눈 긴장 완화",
+                desc: "눈을 너무 크게 뜨거나 찡그리지 않도록 해보세요",
+                coach: "눈가 힘을 풀면 전체 표정이 훨씬 편안해져요."
+            },
+            {
+                level: "Lv.4",
+                title: "턱 이완",
+                desc: "이를 꽉 물지 말고 턱을 자연스럽게 내려놓아보세요",
+                coach: "턱이 굳으면 입모양도 같이 어색해져요. 턱을 부드럽게 풀어주세요."
+            },
+            {
+                level: "Lv.5",
+                title: "3초 안정 유지",
+                desc: "입술, 눈, 턱을 모두 편안하게 유지해보세요",
+                coach: "좋아요. 이제 얼굴 전체의 긴장을 풀고 자연스러운 무표정을 유지해보세요."
+            }
+        ];
+
+        const video = document.getElementById("webcam");
+        const fallback = document.getElementById("cameraFallback");
+        const guideBox = document.getElementById("guideBox");
+        const userMouthBox = document.getElementById("userMouthBox");
+        const timeLeftEl = document.getElementById("timeLeft");
+        const timeFillEl = document.getElementById("timeFill");
+        const scoreValue = document.getElementById("scoreValue");
+        const scoreFill = document.getElementById("scoreFill");
+        const statusValue = document.getElementById("statusValue");
+        const mouthMetrics = document.getElementById("mouthMetrics");
+        const coachText = document.getElementById("coachText");
+        const levelTag = document.getElementById("levelTag");
+        const stepTitle = document.getElementById("stepTitle");
+        const stepDesc = document.getElementById("stepDesc");
+        const startBtn = document.getElementById("startTrainingBtn");
+        const guideBtn = document.getElementById("guideBtn");
+        const subCards = [...document.querySelectorAll(".sub-card")];
+        const coachTopVisual = document.getElementById("coachTopVisual");
+        const coachBubbleWrap = document.getElementById("coachBubbleWrap");
+
+        let stream = null;
+        let faceLandmarker = null;
+        let running = false;
+        let rafId = 0;
+        let trainingEndsAt = 0;
+        let lastVideoTime = -1;
+        let currentStep = 0;
+
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function dist(a, b, w, h) {
+            const dx = (a.x - b.x) * w;
+            const dy = (a.y - b.y) * h;
+            return Math.hypot(dx, dy);
+        }
+
+        async function ensureFaceLandmarker() {
+            if (faceLandmarker) return faceLandmarker;
+
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+            );
+
+            faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: MODEL_ASSET_PATH
+                },
+                runningMode: "VIDEO",
+                numFaces: 1,
+                outputFaceBlendshapes: false,
+                outputFacialTransformationMatrixes: false,
+                minFaceDetectionConfidence: 0.5,
+                minFacePresenceConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            return faceLandmarker;
+        }
+
+        async function startCamera() {
+            if (stream) return stream;
+
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: {
+                    facingMode: "user",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            });
+
+            video.srcObject = stream;
+            await video.play();
+            video.style.display = "block";
+            fallback.style.display = "none";
+            return stream;
+        }
+
+        function hideCoachUI() {
+            coachTopVisual.classList.add("hidden");
+            coachBubbleWrap.classList.add("hidden");
+        }
+
+        function showCoachUI() {
+            coachTopVisual.classList.remove("hidden");
+            coachBubbleWrap.classList.remove("hidden");
+        }
+
+        function updateTimer() {
+            const remainMs = Math.max(0, trainingEndsAt - performance.now());
+            const remainSec = Math.ceil(remainMs / 1000);
+            timeLeftEl.textContent = remainMs <= 0 ? "완료" : `${remainSec}초`;
+            timeFillEl.style.width = `${(remainMs / 10000) * 100}%`;
+
+            if (remainMs <= 0) {
+                running = false;
+                guideBox.style.display = "none";
+                userMouthBox.style.display = "none";
+            }
+        }
+
+        function updateMouthOverlay(landmarks) {
+            const w = video.videoWidth || 1;
+            const h = video.videoHeight || 1;
+
+            const left = landmarks[MOUTH_LEFT];
+            const right = landmarks[MOUTH_RIGHT];
+            const top = landmarks[MOUTH_TOP];
+            const bottom = landmarks[MOUTH_BOTTOM];
+
+            const mouthW = dist(left, right, w, h);
+            const mouthH = dist(top, bottom, w, h);
+
+            const centerX = ((left.x + right.x) * 0.5) * 100;
+            const centerY = ((top.y + bottom.y) * 0.5) * 100;
+
+            const displayW = clamp(mouthW * 0.42, 72, 180);
+            const displayH = clamp(mouthH * 2.5, 14, 72);
+
+            userMouthBox.style.display = "block";
+            userMouthBox.style.left = `${centerX}%`;
+            userMouthBox.style.top = `${centerY}%`;
+            userMouthBox.style.width = `${displayW}px`;
+            userMouthBox.style.height = `${displayH}px`;
+
+            const widthGrow = clamp(((mouthW - 48) / 48) * 100, 0, 100);
+            const heightGrow = clamp(((mouthH - 8) / 18) * 100, 0, 100);
+
+            mouthMetrics.innerHTML =
+                `입 가로 증가 ${Math.round(widthGrow)}%<br>입 세로 증가 ${Math.round(heightGrow)}%`;
+
+            const score = Math.round(clamp(72 + (widthGrow * 0.12) + (heightGrow * 0.18), 0, 99));
+            scoreValue.innerHTML = `${score}<span style="font-size:15px; margin-left:2px;">점</span>`;
+            scoreFill.style.width = `${score}%`;
+
+            if (score >= 90) {
+                statusValue.textContent = "Excellent ✨";
+                statusValue.className = "score-big good";
+            } else if (score >= 80) {
+                statusValue.textContent = "Good 👍";
+                statusValue.className = "score-big good";
+            } else {
+                statusValue.textContent = "Keep Going";
+                statusValue.className = "score-big";
+            }
+        }
+
+        async function renderLoop() {
+            if (!running) return;
+
+            updateTimer();
+            if (!running) return;
+
+            if (video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+                const result = faceLandmarker.detectForVideo(video, performance.now());
+                if (result.faceLandmarks && result.faceLandmarks.length > 0) {
+                    updateMouthOverlay(result.faceLandmarks[0]);
+                }
+            }
+
+            rafId = requestAnimationFrame(renderLoop);
+        }
+
+        async function startTraining() {
+            try {
+                startBtn.disabled = true;
+                startBtn.textContent = "준비 중...";
+                hideCoachUI();
+                await startCamera();
+                await ensureFaceLandmarker();
+
+                guideBox.style.display = "block";
+                userMouthBox.style.display = "none";
+                mouthMetrics.innerHTML = "입 가로 증가 0%<br>입 세로 증가 0%";
+                timeLeftEl.textContent = "10초";
+                timeFillEl.style.width = "100%";
+                trainingEndsAt = performance.now() + 10000;
+                running = true;
+                cancelAnimationFrame(rafId);
+                renderLoop();
+
+                startBtn.textContent = "🎤 다시 측정하기";
+            } catch (err) {
+                console.error(err);
+                showCoachUI();
+                alert("카메라 또는 MediaPipe 초기화에 실패했습니다. localhost 또는 HTTPS 환경에서 실행 중인지 확인하세요.");
+                startBtn.textContent = "🎤 마이크를 눌러 훈련 시작";
+            } finally {
+                startBtn.disabled = false;
+            }
+        }
+
+        function renderStep(index) {
+            currentStep = index;
+            const step = steps[index];
+
+            subCards.forEach((card, i) => {
+                card.classList.toggle("active", i === index);
+            });
+
+            levelTag.textContent = step.level;
+            stepTitle.textContent = step.title;
+            stepDesc.textContent = step.desc;
+            coachText.textContent = step.coach;
+        }
+
+        subCards.forEach(card => {
+            card.addEventListener("click", () => {
+                renderStep(Number(card.dataset.step));
+            });
+        });
+
+        guideBtn.addEventListener("click", () => {
+            const step = steps[currentStep];
+            alert(step.coach);
+        });
+
+        startBtn.addEventListener("click", startTraining);
+
+        window.addEventListener("beforeunload", () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            cancelAnimationFrame(rafId);
+        });
+
+        if (location.protocol === "file:") {
+            console.warn("file:// 환경에서는 카메라나 MediaPipe가 정상 동작하지 않을 수 있습니다. localhost 또는 https:// 로 실행하세요.");
+        }
+
+        renderStep(0);
+    </script>
+</body>
+</html>
