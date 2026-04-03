@@ -195,6 +195,12 @@
             </div>
         </div>
 
+        <input id="mobileCameraInput"
+               type="file"
+               accept="image/*"
+               capture="user"
+               class="hidden" />
+
         <canvas id="sourceCanvas"></canvas>
         <canvas id="workCanvas"></canvas>
     </div>
@@ -237,6 +243,7 @@
         const retakeBtn = document.getElementById("retakeBtn");
         const saveBtn = document.getElementById("saveBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
+        const mobileCameraInput = document.getElementById("mobileCameraInput");
 
         const sourceCanvas = document.getElementById("sourceCanvas");
         const workCanvas = document.getElementById("workCanvas");
@@ -391,6 +398,28 @@
 
         async function startCamera() {
             stopTracks();
+            revokePreviewUrl();
+
+            capturedImage.classList.add("hidden");
+            video.classList.remove("hidden");
+            faceGuide.classList.remove("hidden");
+
+            retakeBtn.classList.add("hidden");
+            saveBtn.classList.add("hidden");
+            analyzeBtn.classList.add("hidden");
+
+            if (isMobile()) {
+                startBtn.classList.remove("hidden");
+                stopBtn.classList.add("hidden");
+
+                setStatus("모바일 기본 카메라를 엽니다.");
+                setInfo("기기 카메라 사용");
+                ensureFaceLandmarker().catch(console.error);
+
+                mobileCameraInput.value = "";
+                mobileCameraInput.click();
+                return;
+            }
 
             try {
                 const constraints = getRequestedConstraints();
@@ -407,15 +436,6 @@
 
                 startBtn.classList.add("hidden");
                 stopBtn.classList.remove("hidden");
-                retakeBtn.classList.add("hidden");
-                saveBtn.classList.add("hidden");
-                analyzeBtn.classList.add("hidden");
-
-                capturedImage.classList.add("hidden");
-                video.classList.remove("hidden");
-                faceGuide.classList.remove("hidden");
-
-                revokePreviewUrl();
 
                 const settings = track.getSettings ? track.getSettings() : {};
                 setStatus("카메라 준비 완료\n정면으로 얼굴을 맞춘 뒤 Stop을 누르세요.");
@@ -567,11 +587,8 @@
             return transformed;
         }
 
-        async function renderAlignedTargetBlob() {
-            const { bitmap, sourceType, rawWidth, rawHeight } = await getHighResSourceBitmap();
-
+        async function processBitmapToAlignedResult(bitmap, sourceType) {
             drawMirroredBitmapToCanvas(bitmap, sourceCanvas);
-            bitmap.close();
 
             const landmarks = await detectLandmarksOnCanvas(sourceCanvas);
 
@@ -630,18 +647,74 @@
                     source: {
                         width: sourceCanvas.width,
                         height: sourceCanvas.height,
-                        mirrored: true
+                        mirrored: true,
+                        sourceType
                     },
                     createdAt: new Date().toISOString()
                 },
                 sourceType,
-                rawWidth,
-                rawHeight,
+                rawWidth: bitmap.width,
+                rawHeight: bitmap.height,
                 finalWidth: TARGET_W,
                 finalHeight: TARGET_H,
                 scale: placement.scale,
                 eyeToChinBefore: placement.eyeToChin
             };
+        }
+
+        async function renderAlignedTargetBlob() {
+            const { bitmap, sourceType } = await getHighResSourceBitmap();
+
+            try {
+                return await processBitmapToAlignedResult(bitmap, sourceType);
+            } finally {
+                if (bitmap && typeof bitmap.close === "function") {
+                    bitmap.close();
+                }
+            }
+        }
+
+        async function showCaptureResult(result) {
+            lastSavedBlob = result.blob;
+            lastSavedMeta = result.meta;
+
+            await saveBlobToDB(result.blob);
+            await saveMetaToDB(result.meta);
+
+            revokePreviewUrl();
+            currentPreviewUrl = URL.createObjectURL(result.blob);
+            capturedImage.src = currentPreviewUrl;
+
+            stopTracks();
+
+            video.classList.add("hidden");
+            capturedImage.classList.remove("hidden");
+            faceGuide.classList.add("hidden");
+
+            startBtn.classList.add("hidden");
+            stopBtn.classList.add("hidden");
+
+            retakeBtn.classList.remove("hidden");
+            saveBtn.classList.remove("hidden");
+            analyzeBtn.classList.remove("hidden");
+
+            const lm0 = result.meta.landmarks[0];
+            const lm61 = result.meta.landmarks[61];
+            const lm291 = result.meta.landmarks[291];
+
+            setStatus(
+                `정렬 완료\n` +
+                `${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → ${result.finalWidth} x ${result.finalHeight}\n` +
+                `랜드마크 ${result.meta.landmarkCount}개 저장 완료`
+            );
+
+            setInfo(
+                `final ${result.finalWidth} x ${result.finalHeight}\n` +
+                `landmarks: ${result.meta.landmarkCount}\n` +
+                `0: (${lm0.x.toFixed(1)}, ${lm0.y.toFixed(1)})\n` +
+                `61: (${lm61.x.toFixed(1)}, ${lm61.y.toFixed(1)})\n` +
+                `291: (${lm291.x.toFixed(1)}, ${lm291.y.toFixed(1)})`
+            );
         }
 
         async function capturePhoto() {
@@ -650,50 +723,33 @@
                 setInfo("MediaPipe 분석중.");
 
                 const result = await renderAlignedTargetBlob();
-                lastSavedBlob = result.blob;
-                lastSavedMeta = result.meta;
-
-                await saveBlobToDB(result.blob);
-                await saveMetaToDB(result.meta);
-
-                revokePreviewUrl();
-                currentPreviewUrl = URL.createObjectURL(result.blob);
-                capturedImage.src = currentPreviewUrl;
-
-                stopTracks();
-
-                video.classList.add("hidden");
-                capturedImage.classList.remove("hidden");
-                faceGuide.classList.add("hidden");
-
-                startBtn.classList.add("hidden");
-                stopBtn.classList.add("hidden");
-
-                retakeBtn.classList.remove("hidden");
-                saveBtn.classList.remove("hidden");
-                analyzeBtn.classList.remove("hidden");
-
-                const lm0 = result.meta.landmarks[0];
-                const lm61 = result.meta.landmarks[61];
-                const lm291 = result.meta.landmarks[291];
-
-                setStatus(
-                    `정렬 완료\n` +
-                    `${result.rawWidth} x ${result.rawHeight} (${result.sourceType}) → ${result.finalWidth} x ${result.finalHeight}\n` +
-                    `랜드마크 ${result.meta.landmarkCount}개 저장 완료`
-                );
-
-                setInfo(
-                    `final ${result.finalWidth} x ${result.finalHeight}\n` +
-                    `landmarks: ${result.meta.landmarkCount}\n` +
-                    `0: (${lm0.x.toFixed(1)}, ${lm0.y.toFixed(1)})\n` +
-                    `61: (${lm61.x.toFixed(1)}, ${lm61.y.toFixed(1)})\n` +
-                    `291: (${lm291.x.toFixed(1)}, ${lm291.y.toFixed(1)})`
-                );
+                await showCaptureResult(result);
             } catch (err) {
                 console.error(err);
                 setStatus("촬영 또는 얼굴 정렬에 실패했습니다.\n얼굴이 정면에 잘 보이게 다시 촬영하세요.");
                 setInfo("정렬 실패");
+            }
+        }
+
+        async function handleMobileCapturedFile(file) {
+            let bitmap = null;
+
+            try {
+                setStatus("모바일 촬영 이미지를 처리 중입니다.");
+                setInfo("MediaPipe 분석중.");
+
+                bitmap = await createImageBitmap(file);
+                const result = await processBitmapToAlignedResult(bitmap, "mobile-camera");
+                await showCaptureResult(result);
+            } catch (err) {
+                console.error(err);
+                setStatus("모바일 촬영 또는 얼굴 정렬에 실패했습니다.\n얼굴이 정면에 잘 보이게 다시 촬영하세요.");
+                setInfo("정렬 실패");
+            } finally {
+                if (bitmap && typeof bitmap.close === "function") {
+                    bitmap.close();
+                }
+                mobileCameraInput.value = "";
             }
         }
 
@@ -726,7 +782,9 @@
         }
 
         function resetToCameraMode() {
+            stopTracks();
             revokePreviewUrl();
+
             capturedImage.removeAttribute("src");
             capturedImage.classList.add("hidden");
             video.classList.remove("hidden");
@@ -743,6 +801,7 @@
 
             setStatus("카메라를 다시 시작합니다.");
             setInfo("재촬영 준비중.");
+
             startCamera();
         }
 
@@ -770,12 +829,30 @@
             goToAnalysis();
         });
 
+        mobileCameraInput.addEventListener("change", async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) {
+                setStatus("촬영이 취소되었습니다.");
+                setInfo("촬영 취소");
+                return;
+            }
+
+            await handleMobileCapturedFile(file);
+        });
+
         window.addEventListener("beforeunload", () => {
             stopTracks();
             revokePreviewUrl();
         });
 
         (async function init() {
+            if (isMobile()) {
+                setStatus("모바일 기본 카메라와 MediaPipe를 준비합니다.");
+                setInfo("초기화중.");
+                ensureFaceLandmarker().catch(console.error);
+                return;
+            }
+
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 setStatus("이 브라우저는 카메라를 지원하지 않습니다.");
                 setInfo("camera unsupported");
