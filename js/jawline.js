@@ -4,6 +4,7 @@ import { getLm } from "./landmarks.js";
 /* index */
 const IDX_MOUTH_LEFT = 61;
 const IDX_MOUTH_RIGHT = 291;
+const IDX_UPPER_LIP_CENTER = 13;
 const IDX_CHIN = 152;
 
 const IDX_JAW_LEFT = 234;
@@ -69,20 +70,34 @@ function accumulateJawWidth(state, acc, x, y, amount) {
 
 /* ===============================
    JAW SMOOTH
+   - 시작 높이를 윗입술 높이까지 올림
 ================================= */
 function accumulateJawSmooth(state, acc, x, y, amount) {
     if (amount <= 0) return;
 
+    const mouthL = getLm(state, IDX_MOUTH_LEFT);
+    const mouthR = getLm(state, IDX_MOUTH_RIGHT);
+    const upperLip = getLm(state, IDX_UPPER_LIP_CENTER);
+
+    const jawL = getLm(state, IDX_JAW_LEFT);
+    const jawR = getLm(state, IDX_JAW_RIGHT);
+    const jawLM1 = getLm(state, IDX_JAW_LEFT_MID_1);
+    const jawLM2 = getLm(state, IDX_JAW_LEFT_MID_2);
+    const jawRM1 = getLm(state, IDX_JAW_RIGHT_MID_1);
+    const jawRM2 = getLm(state, IDX_JAW_RIGHT_MID_2);
+    const chin = getLm(state, IDX_CHIN);
+
     const pts = [
-        getLm(state, IDX_JAW_LEFT),
-        getLm(state, IDX_JAW_LEFT_MID_1),
-        getLm(state, IDX_JAW_LEFT_MID_2),
-        getLm(state, IDX_CHIN),
-        getLm(state, IDX_JAW_RIGHT_MID_2),
-        getLm(state, IDX_JAW_RIGHT_MID_1),
-        getLm(state, IDX_JAW_RIGHT)
+        jawL,
+        jawLM1,
+        jawLM2,
+        chin,
+        jawRM2,
+        jawRM1,
+        jawR
     ];
 
+    // 기존 턱 포인트 스무딩
     for (let i = 1; i < pts.length - 1; i++) {
         const prev = pts[i - 1];
         const curr = pts[i];
@@ -97,9 +112,49 @@ function accumulateJawSmooth(state, acc, x, y, amount) {
         const g = gaussian2D(x - curr.x, y - curr.y, 70, 90);
 
         acc.dx += diffX * amount * 0.42 * g;
-        acc.dy += diffY * amount * 0.26 * g;
+        acc.dy -= diffY * amount * 0.13 * g;
         acc.influence = Math.max(acc.influence, g);
     }
+
+    // 윗입술 높이부터 시작되도록 상단 브리지 포인트 추가
+    const upperStartY = upperLip.y - 20;
+
+    const leftBridge = {
+        x: (mouthL.x + jawLM2.x) * 0.5,
+        y: upperStartY
+    };
+
+    const rightBridge = {
+        x: (mouthR.x + jawRM2.x) * 0.5,
+        y: upperStartY
+    };
+
+    const leftBridgeTarget = {
+        x: (mouthL.x * 0.35 + jawLM1.x * 0.65),
+        y: (upperStartY * 0.45 + jawLM1.y * 0.55)
+    };
+
+    const rightBridgeTarget = {
+        x: (mouthR.x * 0.35 + jawRM1.x * 0.65),
+        y: (upperStartY * 0.45 + jawRM1.y * 0.55)
+    };
+
+    const diffBridgeLX = leftBridgeTarget.x - leftBridge.x;
+    const diffBridgeLY = leftBridgeTarget.y - leftBridge.y;
+
+    const diffBridgeRX = rightBridgeTarget.x - rightBridge.x;
+    const diffBridgeRY = rightBridgeTarget.y - rightBridge.y;
+
+    const gBridgeL = gaussian2D(x - leftBridge.x, y - leftBridge.y, 78, 60);
+    const gBridgeR = gaussian2D(x - rightBridge.x, y - rightBridge.y, 78, 60);
+
+    acc.dx += diffBridgeLX * amount * 0.30 * gBridgeL;
+    acc.dy -= diffBridgeLY * amount * 0.10 * gBridgeL;
+
+    acc.dx += diffBridgeRX * amount * 0.30 * gBridgeR;
+    acc.dy -= diffBridgeRY * amount * 0.10 * gBridgeR;
+
+    acc.influence = Math.max(acc.influence, gBridgeL, gBridgeR);
 }
 
 /* ===============================
