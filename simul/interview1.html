@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>3초 기초 진단</title>
+    <title>3초 기초 진단(10초 촬영)</title>
     <style>
         :root {
             --bg: #eef4ff;
@@ -195,6 +195,10 @@
             object-fit: cover;
         }
 
+        #video {
+            filter: brightness(1.08) contrast(1.06) saturate(1.04);
+        }
+
         .mirror {
             transform: scaleX(-1);
         }
@@ -348,6 +352,10 @@
         .section-card {
             margin-top: 6px;
             padding: 8px;
+        }
+
+        .interviewer-section {
+            margin-top: 6px;
         }
 
         .interviewer-video {
@@ -656,6 +664,76 @@
             font-size: 40px;
         }
 
+        .debug-box {
+            width: 100%;
+            min-height: 132px;
+            max-height: 240px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
+            color: #21304f;
+            font-size: 12px;
+            background: #f4f8ff;
+            border: 1px solid #d9e5fb;
+            border-radius: 14px;
+            padding: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+
+        .capture-card {
+            margin-top: 6px;
+            padding: 8px;
+            display: none;
+        }
+
+            .capture-card.visible {
+                display: block;
+            }
+
+        .capture-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .capture-status {
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+            .capture-status.success {
+                color: var(--success);
+            }
+
+        .capture-preview-wrap {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #e3ebfa;
+            background: linear-gradient(180deg, #eef4ff 0%, #e8f0ff 100%);
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .capture-preview-wrap img {
+                display: block;
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                background: #f7faff;
+            }
+
+        #captureSourceCanvas,
+        #captureWorkCanvas {
+            display: none;
+        }
+
         .hidden-control {
             display: none !important;
         }
@@ -725,7 +803,16 @@
                             <p class="q-sub">준비가 되면 녹음시작을 누르시고 면접관의 질문에 답하세요.</p>
                         </div>
                     </div>
-                    <div id="recordStatus" class="record-status">상태:</div>
+                    <div id="recordStatus" class="record-status">시작하면 면접관의 눈을 보세요</div>
+
+                    <section class="section-card interviewer-section" aria-label="면접관 화면 영역">
+                        <div id="interviewerVideoWrap" class="interviewer-video">
+                            <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector1.mp4"></video>
+                            <div id="interviewerCaption" class="interviewer-caption">지원 동기를, 간단하게 말씀해 보세요.</div>
+                            <div class="interviewer-placeholder"><span>면접관 동영상 재생 영역</span></div>
+                        </div>
+                    </section>
+
                     <div class="stage-grid">
                         <section class="camera-panel" aria-label="카메라 영역">
                             <div class="top-controls top-outside">
@@ -774,11 +861,14 @@
                     </div>
                 </div>
 
-                <section class="section-card" aria-label="면접관 화면 영역">
-                    <div id="interviewerVideoWrap" class="interviewer-video">
-                        <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector1.mp4"></video>
-                        <div id="interviewerCaption" class="interviewer-caption">지원 동기를 간단하게 말해 보세요</div>
-                        <div class="interviewer-placeholder"><span>면접관 동영상 재생 영역</span></div>
+
+                <section id="capturedPreviewSection" class="section-card capture-card" aria-label="3초 캡쳐 이미지 영역">
+                    <div class="capture-title-row">
+                        <div class="answer-label">3초 캡쳐 이미지</div>
+                        <div id="captureStatusText" class="capture-status">카운트 종료 후 표시됩니다.</div>
+                    </div>
+                    <div class="capture-preview-wrap">
+                        <img id="capturedPreviewImage" alt="3초 시점 자동 캡쳐 이미지" />
                     </div>
                 </section>
 
@@ -798,6 +888,12 @@
                     <div class="card-title">음성 인사이트</div>
                     <textarea id="speechInsightsBox" class="textbox insights" placeholder="필러, 침묵 구간, 긴장 구간, 말끝 흐림, 작은 목소리 분석 결과가 여기에 표시됩니다."></textarea>
                     <div class="hint">녹음이 끝나면 Web Audio 기반 분석 결과가 자동으로 생성되고, GPT 프롬프트에 함께 포함됩니다.</div>
+                </section>
+
+                <section class="card" aria-label="디버그 로그 영역">
+                    <div class="card-title">음성 분석 디버그 로그</div>
+                    <textarea id="debugBox" class="debug-box" placeholder="여기에 음성 분석 단계별 로그와 에러 내용이 표시됩니다." readonly></textarea>
+                    <div class="hint">transcribe, speech-insights 호출 상태코드, 응답 본문, 예외 메시지를 순서대로 표시합니다.</div>
                 </section>
 
                 <section class="card" aria-label="OpenAI 분석 프롬프트">
@@ -831,12 +927,18 @@
         </nav>
     </div>
 
+
+    <canvas id="captureSourceCanvas"></canvas>
+    <canvas id="captureWorkCanvas"></canvas>
+
     <script type="module">
         import {
             FaceLandmarker,
-            FilesetResolver,
-            DrawingUtils
+            FilesetResolver
         } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+
+        const questionAudio = new Audio("./voice/inter1_1.mp3");
 
         const video = document.getElementById("video");
         const canvas = document.getElementById("canvas");
@@ -868,13 +970,32 @@
 
         const transcriptBox = document.getElementById("transcriptBox");
         const speechInsightsBox = document.getElementById("speechInsightsBox");
+        const debugBox = document.getElementById("debugBox");
         const promptBox = document.getElementById("promptBox");
         const analyzeBtn = document.getElementById("analyzeBtn");
         const analyzeStatus = document.getElementById("analyzeStatus");
         const resultBox = document.getElementById("resultBox");
 
+        const capturedPreviewSection = document.getElementById("capturedPreviewSection");
+        const capturedPreviewImage = document.getElementById("capturedPreviewImage");
+        const captureStatusText = document.getElementById("captureStatusText");
+        const captureSourceCanvas = document.getElementById("captureSourceCanvas");
+        const captureWorkCanvas = document.getElementById("captureWorkCanvas");
+
+        const CAPTURE_TARGET_W = 2208;
+        const CAPTURE_TARGET_H = 3306;
+        const CAPTURE_TARGET_EYE_TO_CHIN = 870;
+        const CAPTURE_TARGET_EYE_INNER_Y = 1400;
+        const CAPTURE_TARGET_EYE_CENTER_X = 1104;
+
+        const IDX_LEFT_EYE_OUTER = 33;
+        const IDX_LEFT_EYE_INNER = 133;
+        const IDX_RIGHT_EYE_INNER = 362;
+        const IDX_RIGHT_EYE_OUTER = 263;
+        const IDX_CHIN = 152;
+
+
         let faceLandmarker = null;
-        let drawingUtils = null;
         let stream = null;
         let running = false;
         let rafId = 0;
@@ -897,10 +1018,115 @@
         let latestSpeechInsights = null;
         let latestSpeechInsightsText = "";
 
+        let analyzeSpeechArtifactsFn = null;
+        let analyzeAudioBlobFn = null;
+        let buildSpeechInsightsPromptFn = null;
+        let buildSpeechInsightsTextFn = null;
+        let speechInsightsReady = false;
+        let speechInsightsLoadTried = false;
+
         let countdownValue = 10;
         let countdownTimer = null;
         let countdownStartDelayTimer = null;
         let audioStreamForRecording = null;
+
+        let captureFaceLandmarker = null;
+        let captureVision = null;
+        let cameraImageCapture = null;
+        let captureTimer = null;
+        let captureTaken = false;
+        let capturedPreviewDataUrl = "";
+
+
+        function logDebug(...args) {
+            const message = args.map((item) => {
+                if (item instanceof Error) return `${item.name}: ${item.message}`;
+                if (typeof item === "object") {
+                    try { return JSON.stringify(item, null, 2); }
+                    catch (_) { return String(item); }
+                }
+                return String(item);
+            }).join(" ");
+
+            const stamp = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+            const line = `[${stamp}] ${message}`;
+            console.log(line);
+            if (debugBox) {
+                debugBox.value = debugBox.value ? `${debugBox.value}
+${line}` : line;
+                debugBox.scrollTop = debugBox.scrollHeight;
+            }
+        }
+
+        function clearDebugLog() {
+            if (debugBox) debugBox.value = "";
+        }
+
+        async function ensureSpeechInsightsLoaded() {
+            if (speechInsightsLoadTried) return speechInsightsReady;
+            speechInsightsLoadTried = true;
+
+            try {
+                logDebug("speechInsights.js 로드 시도", "./speechInsights.js");
+                const mod = await import("./speechInsights.js");
+
+                analyzeSpeechArtifactsFn = typeof mod.analyzeSpeechArtifacts === "function"
+                    ? mod.analyzeSpeechArtifacts
+                    : null;
+                analyzeAudioBlobFn = typeof mod.analyzeAudioBlob === "function"
+                    ? mod.analyzeAudioBlob
+                    : null;
+                buildSpeechInsightsPromptFn = typeof mod.buildSpeechInsightsPrompt === "function"
+                    ? mod.buildSpeechInsightsPrompt
+                    : null;
+                buildSpeechInsightsTextFn = typeof mod.buildSpeechInsightsText === "function"
+                    ? mod.buildSpeechInsightsText
+                    : null;
+
+                speechInsightsReady = !!(analyzeSpeechArtifactsFn || analyzeAudioBlobFn);
+                logDebug("speechInsights.js loaded:", {
+                    analyzeSpeechArtifacts: !!analyzeSpeechArtifactsFn,
+                    analyzeAudioBlob: !!analyzeAudioBlobFn,
+                    buildSpeechInsightsPrompt: !!buildSpeechInsightsPromptFn,
+                    buildSpeechInsightsText: !!buildSpeechInsightsTextFn,
+                    ready: speechInsightsReady
+                });
+            } catch (err) {
+                console.error("speechInsights.js 로드 실패:", err);
+                logDebug("speechInsights.js 로드 실패:", err);
+                speechInsightsReady = false;
+            }
+
+            return speechInsightsReady;
+        }
+
+        function stringifySegments(label, segments) {
+            if (!Array.isArray(segments) || segments.length === 0) {
+                return `${label}: 없음`;
+            }
+            return `${label}: ` + segments.map(seg => {
+                const s = Number(seg.start ?? 0).toFixed(2);
+                const e = Number(seg.end ?? 0).toFixed(2);
+                return `[${s}s~${e}s]`;
+            }).join(", ");
+        }
+
+        function fallbackBuildInsightsText(audioAnalysis) {
+            if (!audioAnalysis) return "음성 인사이트를 불러오지 못했습니다.";
+
+            const duration = Number(audioAnalysis.duration ?? 0).toFixed(2);
+            const stats = audioAnalysis.stats || {};
+            const lines = [
+                `오디오 길이: ${duration}초`,
+                `평균 볼륨: ${stats.averageRms ?? "-"}`,
+                `최대 볼륨: ${stats.maxRms ?? "-"}`,
+                stringifySegments("침묵 구간", audioAnalysis.silenceSegments),
+                stringifySegments("말끝 흐림 구간", audioAnalysis.trailingFadeSegments),
+                stringifySegments("작은 목소리 구간", audioAnalysis.lowVoiceSegments),
+                stringifySegments("긴장 구간", audioAnalysis.tensionSegments)
+            ];
+            return lines.join("\n");
+        }
 
         function detectMobile() {
             const ua = navigator.userAgent || navigator.vendor || window.opera || "";
@@ -909,16 +1135,16 @@
             return byUA || byTouch;
         }
 
-        function updateDeviceBadge() {
+        function updateDeviceBadge(extraText = "") {
+            let label = "PC 웹캠";
             if (isMobile) {
-                deviceBadge.textContent = currentFacingMode === "user" ? "모바일 전면" : "모바일 후면";
-            } else {
-                deviceBadge.textContent = "PC 웹캠";
+                label = currentFacingMode === "user" ? "모바일 전면" : "모바일 후면";
             }
+            deviceBadge.textContent = extraText ? `${label} · ${extraText}` : label;
         }
 
         function applyMirror() {
-            const shouldMirror = !isMobile || currentFacingMode === "user";
+            const shouldMirror = currentFacingMode === "user";
             video.classList.toggle("mirror", shouldMirror);
             canvas.classList.toggle("mirror", shouldMirror);
         }
@@ -927,14 +1153,129 @@
             if (isMobile) {
                 return {
                     facingMode: { ideal: currentFacingMode },
-                    width: { ideal: 720 },
-                    height: { ideal: 960 }
+                    width: { ideal: 960, max: 1280 },
+                    height: { ideal: 1280, max: 1920 },
+                    aspectRatio: { ideal: 3 / 4 },
+                    frameRate: { ideal: 30, max: 30 }
                 };
             }
             return {
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                facingMode: { ideal: "user" },
+                width: { ideal: 1280, max: 1920 },
+                height: { ideal: 720, max: 1080 },
+                aspectRatio: { ideal: 16 / 9 },
+                frameRate: { ideal: 30, max: 30 }
             };
+        }
+
+        function getTrackCapabilitiesSafe(track) {
+            if (!track || typeof track.getCapabilities !== "function") return {};
+            try {
+                return track.getCapabilities() || {};
+            } catch (err) {
+                console.warn("getCapabilities failed", err);
+                return {};
+            }
+        }
+
+        function clampCapabilityValue(capability, preferredRatio = 0.5) {
+            if (capability == null) return undefined;
+
+            if (Array.isArray(capability)) {
+                return capability.length ? capability[Math.floor((capability.length - 1) * preferredRatio)] : undefined;
+            }
+
+            if (typeof capability === "object" && Number.isFinite(capability.min) && Number.isFinite(capability.max)) {
+                const ratio = clamp(preferredRatio, 0, 1);
+                return capability.min + ((capability.max - capability.min) * ratio);
+            }
+
+            if (typeof capability === "number") {
+                return capability;
+            }
+
+            return undefined;
+        }
+
+        async function safeApplyTrackConstraints(track, constraints) {
+            if (!track || typeof track.applyConstraints !== "function" || !constraints) return false;
+            try {
+                await track.applyConstraints(constraints);
+                return true;
+            } catch (err) {
+                console.warn("applyConstraints failed", constraints, err);
+                return false;
+            }
+        }
+
+        async function optimizeCameraTrack(track) {
+            if (!track) return;
+
+            const caps = getTrackCapabilitiesSafe(track);
+            const baseConstraints = {};
+
+            if (caps.width && caps.height) {
+                if (isMobile) {
+                    baseConstraints.width = { ideal: Math.min(1280, caps.width.max || 1280) };
+                    baseConstraints.height = { ideal: Math.min(1920, caps.height.max || 1920) };
+                    baseConstraints.aspectRatio = 3 / 4;
+                } else {
+                    baseConstraints.width = { ideal: Math.min(1280, caps.width.max || 1280) };
+                    baseConstraints.height = { ideal: Math.min(720, caps.height.max || 720) };
+                    baseConstraints.aspectRatio = 16 / 9;
+                }
+            }
+
+            if (caps.frameRate) {
+                const maxFrameRate = Math.min(30, Number(caps.frameRate.max || 30));
+                baseConstraints.frameRate = { ideal: maxFrameRate, max: maxFrameRate };
+            }
+
+            const advanced = [];
+
+            if (Array.isArray(caps.focusMode)) {
+                if (caps.focusMode.includes("continuous")) advanced.push({ focusMode: "continuous" });
+                else if (caps.focusMode.includes("single-shot")) advanced.push({ focusMode: "single-shot" });
+            }
+
+            if (Array.isArray(caps.exposureMode) && caps.exposureMode.includes("continuous")) {
+                advanced.push({ exposureMode: "continuous" });
+            }
+
+            if (Array.isArray(caps.whiteBalanceMode) && caps.whiteBalanceMode.includes("continuous")) {
+                advanced.push({ whiteBalanceMode: "continuous" });
+            }
+
+            const zoomValue = clampCapabilityValue(caps.zoom, isMobile ? 0.18 : 0.08);
+            if (zoomValue !== undefined) {
+                advanced.push({ zoom: zoomValue });
+            }
+
+            const sharpnessValue = clampCapabilityValue(caps.sharpness, 0.7);
+            if (sharpnessValue !== undefined) {
+                advanced.push({ sharpness: sharpnessValue });
+            }
+
+            const brightnessValue = clampCapabilityValue(caps.brightness, 0.58);
+            if (brightnessValue !== undefined) {
+                advanced.push({ brightness: brightnessValue });
+            }
+
+            const contrastValue = clampCapabilityValue(caps.contrast, 0.56);
+            if (contrastValue !== undefined) {
+                advanced.push({ contrast: contrastValue });
+            }
+
+            const saturationValue = clampCapabilityValue(caps.saturation, 0.55);
+            if (saturationValue !== undefined) {
+                advanced.push({ saturation: saturationValue });
+            }
+
+            if (advanced.length > 0) {
+                baseConstraints.advanced = advanced;
+            }
+
+            await safeApplyTrackConstraints(track, baseConstraints);
         }
 
         function dist(a, b) {
@@ -989,6 +1330,186 @@
             eyeMoveCountEl.innerText = "0";
         }
 
+
+        function setCaptureStatus(text, success = false) {
+            captureStatusText.textContent = text;
+            captureStatusText.classList.toggle("success", !!success);
+        }
+
+        function resetCapturePreview(hideSection = true) {
+            captureTaken = false;
+            capturedPreviewDataUrl = "";
+            capturedPreviewImage.removeAttribute("src");
+            if (hideSection) {
+                capturedPreviewSection.classList.remove("visible");
+            }
+            setCaptureStatus("카운트 종료 후 표시됩니다.");
+        }
+
+        function revealCapturePreviewIfReady() {
+            if (!capturedPreviewDataUrl) return;
+            capturedPreviewImage.src = capturedPreviewDataUrl;
+            capturedPreviewSection.classList.add("visible");
+            setCaptureStatus("3초 시점 자동 캡쳐 완료", true);
+        }
+
+        function stopCaptureTimer() {
+            if (captureTimer) {
+                clearTimeout(captureTimer);
+                captureTimer = null;
+            }
+        }
+
+        function scheduleCaptureAt3Seconds() {
+            stopCaptureTimer();
+            captureTimer = setTimeout(() => {
+                if (!isRecording || captureTaken) return;
+                captureAlignedFrame().catch((err) => {
+                    console.error(err);
+                    setCaptureStatus("3초 캡쳐에 실패했습니다.");
+                });
+            }, 3000);
+        }
+
+        async function ensureCaptureLandmarker() {
+            if (captureFaceLandmarker) return captureFaceLandmarker;
+
+            if (!captureVision) {
+                captureVision = await FilesetResolver.forVisionTasks(
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+                );
+            }
+
+            captureFaceLandmarker = await FaceLandmarker.createFromOptions(captureVision, {
+                baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task"
+                },
+                runningMode: "IMAGE",
+                outputFaceBlendshapes: false,
+                outputFacialTransformationMatrixes: false,
+                numFaces: 1,
+                minFaceDetectionConfidence: 0.5,
+                minFacePresenceConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            return captureFaceLandmarker;
+        }
+
+        async function getCaptureBitmap() {
+            if (!stream) {
+                throw new Error("카메라 스트림이 없습니다.");
+            }
+
+            if (cameraImageCapture) {
+                try {
+                    const photoBlob = await cameraImageCapture.takePhoto();
+                    return await createImageBitmap(photoBlob);
+                } catch (err) {
+                    console.warn("takePhoto failed, fallback to video frame", err);
+                }
+            }
+
+            return await createImageBitmap(video);
+        }
+
+        function drawMirroredBitmapToCanvas(bitmap, targetCanvas) {
+            const targetCtx = targetCanvas.getContext("2d", { alpha: false });
+            targetCanvas.width = bitmap.width;
+            targetCanvas.height = bitmap.height;
+            targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+            targetCtx.save();
+            targetCtx.translate(targetCanvas.width, 0);
+            targetCtx.scale(-1, 1);
+            targetCtx.drawImage(bitmap, 0, 0, targetCanvas.width, targetCanvas.height);
+            targetCtx.restore();
+        }
+
+        function getLandmarkPx(landmarks, index, width, height) {
+            const lm = landmarks[index];
+            return {
+                x: lm.x * width,
+                y: lm.y * height,
+                z: lm.z ?? 0
+            };
+        }
+
+        function computeFacePlacement(landmarks, width, height) {
+            const leftEyeOuter = getLandmarkPx(landmarks, IDX_LEFT_EYE_OUTER, width, height);
+            const leftEyeInner = getLandmarkPx(landmarks, IDX_LEFT_EYE_INNER, width, height);
+            const rightEyeInner = getLandmarkPx(landmarks, IDX_RIGHT_EYE_INNER, width, height);
+            const rightEyeOuter = getLandmarkPx(landmarks, IDX_RIGHT_EYE_OUTER, width, height);
+            const chin = getLandmarkPx(landmarks, IDX_CHIN, width, height);
+
+            const eyeInnerY = (leftEyeInner.y + rightEyeInner.y) * 0.5;
+            const leftEyeCenterX = (leftEyeOuter.x + leftEyeInner.x) * 0.5;
+            const rightEyeCenterX = (rightEyeOuter.x + rightEyeInner.x) * 0.5;
+            const eyeCenterX = (leftEyeCenterX + rightEyeCenterX) * 0.5;
+            const eyeToChin = chin.y - eyeInnerY;
+
+            if (!Number.isFinite(eyeToChin) || eyeToChin <= 1) {
+                throw new Error("얼굴 정렬 기준점 계산에 실패했습니다.");
+            }
+
+            const scale = CAPTURE_TARGET_EYE_TO_CHIN / eyeToChin;
+            const drawX = CAPTURE_TARGET_EYE_CENTER_X - (eyeCenterX * scale);
+            const drawY = CAPTURE_TARGET_EYE_INNER_Y - (eyeInnerY * scale);
+
+            return { scale, drawX, drawY };
+        }
+
+        async function detectLandmarksOnCanvas(targetCanvas) {
+            const landmarker = await ensureCaptureLandmarker();
+            const result = landmarker.detect(targetCanvas);
+
+            if (!result || !result.faceLandmarks || result.faceLandmarks.length === 0) {
+                throw new Error("캡쳐 이미지에서 얼굴을 찾지 못했습니다.");
+            }
+
+            return result.faceLandmarks[0];
+        }
+
+        async function processBitmapToAlignedDataUrl(bitmap) {
+            drawMirroredBitmapToCanvas(bitmap, captureSourceCanvas);
+
+            const landmarks = await detectLandmarksOnCanvas(captureSourceCanvas);
+            const placement = computeFacePlacement(
+                landmarks,
+                captureSourceCanvas.width,
+                captureSourceCanvas.height
+            );
+
+            const outCtx = captureWorkCanvas.getContext("2d", { alpha: false });
+            captureWorkCanvas.width = CAPTURE_TARGET_W;
+            captureWorkCanvas.height = CAPTURE_TARGET_H;
+            outCtx.clearRect(0, 0, CAPTURE_TARGET_W, CAPTURE_TARGET_H);
+            outCtx.drawImage(
+                captureSourceCanvas,
+                placement.drawX,
+                placement.drawY,
+                captureSourceCanvas.width * placement.scale,
+                captureSourceCanvas.height * placement.scale
+            );
+
+            return captureWorkCanvas.toDataURL("image/jpeg", 0.96);
+        }
+
+        async function captureAlignedFrame() {
+            captureTaken = true;
+            setCaptureStatus("3초 시점 이미지를 캡쳐 중입니다.");
+
+            const bitmap = await getCaptureBitmap();
+            try {
+                capturedPreviewDataUrl = await processBitmapToAlignedDataUrl(bitmap);
+                setCaptureStatus("3초 시점 자동 캡쳐 완료", true);
+            } finally {
+                if (bitmap && typeof bitmap.close === "function") {
+                    bitmap.close();
+                }
+            }
+        }
+
         function resetCountdown() {
             countdownValue = 10;
             countdownCorner.innerText = String(countdownValue);
@@ -1010,6 +1531,7 @@
 
         function startCountdownTimer() {
             stopCountdownTimer();
+            scheduleCaptureAt3Seconds();
             countdownTimer = setInterval(() => {
                 countdownValue -= 1;
                 if (countdownValue < 0) countdownValue = 0;
@@ -1055,10 +1577,13 @@
 
         function resetInterviewerVideo() {
             stopCountdownDelayTimer();
+            stopCaptureTimer();
             interviewerVideo.pause();
             interviewerVideo.currentTime = 0;
             interviewerVideoWrap.classList.remove("playing", "ended");
             interviewerCaption.style.display = "none";
+            questionAudio.pause();
+            questionAudio.currentTime = 0;
         }
 
         async function playInterviewerVideoAndScheduleCountdown() {
@@ -1090,6 +1615,11 @@
 
             try {
                 await interviewerVideo.play();
+                window.setTimeout(() => {
+                    if (!isRecording) return;
+                    questionAudio.currentTime = 0;
+                    questionAudio.play().catch((audioErr) => console.log("audio play blocked:", audioErr));
+                }, 500);
                 recordStatus.className = "record-status";
                 recordStatus.textContent = "면접관 질문 재생 중입니다.";
             } catch (err) {
@@ -1159,7 +1689,6 @@
                 numFaces: 1
             });
 
-            drawingUtils = new DrawingUtils(ctx);
             return faceLandmarker;
         }
 
@@ -1168,15 +1697,57 @@
 
             try {
                 isMobile = detectMobile();
-                updateDeviceBadge();
+                updateDeviceBadge("연결 중");
 
-                stream = await navigator.mediaDevices.getUserMedia({
+                const requestedFacingMode = isMobile ? currentFacingMode : "user";
+                const primaryConstraints = {
                     video: getVideoConstraints(),
                     audio: false
-                });
+                };
+
+                const fallbackConstraints = isMobile
+                    ? {
+                        video: {
+                            facingMode: requestedFacingMode,
+                            width: { ideal: 720 },
+                            height: { ideal: 1280 },
+                            frameRate: { ideal: 24, max: 30 }
+                        },
+                        audio: false
+                    }
+                    : {
+                        video: {
+                            width: { ideal: 960 },
+                            height: { ideal: 540 },
+                            frameRate: { ideal: 24, max: 30 }
+                        },
+                        audio: false
+                    };
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(primaryConstraints);
+                } catch (primaryErr) {
+                    console.warn("primary getUserMedia failed, fallback applied", primaryErr);
+                    stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+                }
 
                 video.srcObject = stream;
+                video.setAttribute("playsinline", "true");
+                video.setAttribute("autoplay", "true");
+                video.setAttribute("muted", "true");
+
+                const videoTrack = stream.getVideoTracks()[0];
+                if (videoTrack) {
+                    await optimizeCameraTrack(videoTrack);
+                }
+
                 await video.play();
+
+                try {
+                    cameraImageCapture = videoTrack ? new ImageCapture(videoTrack) : null;
+                } catch (imageCaptureErr) {
+                    cameraImageCapture = null;
+                }
 
                 applyMirror();
                 resetCounters();
@@ -1188,9 +1759,11 @@
                 await createFaceLandmarker();
 
                 running = true;
+                updateDeviceBadge("최적화 완료");
                 loop();
             } catch (err) {
                 console.error(err);
+                updateDeviceBadge();
                 alert("카메라를 열 수 없습니다.");
             }
         }
@@ -1199,6 +1772,7 @@
             running = false;
             stopCountdownTimer();
             stopCountdownDelayTimer();
+            stopCaptureTimer();
             resetInterviewerVideo();
 
             if (rafId) {
@@ -1210,6 +1784,7 @@
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
             }
+            cameraImageCapture = null;
 
             video.srcObject = null;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1217,6 +1792,7 @@
             startBtn.disabled = false;
             stopBtn.disabled = true;
 
+            updateDeviceBadge();
             setCameraVisualOff();
         }
 
@@ -1242,12 +1818,6 @@
 
                 if (result.faceLandmarks.length > 0) {
                     const lm = result.faceLandmarks[0];
-
-                    drawingUtils.drawConnectors(
-                        lm,
-                        FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                        { color: "#00FFAA", lineWidth: 1 }
-                    );
 
                     if (lm.length > 477) {
                         const leftIris = lm[468];
@@ -1346,6 +1916,8 @@
                     return;
                 }
 
+                await ensureSpeechInsightsLoaded();
+
                 const mimeType = getSupportedMimeType();
                 audioStreamForRecording = await navigator.mediaDevices.getUserMedia({
                     audio: {
@@ -1395,11 +1967,13 @@
                 };
 
                 resetCountdown();
+                resetCapturePreview(true);
                 setCameraVisualOn();
                 setRecordUIRecording();
 
                 recordStatus.className = "record-status";
                 recordStatus.textContent = "면접관 질문을 불러오는 중입니다.";
+                setCaptureStatus("3초 시점 자동 캡쳐를 준비 중입니다.");
                 transcriptBox.value = "녹음 대신 Text로 답변";
                 speechInsightsBox.value = "녹음 종료 후 음성 인사이트를 분석합니다.";
                 resultBox.value = "";
@@ -1436,6 +2010,7 @@
 
             stopCountdownTimer();
             stopCountdownDelayTimer();
+            stopCaptureTimer();
             isRecording = false;
             setCameraVisualOff();
             setRecordUIWorking("텍스트 변환과 음성 분석을 진행 중입니다...");
@@ -1444,6 +2019,8 @@
                 recordStatus.className = "record-status";
                 recordStatus.textContent = "녹음이 완료되었습니다. 텍스트 변환과 음성 분석을 진행 중입니다...";
             }
+
+            revealCapturePreviewIfReady();
 
             try {
                 if (mediaRecorder.state !== "inactive") {
@@ -1462,9 +2039,13 @@
 
         async function processRecordedAudio(audioBlob) {
             isTranscribing = true;
+            clearDebugLog();
+            logDebug("processRecordedAudio 시작");
+            logDebug("audioBlob.type=", audioBlob?.type || "(empty)", "size=", audioBlob?.size || 0);
 
             try {
                 const transcriptText = await transcribeAudio(audioBlob);
+                logDebug("transcribe 완료, transcript length=", (transcriptText || "").length);
 
                 let insightsPayload = {
                     raw: null,
@@ -1473,33 +2054,39 @@
 
                 try {
                     insightsPayload = await buildSpeechInsightsFromAudio(audioBlob, transcriptText);
+                    logDebug("speech-insights 완료");
                 } catch (err) {
                     console.error("음성 인사이트 분석 실패:", err);
+                    logDebug("speech-insights 예외 발생:", err);
                 }
 
                 transcriptBox.value = transcriptText || "";
                 latestSpeechInsights = insightsPayload.raw;
                 latestSpeechInsightsText = insightsPayload.text || "";
                 speechInsightsBox.value = latestSpeechInsightsText || "음성 인사이트를 불러오지 못했습니다.";
+                logDebug("최종 speechInsightsBox 반영:", speechInsightsBox.value || "(empty)");
 
                 setRecordUISuccess();
                 setAnalyzeStatus("텍스트 변환과 음성 인사이트 생성 완료. GPT 분석을 실행하세요.", "success");
                 resetCountdown();
             } catch (err) {
                 console.error(err);
+                logDebug("processRecordedAudio 실패:", err);
                 transcriptBox.value = "";
                 speechInsightsBox.value = "";
                 latestSpeechInsights = null;
                 latestSpeechInsightsText = "";
                 recordStatus.className = "record-status";
-                recordStatus.textContent = "텍스트 변환 또는 음성 분석에 실패했습니다.";
-                alert("음성 처리에 실패했습니다.");
+                recordStatus.textContent = `텍스트 변환 또는 음성 분석에 실패했습니다. ${err?.message || ""}`.trim();
+                alert(`음성 처리에 실패했습니다.
+${err?.message || "알 수 없는 오류"}`);
                 resetCountdown();
                 setRecordUIIdle();
             } finally {
                 isTranscribing = false;
                 mediaRecorder = null;
                 audioChunks = [];
+                logDebug("processRecordedAudio 종료");
             }
         }
 
@@ -1511,54 +2098,105 @@
             const file = new File([audioBlob], fileName, { type: fileType });
             const formData = new FormData();
             formData.append("audio", file);
+            logDebug("/api/transcribe 요청 시작", `fileName=${fileName}`, `fileType=${fileType}`, `size=${file.size}`);
 
             const response = await fetch("/api/transcribe", {
                 method: "POST",
                 body: formData
             });
 
-            const data = await response.json().catch(() => ({}));
+            const rawText = await response.text();
+            logDebug("/api/transcribe 응답", `status=${response.status}`, `ok=${response.ok}`);
+            logDebug("/api/transcribe raw body:", rawText || "(empty)");
+
+            let data = {};
+            try {
+                data = rawText ? JSON.parse(rawText) : {};
+            } catch (err) {
+                logDebug("/api/transcribe JSON 파싱 실패:", err);
+            }
 
             if (!response.ok) {
-                throw new Error(data?.error || "transcribe failed");
+                throw new Error(data?.error || rawText || `transcribe failed (${response.status})`);
             }
 
             return data?.text || "";
         }
 
         async function buildSpeechInsightsFromAudio(audioBlob, transcriptText) {
+            const transcriptSafe = transcriptText || "";
+            logDebug("speechInsights local 처리 시작", `audioSize=${audioBlob?.size || 0}`, `transcriptLength=${transcriptSafe.length}`);
+            logDebug("speechInsights transcript preview:", transcriptSafe ? transcriptSafe.slice(0, 200) : "(empty)");
+
+            const loaded = await ensureSpeechInsightsLoaded();
+            if (!loaded) {
+                return {
+                    raw: null,
+                    text: "speechInsights.js를 불러오지 못했습니다."
+                };
+            }
+
             try {
-                const formData = new FormData();
-                const isMp4 = (audioBlob.type || "").includes("mp4");
-                const fileName = isMp4 ? "recording.m4a" : "recording.webm";
-                const fileType = audioBlob.type || (isMp4 ? "audio/mp4" : "audio/webm");
+                if (analyzeSpeechArtifactsFn) {
+                    logDebug("analyzeSpeechArtifactsFn 실행");
+                    const artifacts = await analyzeSpeechArtifactsFn({
+                        transcript: transcriptSafe,
+                        audioBlob
+                    });
 
-                formData.append("audio", new File([audioBlob], fileName, { type: fileType }));
-                formData.append("transcript", transcriptText || "");
+                    const finalText =
+                        artifacts?.promptText ||
+                        artifacts?.text ||
+                        fallbackBuildInsightsText(artifacts?.audioAnalysis || artifacts);
 
-                const response = await fetch("/api/speech-insights", {
-                    method: "POST",
-                    body: formData
-                });
+                    logDebug("analyzeSpeechArtifactsFn 완료", {
+                        hasPromptText: !!artifacts?.promptText,
+                        hasText: !!artifacts?.text,
+                        hasAudioAnalysis: !!artifacts?.audioAnalysis
+                    });
 
-                const data = await response.json().catch(() => ({}));
-
-                if (!response.ok) {
                     return {
-                        raw: null,
-                        text: "음성 인사이트를 불러오지 못했습니다."
+                        raw: artifacts,
+                        text: finalText
+                    };
+                }
+
+                if (analyzeAudioBlobFn) {
+                    logDebug("analyzeAudioBlobFn 실행");
+                    const audioAnalysis = await analyzeAudioBlobFn(audioBlob);
+
+                    let finalText = "";
+                    if (buildSpeechInsightsTextFn) {
+                        logDebug("buildSpeechInsightsTextFn 실행");
+                        finalText = buildSpeechInsightsTextFn(audioAnalysis || {});
+                    } else if (buildSpeechInsightsPromptFn) {
+                        logDebug("buildSpeechInsightsPromptFn 실행");
+                        finalText = buildSpeechInsightsPromptFn({
+                            transcript: transcriptSafe,
+                            fillerAnalysis: null,
+                            audioAnalysis: audioAnalysis || {}
+                        });
+                    } else {
+                        logDebug("fallbackBuildInsightsText 실행");
+                        finalText = fallbackBuildInsightsText(audioAnalysis);
+                    }
+
+                    return {
+                        raw: audioAnalysis,
+                        text: finalText || fallbackBuildInsightsText(audioAnalysis)
                     };
                 }
 
                 return {
-                    raw: data || null,
-                    text: data?.text || "음성 인사이트를 불러오지 못했습니다."
+                    raw: null,
+                    text: "speechInsights.js에 사용할 분석 함수가 없습니다."
                 };
             } catch (err) {
                 console.error(err);
+                logDebug("speechInsights local 처리 예외:", err);
                 return {
                     raw: null,
-                    text: "음성 인사이트를 불러오지 못했습니다."
+                    text: `speechInsights.js 처리 중 예외 발생\n${err?.name || "Error"}: ${err?.message || err}`
                 };
             }
         }
@@ -1579,46 +2217,88 @@
             ].join("\n");
         }
 
-        async function runAnalyze() {
-            if (isAnalyzing) return;
+        function setDefaultPrompt() {
+            promptBox.value =
+                `너는 면접 답변 코치다.
+아래 정보를 모두 참고해 한국어로 분석해라.
 
-            const finalPrompt = buildAnalyzePrompt();
-            if (!finalPrompt.trim()) {
-                alert("프롬프트를 입력하세요.");
+반드시 함께 고려할 정보:
+1. 면접 답변 텍스트
+2. 필러 단어 통계
+3. 침묵 구간
+4. 말끝 흐림 구간
+5. 긴장 구간
+6. 작은 목소리 구간
+
+출력 형식:
+1. 전체 평가
+2. 답변 내용 평가
+3. 말하기 습관 평가
+4. 필러/침묵/긴장 패턴 평가
+5. 가장 먼저 고칠 3가지
+6. 개선된 예시 답변
+7. 말하기 습관 개선 팁
+
+간결하지만 실전적으로 작성해라.`;
+        }
+
+        async function runAnalyze() {
+            if (isAnalyzing || isRecording || isTranscribing) return;
+
+            const prompt = (promptBox.value || "").trim();
+            const transcript = (transcriptBox.value || "").trim();
+            const speechInsightsText = (speechInsightsBox.value || "").trim();
+
+            if (!prompt) {
+                alert("OpenAI로 보낼 프롬프트를 입력하세요.");
+                promptBox.focus();
                 return;
             }
 
-            isAnalyzing = true;
-            analyzeBtn.disabled = true;
-            setAnalyzeStatus("GPT 분석 중입니다.", "loading");
-            resultBox.value = "";
+            if (!transcript) {
+                alert("먼저 녹음해서 텍스트를 생성하세요.");
+                return;
+            }
 
             try {
+                isAnalyzing = true;
+                analyzeBtn.disabled = true;
+                resultBox.value = "";
+                setAnalyzeStatus("OpenAI 분석 중입니다.", "loading");
+
                 const response = await fetch("/api/analyze", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: finalPrompt })
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        transcript,
+                        speechInsightsText,
+                        speechInsights: latestSpeechInsights
+                    })
                 });
 
                 const data = await response.json().catch(() => ({}));
 
                 if (!response.ok) {
-                    throw new Error(data?.error || "analyze failed");
+                    throw new Error(data?.error || "analyze_failed");
                 }
 
-                resultBox.value = data?.result || "";
-                setAnalyzeStatus("GPT 분석이 완료되었습니다.", "success");
+                resultBox.value = (data?.result || "").trim();
+                setAnalyzeStatus("OpenAI 분석이 완료되었습니다.", "success");
             } catch (err) {
                 console.error(err);
                 resultBox.value = "";
-                setAnalyzeStatus("GPT 분석에 실패했습니다.");
-                alert("GPT 분석에 실패했습니다.");
+                setAnalyzeStatus("OpenAI 분석에 실패했습니다.");
+                alert("OpenAI 분석에 실패했습니다.");
             } finally {
                 isAnalyzing = false;
                 analyzeBtn.disabled = false;
             }
         }
 
+        setDefaultPrompt();
         startBtn.addEventListener("click", startCamera);
         stopBtn.addEventListener("click", stopCamera);
         recordBtn.addEventListener("click", onRecordButtonClick);
@@ -1628,6 +2308,7 @@
             resetCounters();
             resetCountdown();
             setRecordUIIdle();
+            resetCapturePreview(true);
             setCameraVisualOn();
             updateDeviceBadge();
 
@@ -1637,6 +2318,7 @@
                 console.error(err);
             }
         });
+
     </script>
 </body>
 </html>
