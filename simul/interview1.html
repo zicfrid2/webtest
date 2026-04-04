@@ -42,7 +42,7 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 14px 10px;
+            padding: 0;
         }
 
         .phone {
@@ -58,14 +58,14 @@
         }
 
         .safe-top {
-            height: env(safe-area-inset-top, 14px);
+            height: env(safe-area-inset-top, 0px);
         }
 
         .header {
             position: sticky;
             top: 0;
             z-index: 30;
-            padding: 10px 18px 8px;
+            padding: 7px 10px 6px;
             text-align: center;
             font-size: 20px;
             font-weight: 900;
@@ -77,10 +77,10 @@
 
         .back-btn {
             position: absolute;
-            left: 14px;
-            top: 11px;
-            width: 40px;
-            height: 40px;
+            left: 8px;
+            top: 6px;
+            width: 34px;
+            height: 34px;
             border: none;
             border-radius: 999px;
             background: rgba(255,255,255,.85);
@@ -92,14 +92,14 @@
         }
 
         .content {
-            padding: 8px 12px calc(96px + env(safe-area-inset-bottom, 0px));
+            padding: 4px 4px calc(72px + env(safe-area-inset-bottom, 0px));
         }
 
         .main-card {
             background: rgba(255,255,255,.7);
             border: 1px solid rgba(224, 233, 248, .96);
-            border-radius: 28px;
-            padding: 10px;
+            border-radius: 20px;
+            padding: 6px;
             box-shadow: var(--shadow);
             backdrop-filter: blur(8px);
         }
@@ -107,14 +107,14 @@
         .intro-card {
             background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
             border: 1px solid #e1ebfb;
-            border-radius: 24px;
-            padding: 10px;
+            border-radius: 18px;
+            padding: 6px;
             box-shadow: var(--shadow-soft);
         }
 
         .intro-top {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             align-items: flex-start;
         }
 
@@ -141,7 +141,7 @@
         }
 
         .q-sub {
-            margin: 6px 0 0;
+            margin: 2px 0 0;
             color: var(--muted);
             font-size: 14px;
             line-height: 1.5;
@@ -151,8 +151,8 @@
         .stage-grid {
             display: grid;
             grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr);
-            gap: 12px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 6px;
             align-items: stretch;
         }
 
@@ -164,17 +164,17 @@
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 22px;
+            border-radius: 18px;
             box-shadow: var(--shadow-soft);
         }
 
         .camera-panel {
-            padding: 10px;
+            padding: 6px;
         }
 
         .camera-stage {
             position: relative;
-            min-height: 220px;
+            min-height: 208px;
             border-radius: 18px;
             overflow: hidden;
             background: linear-gradient(180deg, #f7f9fd 0%, #ecf2f9 100%);
@@ -201,9 +201,9 @@
 
         .camera-head {
             position: absolute;
-            left: 10px;
-            right: 10px;
-            top: 10px;
+            left: 6px;
+            right: 6px;
+            top: 6px;
             z-index: 6;
             display: flex;
             align-items: center;
@@ -214,8 +214,8 @@
         .camera-title {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
+            gap: 4px;
+            padding: 6px 10px;
             border-radius: 999px;
             background: rgba(27, 35, 52, .58);
             color: #fff;
@@ -226,13 +226,13 @@
 
         .top-controls {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             z-index: 6;
         }
 
             .top-controls.top-outside {
                 justify-content: flex-end;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
 
         .mini-btn {
@@ -257,21 +257,21 @@
 
         .metric-layer {
             position: absolute;
-            left: 10px;
-            right: 10px;
-            bottom: 74px;
+            left: 6px;
+            right: 6px;
+            bottom: 58px;
             z-index: 6;
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
+            gap: 6px;
             pointer-events: none;
         }
 
         .metric-chip {
             background: var(--dark-chip);
             color: #fff;
-            border-radius: 14px;
-            padding: 7px 9px;
+            border-radius: 12px;
+            padding: 5px 7px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -296,7 +296,7 @@
         .video-badge,
         .countdown-corner {
             position: absolute;
-            bottom: 12px;
+            bottom: 8px;
             z-index: 6;
             border-radius: 999px;
             display: flex;
@@ -306,8 +306,8 @@
         }
 
         .video-badge {
-            left: 12px;
-            padding: 9px 12px;
+            left: 8px;
+            padding: 7px 10px;
             background: rgba(40, 43, 51, 0.48);
             color: white;
             font-size: 14px;
@@ -315,9 +315,9 @@
         }
 
         .countdown-corner {
-            right: 12px;
-            width: 50px;
-            height: 50px;
+            right: 8px;
+            width: 44px;
+            height: 44px;
             background: rgba(255,255,255,.96);
             color: var(--primary);
             font-size: 20px;
@@ -338,16 +338,16 @@
         }
 
         .side-panel {
-            padding: 10px;
+            padding: 6px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
             justify-content: flex-start;
         }
 
         .section-card {
-            margin-top: 14px;
-            padding: 12px;
+            margin-top: 6px;
+            padding: 8px;
         }
 
         .interviewer-video {
@@ -356,18 +356,51 @@
             overflow: hidden;
             border: 1px solid #e3ebfa;
             background: linear-gradient(135deg, #d8e6ff 0%, #edf4ff 38%, #dce7fb 100%);
-            min-height: 142px;
+            min-height: 104px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-            .interviewer-video::before {
-                content: "면접관 동영상 재생 영역";
+            .interviewer-video video {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+                background: #dfe8f8;
+            }
+
+        .interviewer-caption {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            z-index: 10;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 900;
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 999px;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(6px);
+            display: none;
+        }
+
+        .interviewer-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+            .interviewer-placeholder span {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                padding: 10px 14px;
+                padding: 8px 10px;
                 border-radius: 999px;
                 background: rgba(27, 35, 52, .58);
                 color: #fff;
@@ -375,6 +408,11 @@
                 font-weight: 800;
                 backdrop-filter: blur(10px);
             }
+
+        .interviewer-video.playing .interviewer-placeholder,
+        .interviewer-video.ended .interviewer-placeholder {
+            display: none;
+        }
 
         .answer-panel {
             display: none;
@@ -384,7 +422,7 @@
             font-size: 15px;
             font-weight: 900;
             color: #24345a;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .record-status,
@@ -394,7 +432,7 @@
             font-weight: 800;
             min-height: 18px;
             color: #7a8598;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
             .record-status.recording {
@@ -413,14 +451,14 @@
         .answer-row {
             display: grid;
             grid-template-columns: 92px minmax(0, 1fr);
-            gap: 12px;
+            gap: 8px;
             align-items: stretch;
         }
 
         .record-btn {
             width: 92px;
-            min-height: 132px;
-            border-radius: 28px;
+            min-height: 96px;
+            border-radius: 22px;
             border: none;
             background: radial-gradient(circle at 35% 30%, #ff7f72 0%, var(--danger) 62%, #ff4f45 100%);
             box-shadow: 0 0 0 10px rgba(255, 95, 87, 0.10), 0 12px 28px rgba(255, 95, 87, 0.24), inset 0 8px 12px rgba(255,255,255,0.2);
@@ -463,8 +501,8 @@
 
         .textbox {
             width: 100%;
-            min-height: 132px;
-            max-height: 280px;
+            min-height: 112px;
+            max-height: 180px;
             overflow: auto;
             white-space: pre-wrap;
             word-break: break-word;
@@ -474,30 +512,30 @@
             background: #f8fbff;
             border: 1px solid #e8eefb;
             border-radius: 18px;
-            padding: 14px;
+            padding: 10px;
             resize: vertical;
             outline: none;
         }
 
             .textbox.prompt {
-                min-height: 140px;
+                min-height: 118px;
             }
 
             .textbox.result,
             .textbox.insights {
-                min-height: 170px;
+                min-height: 144px;
             }
 
         .card {
             margin-top: 14px;
-            padding: 14px;
+            padding: 10px;
         }
 
         .card-title {
             font-size: 14px;
             font-weight: 900;
             color: #5079c9;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .hint {
@@ -508,11 +546,11 @@
         }
 
         .analyze-btn {
-            margin-top: 12px;
+            margin-top: 8px;
             width: 100%;
             border: none;
             border-radius: 16px;
-            padding: 15px 16px;
+            padding: 12px 14px;
             font-size: 15px;
             font-weight: 900;
             color: #fff;
@@ -523,11 +561,11 @@
 
         .bottom-nav {
             position: absolute;
-            left: 14px;
-            right: 14px;
-            bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+            left: 6px;
+            right: 6px;
+            bottom: calc(6px + env(safe-area-inset-bottom, 0px));
             background: rgba(255,255,255,0.95);
-            border-radius: 28px;
+            border-radius: 20px;
             border: 1px solid #e7edf8;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -536,7 +574,7 @@
         }
 
         .nav-item {
-            padding: 14px 10px 16px;
+            padding: 10px 6px 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -570,13 +608,13 @@
 
         .side-response {
             display: grid;
-            gap: 10px;
+            gap: 6px;
             align-content: start;
         }
 
         .record-btn-wrap {
             display: grid;
-            gap: 8px;
+            gap: 4px;
             justify-items: center;
         }
 
@@ -595,7 +633,7 @@
 
         .side-input {
             width: 100%;
-            min-height: 140px;
+            min-height: 118px;
             max-height: 220px;
             overflow: auto;
             white-space: pre-wrap;
@@ -606,7 +644,7 @@
             background: #f8fbff;
             border: 1px solid #e8eefb;
             border-radius: 18px;
-            padding: 12px;
+            padding: 10px;
             resize: vertical;
             outline: none;
         }
@@ -614,7 +652,7 @@
         .record-btn.side-record {
             width: 100%;
             min-height: 112px;
-            border-radius: 22px;
+            border-radius: 18px;
             font-size: 40px;
         }
 
@@ -624,8 +662,8 @@
 
         @media (max-width: 390px) {
             .content {
-                padding-left: 12px;
-                padding-right: 12px;
+                padding-left: 4px;
+                padding-right: 4px;
             }
 
             .q-title {
@@ -634,25 +672,25 @@
 
             .stage-grid {
                 grid-template-columns: minmax(0, 1.65fr) minmax(96px, 1fr);
-                gap: 10px;
+                gap: 6px;
             }
 
             .camera-stage {
-                min-height: 206px;
+                min-height: 194px;
             }
 
             .metric-chip {
-                padding: 6px 8px;
+                padding: 4px 6px;
             }
 
             .answer-row {
                 grid-template-columns: 84px minmax(0, 1fr);
-                gap: 10px;
+                gap: 6px;
             }
 
             .record-btn {
                 width: 84px;
-                min-height: 126px;
+                min-height: 104px;
                 font-size: 38px;
             }
 
@@ -661,8 +699,8 @@
             }
 
             .countdown-corner {
-                width: 46px;
-                height: 46px;
+                width: 42px;
+                height: 42px;
                 font-size: 18px;
             }
         }
@@ -737,7 +775,11 @@
                 </div>
 
                 <section class="section-card" aria-label="면접관 화면 영역">
-                    <div class="interviewer-video"></div>
+                    <div id="interviewerVideoWrap" class="interviewer-video">
+                        <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector1.mp4"></video>
+                        <div id="interviewerCaption" class="interviewer-caption">지원 동기를 간단하게 말해 보세요</div>
+                        <div class="interviewer-placeholder"><span>면접관 동영상 재생 영역</span></div>
+                    </div>
                 </section>
 
                 <section class="answer-panel hidden-control" aria-label="답변 입력 영역">
@@ -820,6 +862,9 @@
         const recordIcon = document.getElementById("recordIcon");
         const recordCaption = document.getElementById("recordCaption");
         const recordStatus = document.getElementById("recordStatus");
+        const interviewerVideoWrap = document.getElementById("interviewerVideoWrap");
+        const interviewerVideo = document.getElementById("interviewerVideo");
+        const interviewerCaption = document.getElementById("interviewerCaption");
 
         const transcriptBox = document.getElementById("transcriptBox");
         const speechInsightsBox = document.getElementById("speechInsightsBox");
@@ -854,6 +899,7 @@
 
         let countdownValue = 10;
         let countdownTimer = null;
+        let countdownStartDelayTimer = null;
         let audioStreamForRecording = null;
 
         function detectMobile() {
@@ -955,6 +1001,13 @@
             }
         }
 
+        function stopCountdownDelayTimer() {
+            if (countdownStartDelayTimer) {
+                clearTimeout(countdownStartDelayTimer);
+                countdownStartDelayTimer = null;
+            }
+        }
+
         function startCountdownTimer() {
             stopCountdownTimer();
             countdownTimer = setInterval(() => {
@@ -998,6 +1051,56 @@
             recordIcon.textContent = "■";
             recordCaption.textContent = "녹음종료";
             recordCaption.classList.add("recording");
+        }
+
+        function resetInterviewerVideo() {
+            stopCountdownDelayTimer();
+            interviewerVideo.pause();
+            interviewerVideo.currentTime = 0;
+            interviewerVideoWrap.classList.remove("playing", "ended");
+            interviewerCaption.style.display = "none";
+        }
+
+        async function playInterviewerVideoAndScheduleCountdown() {
+            stopCountdownDelayTimer();
+            stopCountdownTimer();
+            resetCountdown();
+            countdownCorner.innerText = "10";
+
+            interviewerVideo.pause();
+            interviewerVideo.currentTime = 0;
+            interviewerVideoWrap.classList.remove("ended");
+            interviewerVideoWrap.classList.add("playing");
+            interviewerCaption.style.display = "block";
+
+            const startCountdownNow = () => {
+                stopCountdownDelayTimer();
+                if (!isRecording) return;
+                recordStatus.className = "record-status recording";
+                recordStatus.textContent = "녹음 중입니다.";
+                startCountdownTimer();
+            };
+
+            interviewerVideo.onended = () => {
+                interviewerVideoWrap.classList.remove("playing");
+                interviewerVideoWrap.classList.add("ended");
+                interviewerVideo.pause();
+                startCountdownNow();
+            };
+
+            try {
+                await interviewerVideo.play();
+                recordStatus.className = "record-status";
+                recordStatus.textContent = "면접관 질문 재생 중입니다.";
+            } catch (err) {
+                console.error(err);
+                interviewerVideoWrap.classList.remove("playing");
+                interviewerVideoWrap.classList.add("ended");
+                interviewerCaption.style.display = "block";
+                startCountdownNow();
+                recordStatus.className = "record-status recording";
+                recordStatus.textContent = "동영상 재생에 실패해 바로 카운트를 시작합니다.";
+            }
         }
 
         function setRecordUIWorking(text = "텍스트 변환과 음성 분석을 진행 중입니다...") {
@@ -1094,6 +1197,9 @@
 
         function stopCamera() {
             running = false;
+            stopCountdownTimer();
+            stopCountdownDelayTimer();
+            resetInterviewerVideo();
 
             if (rafId) {
                 cancelAnimationFrame(rafId);
@@ -1292,15 +1398,15 @@
                 setCameraVisualOn();
                 setRecordUIRecording();
 
-                recordStatus.className = "record-status recording";
-                recordStatus.textContent = "녹음 중입니다.";
+                recordStatus.className = "record-status";
+                recordStatus.textContent = "면접관 질문을 불러오는 중입니다.";
                 transcriptBox.value = "녹음 대신 Text로 답변";
                 speechInsightsBox.value = "녹음 종료 후 음성 인사이트를 분석합니다.";
                 resultBox.value = "";
                 setAnalyzeStatus("녹음이 끝난 뒤 GPT 분석을 실행하세요.");
 
                 mediaRecorder.start(200);
-                startCountdownTimer();
+                await playInterviewerVideoAndScheduleCountdown();
             } catch (err) {
                 console.error(err);
 
@@ -1308,7 +1414,9 @@
                 mediaRecorder = null;
                 audioChunks = [];
                 stopCountdownTimer();
+                stopCountdownDelayTimer();
                 resetCountdown();
+                resetInterviewerVideo();
                 setRecordUIIdle();
 
                 if (err && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError")) {
@@ -1327,6 +1435,7 @@
             if (!isRecording || !mediaRecorder) return;
 
             stopCountdownTimer();
+            stopCountdownDelayTimer();
             isRecording = false;
             setCameraVisualOff();
             setRecordUIWorking("텍스트 변환과 음성 분석을 진행 중입니다...");
