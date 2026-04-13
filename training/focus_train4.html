@@ -1,1 +1,2085 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>무표정 안정화 트레이닝</title>
+    <style>
+        :root {
+            --bg-1: #f6faff;
+            --bg-2: #e9f2ff;
+            --bg-3: #dce9ff;
+            --navy: #243967;
+            --navy-2: #6f80a3;
+            --blue: #5f95ef;
+            --blue-2: #79b0ff;
+            --blue-soft: #edf4ff;
+            --green: #38af73;
+            --gold: #f4c064;
+            --text: #27375a;
+            --muted: #7284a6;
+            --shadow-xl: 0 22px 48px rgba(31, 53, 104, 0.12);
+            --shadow-lg: 0 16px 34px rgba(31, 53, 104, 0.10);
+            --shadow-md: 0 12px 24px rgba(31, 53, 104, 0.08);
+            --shadow-sm: 0 8px 16px rgba(31, 53, 104, 0.06);
+            --bottom-nav-h: 84px;
+            --phone-max: 430px;
+        }
 
+        * {
+            box-sizing: border-box;
+            min-width: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            color: var(--text);
+            background: radial-gradient(circle at 12% 10%, rgba(255,255,255,0.95), transparent 18%), radial-gradient(circle at 88% 8%, rgba(255,255,255,0.72), transparent 18%), linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+            overflow-x: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+        }
+
+        img, video {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        button {
+            font: inherit;
+            border: 0;
+            cursor: pointer;
+            background: none;
+        }
+
+        .app {
+            width: 100%;
+            max-width: var(--phone-max);
+            min-height: 100dvh;
+            position: relative;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 0% 22%, rgba(255,255,255,0.48), transparent 24%), radial-gradient(circle at 100% 22%, rgba(255,255,255,0.38), transparent 22%), linear-gradient(180deg, rgba(255,255,255,0.56), rgba(245,249,255,0.97));
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.72) inset;
+        }
+
+        .content {
+            padding: calc(10px + env(safe-area-inset-top)) 10px calc(var(--bottom-nav-h) + 18px + env(safe-area-inset-bottom));
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            color: var(--blue);
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .title-wrap {
+            flex: 1 1 auto;
+            text-align: center;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: clamp(22px, 6vw, 31px);
+            line-height: 1.1;
+            letter-spacing: -0.08em;
+            font-weight: 900;
+            color: var(--navy);
+        }
+
+        .training-shell {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 24px;
+            background: rgba(234,242,255,0.88);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .training-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 0.82;
+            min-height: 286px;
+            max-height: 322px;
+            border-radius: 22px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #eef3fa, #d7e4f8);
+            border: 1px solid rgba(67, 97, 161, 0.08);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .intro-layer,
+        .camera-layer {
+            position: absolute;
+            inset: 0;
+        }
+
+        .intro-layer {
+            z-index: 2;
+            transition: opacity .25s ease, visibility .25s ease;
+        }
+
+            .intro-layer.hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+
+        .luna-hero {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(16,26,48,0.08) 70%, rgba(16,26,48,0.16) 100%), url('./images/luna1.png') center center / cover no-repeat;
+            transition: background-image .25s ease;
+        }
+
+        .luna-hero-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            display: none;
+            pointer-events: none;
+        }
+
+        .luna-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(16,26,48,0.08) 70%, rgba(16,26,48,0.16) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .intro-bubble {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            top: 12px;
+            bottom: auto;
+            padding: 11px 13px;
+            border-radius: 18px;
+            background: rgba(244,248,255,0.95);
+            box-shadow: var(--shadow-md);
+            z-index: 2;
+        }
+
+        .coach-title {
+            margin: 0 0 6px;
+            color: var(--blue);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .coach-text {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.48;
+            color: #4d628b;
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
+        .camera-layer {
+            z-index: 1;
+            background: linear-gradient(135deg, #eef3fa, #d7e4f8);
+        }
+
+        #webcam,
+        #cameraFallback {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #eef3fa;
+        }
+
+        #webcam {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            display: block;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        #cameraFallback {
+            position: absolute;
+            inset: 0;
+            background: url('./images/focus1.png') center center / cover no-repeat;
+            z-index: 3;
+            pointer-events: none;
+            display: none; /* 🔥 추가 */
+        }
+
+        .live-pill {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #69a5ff, #4b86ed);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+        }
+
+            .live-pill::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #fff;
+            }
+
+        .stage-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 6;
+            min-width: 78px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.90);
+            backdrop-filter: blur(6px);
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 900;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .timer-orb {
+            position: absolute;
+            left: 50%;
+            top: 14px;
+            transform: translateX(-50%);
+            z-index: 6;
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(8px);
+            color: var(--navy);
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timer-num {
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -0.06em;
+        }
+
+        .timer-label {
+            margin-top: 3px;
+            font-size: 9px;
+            color: #5f7194;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .score-mini {
+            position: absolute;
+            right: 12px;
+            top: 58px;
+            z-index: 6;
+            min-width: 68px;
+            padding: 7px 9px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(6px);
+            color: var(--navy);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            display: none;
+        }
+
+            .score-mini.show {
+                display: block;
+            }
+
+            .score-mini .label {
+                display: block;
+                font-size: 9px;
+                line-height: 1.1;
+                color: #62749a;
+                font-weight: 900;
+            }
+
+            .score-mini .value {
+                display: block;
+                margin-top: 3px;
+                font-size: 18px;
+                line-height: 1;
+                font-weight: 900;
+                letter-spacing: -0.05em;
+            }
+
+        .guide-mouth-box {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 118px;
+            height: 46px;
+            border: 3px dashed rgba(182,255,224,0.92);
+            border-radius: 999px;
+            background: rgba(126,215,192,0.10);
+            box-shadow: 0 0 0 10px rgba(126,215,192,0.05);
+            z-index: 4;
+            display: none;
+            pointer-events: none;
+        }
+
+        #userMouthBox {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 96px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid rgba(255,255,255,0.55);
+            background: linear-gradient(180deg, rgba(223,145,155,0.20), rgba(205,116,129,0.28));
+            box-shadow: 0 0 0 1px rgba(208,116,128,0.15);
+            z-index: 4;
+            display: none;
+            pointer-events: none;
+        }
+
+        .mouth-popup {
+            position: absolute;
+            left: 50%;
+            top: 56%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 7;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.94);
+            color: var(--green);
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            box-shadow: 0 16px 30px rgba(49, 88, 162, 0.18);
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+            .mouth-popup.show {
+                animation: mouthPopupFx 1.15s ease forwards;
+            }
+
+        @keyframes mouthPopupFx {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.72);
+            }
+
+            15% {
+                opacity: 1;
+                transform: translate(-50%, -66%) scale(1.03);
+            }
+
+            55% {
+                opacity: 1;
+                transform: translate(-50%, -86%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -110%) scale(0.92);
+            }
+        }
+
+        .result-card {
+            margin-top: 10px;
+            padding: 12px 12px 11px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 14px 28px rgba(31, 53, 104, 0.08);
+            border: 1px solid rgba(95, 149, 239, 0.07);
+        }
+
+        .result-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .result-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.04em;
+        }
+
+        .result-badge {
+            min-width: 54px;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #eef4ff, #dde8ff);
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .result-main {
+            margin-top: 10px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .result-score-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .result-score-label {
+            font-size: 10px;
+            color: #7184a8;
+            font-weight: 900;
+        }
+
+        .result-score {
+            margin-top: 3px;
+            font-size: 21px;
+            line-height: 1;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.06em;
+        }
+
+            .result-score small {
+                font-size: 11px;
+                margin-left: 2px;
+            }
+
+        .result-right {
+            text-align: right;
+            min-width: 54px;
+        }
+
+        .result-grade {
+            font-size: 25px;
+            line-height: 1;
+            font-weight: 900;
+            color: var(--blue);
+            letter-spacing: -0.05em;
+        }
+
+        .star-row {
+            display: flex;
+            gap: 4px;
+            margin-top: 5px;
+            justify-content: flex-start;
+        }
+
+        .star {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #d7deec;
+            transition: transform .2s ease, color .2s ease, filter .2s ease;
+            filter: drop-shadow(0 2px 4px rgba(58, 75, 121, 0.08));
+        }
+
+            .star svg {
+                width: 100%;
+                height: 100%;
+                display: block;
+                fill: currentColor;
+            }
+
+            .star.filled {
+                color: var(--gold);
+                filter: drop-shadow(0 4px 8px rgba(229, 168, 61, 0.35));
+                transform: translateY(-1px) scale(1.04);
+            }
+
+        .result-coach {
+            margin-top: 8px;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #f2f7ff, #eaf3ff);
+            color: #4d628b;
+            font-size: 12px;
+            line-height: 1.4;
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
+        .action-wrap {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .main-btn,
+        .retry-btn,
+        .next-btn {
+            min-height: 52px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+
+        .main-btn {
+            flex: 1 1 auto;
+            color: #fff;
+            background: linear-gradient(90deg, #7caeff, #5689ef);
+            box-shadow: 0 16px 24px rgba(86,137,239,0.22);
+        }
+
+        .retry-btn {
+            flex: 0 0 110px;
+            color: #426f5f;
+            background: linear-gradient(180deg, #e6f3ee, #d6ebe3);
+            box-shadow: 0 10px 18px rgba(72,191,156,0.10);
+            border: 1px solid rgba(72,191,156,0.10);
+        }
+
+        .next-btn {
+            flex: 1 1 0;
+            color: #fff;
+            background: linear-gradient(90deg, #7caeff, #5689ef);
+            box-shadow: 0 16px 24px rgba(86,137,239,0.22);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .level-progress {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.54);
+            border: 1px solid rgba(95,149,239,0.05);
+            box-shadow: 0 6px 14px rgba(31, 53, 104, 0.03);
+            backdrop-filter: blur(4px);
+        }
+
+        .level-progress-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 0 2px 10px;
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .stage-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .summary-card {
+            padding: 10px 8px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.74);
+            text-align: center;
+            border: 1px solid rgba(85, 111, 174, 0.05);
+            box-shadow: 0 6px 12px rgba(31, 53, 104, 0.03);
+        }
+
+        .summary-label {
+            font-size: 11px;
+            color: #7487aa;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .summary-score {
+            margin-top: 5px;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.05em;
+        }
+
+            .summary-score small {
+                font-size: 10px;
+                margin-left: 1px;
+            }
+
+        .summary-card .star-row {
+            margin-top: 6px;
+            justify-content: center;
+        }
+
+        .summary-card .star {
+            width: 16px;
+            height: 16px;
+        }
+
+        .summary-grade {
+            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--blue);
+        }
+
+        .control-card {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(95,149,239,0.05);
+            box-shadow: 0 6px 14px rgba(31, 53, 104, 0.025);
+            backdrop-filter: blur(4px);
+        }
+
+        .control-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .control-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.04em;
+        }
+
+            .control-title .lv {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 46px;
+                height: 28px;
+                padding: 0 10px;
+                border-radius: 999px;
+                margin-right: 8px;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 900;
+                background: linear-gradient(180deg, #f5c369, #e7a44a);
+            }
+
+        .control-desc {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 800;
+            word-break: keep-all;
+        }
+
+        .sound-btn {
+            flex-shrink: 0;
+            padding: 10px 13px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.85);
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(95,149,239,0.06);
+        }
+
+        .control-note {
+            margin-top: 8px;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #97a3bb;
+            font-weight: 800;
+        }
+
+        .section-head {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--navy);
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+            .section-head small {
+                color: var(--muted);
+                font-size: 14px;
+                font-weight: 800;
+            }
+
+        .slider-wrap {
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .sub-slider {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+        }
+
+            .sub-slider::-webkit-scrollbar {
+                display: none;
+            }
+
+        .sub-card {
+            flex: 0 0 122px;
+            scroll-snap-align: start;
+            padding: 7px;
+            border-radius: 20px;
+            border: 0;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 10px 20px rgba(31, 53, 104, 0.07);
+            text-align: left;
+            position: relative;
+        }
+
+            .sub-card.active {
+                outline: 3px solid rgba(255,194,101,0.36);
+                box-shadow: 0 14px 24px rgba(255,189,92,0.15);
+            }
+
+        .sub-thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1.06;
+            overflow: hidden;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #e6effb, #d4e3fa);
+        }
+
+            .sub-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .sub-badge {
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            min-width: 40px;
+            height: 22px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(180deg, #75aaff, #4a86ea);
+        }
+
+        .sub-card.active .sub-badge {
+            background: linear-gradient(180deg, #f4c264, #e9a748);
+        }
+
+        .sub-name {
+            margin: 8px 0 0;
+            font-size: 13px;
+            line-height: 1.22;
+            color: var(--navy);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            word-break: keep-all;
+        }
+
+        .sub-stage-dots {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+            .sub-stage-dots span {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: #d4deef;
+                box-shadow: inset 0 0 0 1px rgba(89,113,160,0.06);
+            }
+
+                .sub-stage-dots span.done {
+                    background: linear-gradient(180deg, #f4c264, #e9a748);
+                }
+
+                .sub-stage-dots span.current {
+                    background: linear-gradient(180deg, #7caeff, #5689ef);
+                    transform: scale(1.08);
+                }
+
+        .bottom-nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 30;
+            width: 100%;
+            padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+            background: rgba(255,255,255,0.97);
+            border-top: 1px solid rgba(49,74,143,0.09);
+            box-shadow: 0 -10px 30px rgba(34,55,101,0.07);
+        }
+
+        .bottom-nav-inner {
+            width: 100%;
+            max-width: var(--phone-max);
+            margin: 0 auto;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            text-align: center;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #8a97b1;
+            font-size: 12px;
+            font-weight: 900;
+            padding: 4px 0;
+        }
+
+            .nav-item.active {
+                color: var(--blue);
+            }
+
+        .nav-ico {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .sub-slider.dragging {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
+        }
+
+        .sub-slider {
+            cursor: grab;
+        }
+
+
+        #gazeOverlay {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            transform: scaleX(-1);
+        }
+
+        .gaze-eye {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 54px;
+            height: 54px;
+            margin-left: -27px;
+            margin-top: -27px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(15,23,42,0.72);
+            border: 1px solid rgba(255,255,255,0.22);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.08s linear, opacity 0.15s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+            .gaze-eye.visible {
+                opacity: 1;
+            }
+
+            .gaze-eye .eye-icon {
+                font-size: 25px;
+                line-height: 1;
+                filter: drop-shadow(0 2px 8px rgba(0,0,0,0.28));
+            }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <main class="content">
+            <header class="topbar">
+                <button class="icon-btn" aria-label="뒤로가기">‹</button>
+                <div class="title-wrap">
+                    <h1 class="page-title">친근한 무표정 트레이닝</h1>
+                </div>
+                <button class="icon-btn" aria-label="설정">⚙</button>
+            </header>
+
+            <section class="training-shell">
+                <div class="training-stage">
+                    <div class="camera-layer">
+                        <video id="webcam" autoplay playsinline muted></video>
+                        <div id="cameraFallback"></div>
+
+                        <div class="live-pill">LIVE</div>
+                        <div class="stage-indicator" id="stageIndicator">Lv.1 · 1/3</div>
+
+                        <div class="timer-orb" id="timerOrb">
+                            <div class="timer-num" id="timerNum">10</div>
+                            <div class="timer-label">남은시간</div>
+                        </div>
+
+                        <div class="score-mini" id="scoreMini">
+                            <span class="label">점수</span>
+                            <span class="value" id="scoreMiniValue">0</span>
+                        </div>
+
+                        <div class="guide-mouth-box" id="guideBox"></div>
+                        <div id="userMouthBox"></div>
+                        <div id="mouthPopup" class="mouth-popup"></div>
+                        <canvas id="gazeOverlay"></canvas>
+                        <div class="gaze-eye" id="gazeEye" aria-hidden="true">
+                            <div class="eye-icon">👁️</div>
+                        </div>
+                    </div>
+
+                    <div class="intro-layer" id="introLayer">
+                        <div class="luna-hero" id="lunaHero">
+                            <video id="lunaHeroVideo" class="luna-hero-video" autoplay muted loop playsinline preload="auto">
+                                <source src="./movie/netural1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="intro-bubble">
+                            <p class="coach-title">AI 강사 루나 🔊</p>
+                            <p class="coach-text" id="coachText">입을 다문상태에서 최대한 웃어 주세요. 웃음 근육이 발달해야 합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="result-card">
+                <div class="result-head">
+                    <h2 class="result-title">이번 측정 결과</h2>
+                    <div class="result-badge" id="resultBadge">대기중</div>
+                </div>
+
+                <div class="result-main">
+                    <div class="result-score-wrap">
+                        <div class="result-score-label">점수</div>
+                        <div class="result-score" id="resultScore">0<small>점</small></div>
+                        <div class="star-row" id="resultStars">
+                            <span class="star"><svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg></span>
+                            <span class="star"><svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg></span>
+                            <span class="star"><svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg></span>
+                        </div>
+                    </div>
+
+                    <div class="result-right">
+                        <div class="result-grade" id="gradeValue">C</div>
+                    </div>
+                </div>
+
+                <div class="result-coach" id="coachMini">
+                    입술에 힘을 빼고 자연스럽게 다물어보세요.
+                </div>
+            </section>
+
+            <div class="action-wrap">
+                <button class="main-btn" id="startTrainingBtn">▶ 지금 시작하기</button>
+                <button class="retry-btn hidden" id="retryBtn">↺ 다시하기</button>
+                <button class="next-btn hidden" id="nextBtn">다음 단계</button>
+            </div>
+
+            <section class="level-progress">
+                <div class="level-progress-title">
+                    <span id="summaryTitle">현재 레벨 진행</span>
+                    <span id="summaryClearText">0 / 3 완료</span>
+                </div>
+                <div class="stage-summary-grid" id="summaryGrid"></div>
+            </section>
+
+            <section class="control-card">
+                <div class="control-head">
+                    <div>
+                        <h2 class="control-title">
+                            <span class="lv" id="levelTag">Lv.1</span>
+                            <span id="stepTitle">입술 힘 빼기</span>
+                        </h2>
+                        <p class="control-desc" id="stepDesc">거울을 보며 편안한 입모양을 만들어보세요</p>
+                    </div>
+                    <button class="sound-btn" id="guideBtn">▶ 설명 재생</button>
+                </div>
+
+                <div class="control-note" id="controlNote">
+                    10초 동안 측정합니다. 카메라 정면을 보고 입술과 턱에 힘을 덜어주세요.
+                </div>
+            </section>
+
+            <div class="section-head">✨ 레벨 선택 <small>· 각 레벨 옆 점은 단계 수와 진행 상태</small></div>
+
+            <section class="slider-wrap">
+                <div class="sub-slider" id="subSlider"></div>
+            </section>
+        </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+        <div class="bottom-nav-inner">
+            <div class="nav-grid">
+                <a href="#" class="nav-item"><span class="nav-ico">🏠</span>홈</a>
+                <a href="#" class="nav-item active"><span class="nav-ico">🎬</span>훈련</a>
+                <a href="#" class="nav-item"><span class="nav-ico">🎯</span>목표</a>
+            </div>
+        </div>
+    </nav>
+
+    <script type="module">
+        import {
+            FaceLandmarker,
+            FilesetResolver
+        } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+        const MODEL_ASSET_PATH =
+            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+
+        const MOUTH_LEFT = 61;
+        const MOUTH_RIGHT = 291;
+        const MOUTH_TOP = 13;
+        const MOUTH_BOTTOM = 14;
+        const MOUTH_CENTER_TOP = 0;
+        const MOUTH_CENTER_BOTTOM = 17;
+        const FACE_LEFT = 234;
+        const FACE_RIGHT = 454;
+        const TRAINING_DURATION = 10000;
+
+        const levels = [
+            {
+                levelNo: 1,
+                level: "Lv.1",
+                title: "무표정 안정화",
+                image: "./images/neutral-lip.png",
+                heroImage: "./images/luna1.png",
+                heroVideo: "./movie/netural1.mp4",
+                stages: [
+                    {
+                        title: "기본 입술 모양",
+                        desc: "무표정일때 이미 첫인상이 평가되고 있습니다.",
+                        coach: "입을 다문상태에서 최대한 웃어 주세요. 웃음 근육이 발달해야 합니다."
+                    },
+                    {
+                        title: "입 닫힘 균형",
+                        desc: "자신도 모르게 입을 꽉 다물게 되면 상대방이 오해할 수 있습니다",
+                        coach: "입술을 살짝 벌린 후, 윗입술과 아랫입술이 너무 눌리지 않게 가볍게 닿게 해보세요"
+                    },
+                    {
+                        title: "안정된 입모양",
+                        desc: "상대방이 편안하게 말을 걸 수 있어야 합니다.",
+                        coach: "입을 살짝 벌린 후, 최대한 웃어 주세요."
+                    }
+                ]
+            },
+            {
+                levelNo: 2,
+                level: "Lv.2",
+                title: "시선 안정화",
+                image: "./images/neutral-balance.png",
+                heroImage: "./images/luna2.png",
+                stages: [
+                    {
+                        title: "가벼운 시선 연습",
+                        desc: "시선을 연습할 때 눈깜빡이 많지 않도록 유지하세요.",
+                        coach: "타겟(화살표)을 따라 시선을 집중해 주세요."
+                    },
+                    {
+                        title: "면접관 시선 유지",
+                        desc: "면접관이 질문을 할 때가 중요합니다.",
+                        coach: "면접관의 눈을 부드럽게 응시하세요."
+                    },
+                    {
+                        title: "답변할 때 시선 유지",
+                        desc: "연습을 해서 무의식적으로 시선유지가 될 수 있도록 해야 합니다.",
+                        coach: "밝게 노래를 하거나 답변을 하면서 면접관의 시선을 응시하세요."
+                    }
+                ]
+            },
+            {
+                levelNo: 3,
+                level: "Lv.3",
+                title: "밝은 미소",
+                image: "./images/neutral-balance.png",
+                heroImage: "./images/luna3.png",
+                stages: [
+                    {
+                        title: "입꼬리 올리기",
+                        desc: "큰 광대근을 올려야 어색하지 않습니다.",
+                        coach: "입꼬리를 20% 올리는 느낌으로 연습하세요."
+                    },
+                    {
+                        title: "입벌리고 입꼬리 올리기",
+                        desc: "큰 광대근과 하악각을 사용합니다",
+                        coach: "입을 벌리고 최대한 입꼬리를 올려 주세요."
+                    },
+                    {
+                        title: "눈 웃음 유지",
+                        desc: "구륜근이 같이 움직이지 않으면 어색한 웃음입니다.",
+                        coach: "웃으면서 눈웃음(구륜근)을 만들어 보세요."
+                    }
+                ]
+            },
+            {
+                levelNo: 4,
+                level: "Lv.4",
+                title: "부드러운 첫인상",
+                image: "./images/neutral-eye.png",
+                heroImage: "./images/luna3.png",
+                stages: [
+                    {
+                        title: "부드러운 무표정",
+                        desc: "무표정이 차갑지 않게 부드럽게 정리해보세요",
+                        coach: "무표정이어도 차갑지 않게, 얼굴 전체의 긴장을 부드럽게 정돈해볼게요."
+                    },
+                    {
+                        title: "면접실 입장",
+                        desc: "첫인상은 문을 들어서는 순간 이미 평가되고 있습니다.",
+                        coach: "면접실에 입장할 떄의 얼굴 표정을 보여주세요."
+                    },
+                    {
+                        title: "면접 첫인상",
+                        desc: "면접관과 눈이 마주쳤을 떄가 제일 중요합니다.",
+                        coach: "면접관과 눈이 마주쳤을 때 당황하거나 긴장하지 않는 얼굴 표정을 보여주세요."
+                    }
+                ]
+            },
+            {
+                levelNo: 5,
+                level: "Lv.5",
+                title: "베스트 인상 유지",
+                image: "./images/neutral-best.png",
+                heroImage: "./images/luna5.png",
+                stages: [
+                    {
+                        title: "완성형 표정 찾기",
+                        desc: "가장 자연스럽고 편안한 표정의 기준점을 찾아보세요",
+                        coach: "지금까지 만든 감각을 바탕으로 가장 자연스러운 표정 상태를 찾아볼게요."
+                    },
+                    {
+                        title: "10초 유지",
+                        desc: "흔들림 없이 좋은 인상을 유지해보세요",
+                        coach: "좋아요. 표정을 흔들지 말고 지금 느낌을 유지해보세요."
+                    },
+                    {
+                        title: "베스트 컷 감각",
+                        desc: "가장 자연스럽고 호감 가는 인상을 안정적으로 유지해보세요",
+                        coach: "지금이 거의 완성형이에요. 과하지 않게 끝까지 유지해볼게요."
+                    }
+                ]
+            }
+        ];
+
+        const levelResults = levels.map(level => ({
+            stages: level.stages.map(() => ({
+                score: 0,
+                grade: "C",
+                cleared: false
+            }))
+        }));
+
+        // 각 단계별 실시간 점수를 전역으로 따로 누적하기 위한 저장소
+        const globalStageScoreSums = levels.map(level => level.stages.map(() => 0));
+        const globalStageScoreCounts = levels.map(level => level.stages.map(() => 0));
+
+        const video = document.getElementById("webcam");
+        const fallback = document.getElementById("cameraFallback");
+        const introLayer = document.getElementById("introLayer");
+        const guideBox = document.getElementById("guideBox");
+        const userMouthBox = document.getElementById("userMouthBox");
+        const mouthPopup = document.getElementById("mouthPopup");
+        const gazeOverlay = document.getElementById("gazeOverlay");
+        const gazeCtx = gazeOverlay.getContext("2d");
+        const gazeEye = document.getElementById("gazeEye");
+
+        const coachText = document.getElementById("coachText");
+        const coachMini = document.getElementById("coachMini");
+
+        const levelTag = document.getElementById("levelTag");
+        const stepTitle = document.getElementById("stepTitle");
+        const stepDesc = document.getElementById("stepDesc");
+        const controlNote = document.getElementById("controlNote");
+
+        const startBtn = document.getElementById("startTrainingBtn");
+        const retryBtn = document.getElementById("retryBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const guideBtn = document.getElementById("guideBtn");
+
+        const stageIndicator = document.getElementById("stageIndicator");
+        const timerNum = document.getElementById("timerNum");
+        const lunaHero = document.getElementById("lunaHero");
+        const lunaHeroVideo = document.getElementById("lunaHeroVideo");
+
+        const subSlider = document.getElementById("subSlider");
+        const summaryTitle = document.getElementById("summaryTitle");
+        const summaryGrid = document.getElementById("summaryGrid");
+        const summaryClearText = document.getElementById("summaryClearText");
+
+        const scoreMini = document.getElementById("scoreMini");
+        const scoreMiniValue = document.getElementById("scoreMiniValue");
+        const resultScore = document.getElementById("resultScore");
+        const resultBadge = document.getElementById("resultBadge");
+        const gradeValue = document.getElementById("gradeValue");
+        const resultStars = [...document.querySelectorAll("#resultStars .star")];
+
+        let subCards = [];
+        let stream = null;
+        let faceLandmarker = null;
+        let running = false;
+        let rafId = 0;
+        let trainingEndsAt = 0;
+        let lastVideoTime = -1;
+
+        let currentLevel = 0;
+        let currentStage = 0;
+        let currentScore = 0;
+        let stageScoreSum = 0;
+        let stageScoreCount = 0;
+        let lastPopupText = "";
+        let lastPopupAt = 0;
+        let prevSmile = null;
+        let prevEvalAt = 0;
+        let smoothedGazeX = 0;
+        let smoothedGazeY = 0;
+        let smoothedMoveX = 0;
+        let smoothedMoveY = 0;
+        let gazeCenterOffsetX = 0;
+        let gazeCenterOffsetY = -300;
+
+        function clamp(v, min, max) {
+            return Math.max(min, Math.min(max, v));
+        }
+
+        function dist(a, b, w, h) {
+            const dx = (a.x - b.x) * w;
+            const dy = (a.y - b.y) * h;
+            return Math.hypot(dx, dy);
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function avgPoint(landmarks, ids) {
+            let x = 0;
+            let y = 0;
+            for (const id of ids) {
+                x += landmarks[id].x;
+                y += landmarks[id].y;
+            }
+            return { x: x / ids.length, y: y / ids.length };
+        }
+
+        function resizeGazeOverlay() {
+            const rect = video.getBoundingClientRect();
+            gazeOverlay.width = rect.width || video.clientWidth || 0;
+            gazeOverlay.height = rect.height || video.clientHeight || 0;
+        }
+
+        function setGazeEyeVisible(visible) {
+            gazeEye.classList.toggle("visible", visible);
+        }
+
+        function moveGazeEye(nx, ny, hudCenterX = null, visible = true) {
+            const MOVE_SCALE = 2500;
+            const SMOOTHING = 0.05;
+            const stageRect = video.getBoundingClientRect();
+            const eyeSize = 54;
+            const halfEye = eyeSize / 2;
+
+            const maxMoveX = Math.max(0, (stageRect.width / 2) - halfEye);
+            const maxMoveY = Math.max(0, ((stageRect.height / 2) - halfEye) * 2);
+
+            const targetX = typeof hudCenterX === "number"
+                ? clamp((hudCenterX - (stageRect.width * 0.5)) + gazeCenterOffsetX, -maxMoveX, maxMoveX)
+                : clamp(clamp(nx, -1, 1) * maxMoveX + gazeCenterOffsetX, -maxMoveX, maxMoveX);
+            const targetY = clamp(clamp(ny, -1, 1) * -MOVE_SCALE + gazeCenterOffsetY, -maxMoveY, maxMoveY);
+
+            smoothedMoveX += (targetX - smoothedMoveX) * SMOOTHING;
+            smoothedMoveY += (targetY - smoothedMoveY) * SMOOTHING;
+
+            gazeEye.style.transform = `translate3d(${smoothedMoveX}px, ${smoothedMoveY}px, 0)`;
+            setGazeEyeVisible(visible);
+        }
+
+        function centerGazeEye() {
+            smoothedGazeX = 0;
+            smoothedGazeY = 0;
+            smoothedMoveX = 0;
+            smoothedMoveY = 0;
+            moveGazeEye(0, 0, false);
+        }
+
+        function mapIrisToNormalized(landmarks, isLeftEye) {
+            const irisIds = isLeftEye ? [468, 469, 470, 471, 472] : [473, 474, 475, 476, 477];
+            const cornerOuter = isLeftEye ? 33 : 362;
+            const cornerInner = isLeftEye ? 133 : 263;
+            const lidTopIds = isLeftEye ? [159, 158] : [386, 385];
+            const lidBottomIds = isLeftEye ? [145, 153] : [374, 380];
+
+            const iris = avgPoint(landmarks, irisIds);
+            const top = avgPoint(landmarks, lidTopIds);
+            const bottom = avgPoint(landmarks, lidBottomIds);
+            const outer = landmarks[cornerOuter];
+            const inner = landmarks[cornerInner];
+            if (!iris || !top || !bottom || !outer || !inner) return null;
+
+            const cx = (outer.x + inner.x) * 0.5;
+            const cy = (top.y + bottom.y) * 0.5;
+            const halfW = Math.abs(inner.x - outer.x) * 0.5 || 0.00001;
+            const halfH = Math.abs(bottom.y - top.y) * 0.5 || 0.00001;
+
+            let nx = (iris.x - cx) / halfW;
+            let ny = (iris.y - cy) / halfH;
+
+            nx = -nx;
+
+            return {
+                x: clamp(nx, -1.5, 1.5),
+                y: clamp(ny, -1.5, 1.5)
+            };
+        }
+
+        function estimateGaze(landmarks) {
+            if (!landmarks || landmarks.length < 478) return null;
+
+            const left = mapIrisToNormalized(landmarks, true);
+            const right = mapIrisToNormalized(landmarks, false);
+            if (!left || !right) return null;
+
+            return {
+                x: clamp((left.x + right.x) * 0.5, -1, 1),
+                y: clamp((left.y + right.y) * 0.5, -1, 1)
+            };
+        }
+
+        function getEyeCenterPoint(landmarks) {
+            if (!landmarks) return null;
+
+            const leftIris = avgPoint(landmarks, [468, 469, 470, 471, 472]);
+            const rightIris = avgPoint(landmarks, [473, 474, 475, 476, 477]);
+            if (!leftIris || !rightIris) return null;
+
+            return {
+                x: (leftIris.x + rightIris.x) * 0.5,
+                y: (leftIris.y + rightIris.y) * 0.5
+            };
+        }
+
+        function drawGazeHUD(landmarks, gaze) {
+            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
+            if (!landmarks || !gaze) return;
+
+            const eyeCenter = getEyeCenterPoint(landmarks);
+            if (!eyeCenter) return;
+
+            const px = eyeCenter.x * gazeOverlay.width;
+            const py = eyeCenter.y * gazeOverlay.height;
+            const dx = gaze.x * 90;
+            const dy = gaze.y * 90;
+
+            gazeCtx.save();
+            gazeCtx.lineWidth = 4;
+            gazeCtx.strokeStyle = "rgba(255,255,255,0.92)";
+            gazeCtx.fillStyle = "rgba(95,149,239,0.95)";
+
+            gazeCtx.beginPath();
+            gazeCtx.arc(px, py, 14, 0, Math.PI * 2);
+            gazeCtx.stroke();
+
+            gazeCtx.beginPath();
+            gazeCtx.moveTo(px, py);
+            gazeCtx.lineTo(px + dx, py + dy);
+            gazeCtx.stroke();
+
+            gazeCtx.beginPath();
+            gazeCtx.arc(px + dx, py + dy, 8, 0, Math.PI * 2);
+            gazeCtx.fill();
+            gazeCtx.restore();
+        }
+
+        function resetEvalState() {
+            prevSmile = null;
+            prevEvalAt = 0;
+        }
+
+        function getCurrentLevelDef() {
+            return levels[currentLevel];
+        }
+
+        function getCurrentStageDef() {
+            return levels[currentLevel].stages[currentStage];
+        }
+
+        function getStageResult(levelIdx = currentLevel, stageIdx = currentStage) {
+            return levelResults[levelIdx].stages[stageIdx];
+        }
+
+        window.addEventListener("resize", () => {
+            resizeGazeOverlay();
+            moveGazeEye(smoothedGazeX, smoothedGazeY, null, running);
+        });
+
+        function getStageAverageScore(levelIdx = currentLevel, stageIdx = currentStage) {
+            const sum = globalStageScoreSums[levelIdx][stageIdx];
+            const count = globalStageScoreCounts[levelIdx][stageIdx];
+            if (!count) return null;
+            return sum / count;
+        }
+
+        function getStarCount(score) {
+            if (score >= 90) return 3;
+            if (score >= 60) return 2;
+            if (score >= 30) return 1;
+            return 0;
+        }
+
+        function getGrade(score) {
+            if (score >= 90) return "S";
+            if (score >= 75) return "A";
+            if (score >= 60) return "B";
+            return "C";
+        }
+
+        function getCoachMessage(score) {
+            if (score >= 90) return "좋아요. 지금처럼 힘을 빼고 자연스럽게 유지해보세요.";
+            if (score >= 75) return "꽤 안정적이에요. 입술 힘만 조금 더 빼보세요.";
+            if (score >= 60) return "조금만 더 편안하게 다물면 훨씬 좋아져요.";
+            return "입술과 턱에 들어간 힘을 조금 더 풀어보세요.";
+        }
+
+        function setStars(stars, count) {
+            stars.forEach((star, i) => {
+                star.classList.toggle("filled", i < count);
+            });
+        }
+
+        function showPopup(text) {
+            const now = performance.now();
+            if (text === lastPopupText && now - lastPopupAt < 900) return;
+
+            lastPopupText = text;
+            lastPopupAt = now;
+            mouthPopup.textContent = text;
+            mouthPopup.classList.remove("show");
+            void mouthPopup.offsetWidth;
+            mouthPopup.classList.add("show");
+        }
+
+        function createLevelCards() {
+            subSlider.innerHTML = "";
+            subCards = [];
+
+            levels.forEach((level, levelIdx) => {
+                const btn = document.createElement("button");
+                btn.className = "sub-card";
+                btn.type = "button";
+
+                const dotsHtml = level.stages.map((_, stageIdx) => {
+                    const result = levelResults[levelIdx].stages[stageIdx];
+                    const cls =
+                        levelIdx === currentLevel && stageIdx === currentStage
+                            ? "current"
+                            : result.cleared
+                                ? "done"
+                                : "";
+                    return `<span class="${cls}"></span>`;
+                }).join("");
+
+                btn.innerHTML = `
+                                            <div class="sub-thumb">
+                                                <img src="${level.image}" alt="${level.title}">
+                                                <div class="sub-badge">${level.level}</div>
+                                            </div>
+                                            <div class="sub-name">${level.title}</div>
+                                            <div class="sub-stage-dots">${dotsHtml}</div>
+                                        `;
+
+                btn.addEventListener("click", () => {
+                    currentLevel = levelIdx;
+                    currentStage = 0;
+                    stopTrainingUIOnly();
+                    syncUIFromSelection();
+                });
+
+                subSlider.appendChild(btn);
+                subCards.push(btn);
+            });
+        }
+
+        function renderLevelCards() {
+            subCards.forEach((card, levelIdx) => {
+                card.classList.toggle("active", levelIdx === currentLevel);
+
+                const dotsWrap = card.querySelector(".sub-stage-dots");
+                dotsWrap.innerHTML = levels[levelIdx].stages.map((_, stageIdx) => {
+                    const result = levelResults[levelIdx].stages[stageIdx];
+                    const cls =
+                        levelIdx === currentLevel && stageIdx === currentStage
+                            ? "current"
+                            : result.cleared
+                                ? "done"
+                                : "";
+                    return `<span class="${cls}"></span>`;
+                }).join("");
+            });
+        }
+
+        function renderSummary() {
+            const level = getCurrentLevelDef();
+            const results = levelResults[currentLevel].stages;
+            const clearCount = results.filter(r => r.cleared).length;
+
+            summaryTitle.textContent = `${level.title} 진행`;
+            summaryClearText.textContent = `${clearCount} / ${level.stages.length} 완료`;
+
+            summaryGrid.innerHTML = "";
+            level.stages.forEach((stage, idx) => {
+                const result = results[idx];
+                const card = document.createElement("div");
+                card.className = "summary-card";
+                card.innerHTML = `
+                                            <div class="summary-label">${idx + 1}단계</div>
+                                            <div class="summary-score">${result.score}<small>점</small></div>
+                                            <div class="star-row">
+                                                ${[0, 1, 2].map(i => `
+                                                    <span class="star ${i < getStarCount(result.score) ? "filled" : ""}">
+                                                        <svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg>
+                                                    </span>
+                                                `).join("")}
+                                            </div>
+                                            <div class="summary-grade">${result.grade}</div>
+                                        `;
+                summaryGrid.appendChild(card);
+            });
+        }
+
+        function updateResultCard(score = 0, status = "대기중") {
+            resultScore.innerHTML = `${Math.round(score)}<small>점</small>`;
+            gradeValue.textContent = getGrade(score);
+            coachMini.textContent = getCoachMessage(score);
+            resultBadge.textContent = status;
+            setStars(resultStars, getStarCount(score));
+        }
+
+        function syncUIFromSelection() {
+            const level = getCurrentLevelDef();
+            const stage = getCurrentStageDef();
+            const saved = getStageResult();
+
+            levelTag.textContent = level.level;
+            stepTitle.textContent = stage.title;
+            stepDesc.textContent = stage.desc;
+            coachText.textContent = stage.coach;
+            controlNote.textContent = "10초 동안 측정합니다. 카메라 정면을 보고 입술과 턱에 힘을 덜어주세요.";
+            stageIndicator.textContent = `${level.level} · ${currentStage + 1}/${level.stages.length}`;
+
+            if (level.heroVideo) {
+                lunaHero.style.backgroundImage = "none";
+                lunaHeroVideo.style.display = "block";
+                lunaHeroVideo.src = level.heroVideo;
+                lunaHeroVideo.load();
+                const playPromise = lunaHeroVideo.play();
+                if (playPromise && typeof playPromise.catch === "function") {
+                    playPromise.catch(() => { });
+                }
+            } else {
+                lunaHero.style.backgroundImage = `url('${level.heroImage}') center center / cover no-repeat`;
+                lunaHeroVideo.pause();
+                lunaHeroVideo.removeAttribute("src");
+                lunaHeroVideo.load();
+                lunaHeroVideo.style.display = "none";
+            }
+
+            const stageAvgScore = getStageAverageScore(currentLevel, currentStage);
+            const displayScore = stageAvgScore !== null ? stageAvgScore : saved.score;
+            const displayStatus = stageAvgScore !== null ? `${currentStage + 1}단계 평균` : (saved.cleared ? "완료" : "대기중");
+            updateResultCard(displayScore, displayStatus);
+
+            timerNum.textContent = "10";
+            scoreMiniValue.textContent = String(saved.score || 0);
+            scoreMini.classList.remove("show");
+
+            startBtn.classList.remove("hidden");
+            retryBtn.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+
+            resetEvalState();
+            introLayer.classList.remove("hidden");
+            renderLevelCards();
+            renderSummary();
+        }
+
+        function stopTrainingUIOnly() {
+            running = false;
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
+            guideBox.style.display = "none";
+            userMouthBox.style.display = "none";
+            scoreMini.classList.remove("show");
+            setGazeEyeVisible(false);
+            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
+            centerGazeEye();
+            resetEvalState();
+        }
+
+        async function setupCamera() {
+            if (stream) return;
+
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            video.srcObject = stream;
+            await video.play();
+            video.style.display = "block";
+            fallback.style.display = "none";
+            resizeGazeOverlay();
+            centerGazeEye();
+        }
+
+        async function setupModel() {
+            if (faceLandmarker) return;
+
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+            );
+
+            faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: MODEL_ASSET_PATH
+                },
+                runningMode: "VIDEO",
+                numFaces: 1,
+                outputFaceBlendshapes: true
+            });
+        }
+
+        function getBlendshapeScore(categories, name) {
+            if (!categories) return 0;
+            const found = categories.find(category => category.categoryName === name);
+            return found ? clamp(found.score ?? 0, 0, 1) : 0;
+        }
+
+        function getMouthOpenYBlendshape(categories) {
+            return clamp(
+                Math.max(
+                    getBlendshapeScore(categories, "mouthOpen"),
+                    getBlendshapeScore(categories, "mouthOpenY"),
+                    getBlendshapeScore(categories, "jawOpen")
+                ),
+                0,
+                1
+            );
+        }
+
+        function evaluateFace(faceLandmarks, blendshapeCategories, w, h, now) {
+            const left = faceLandmarks[MOUTH_LEFT];
+            const right = faceLandmarks[MOUTH_RIGHT];
+            const top = faceLandmarks[MOUTH_TOP];
+            const bottom = faceLandmarks[MOUTH_BOTTOM];
+            const centerTop = faceLandmarks[MOUTH_CENTER_TOP];
+            const centerBottom = faceLandmarks[MOUTH_CENTER_BOTTOM];
+            const faceLeft = faceLandmarks[FACE_LEFT];
+            const faceRight = faceLandmarks[FACE_RIGHT];
+
+            const mouthWidth = dist(left, right, w, h);
+            const mouthHeight = dist(top, bottom, w, h);
+            const centerHeight = dist(centerTop, centerBottom, w, h);
+            const faceWidth = faceLeft && faceRight ? dist(faceLeft, faceRight, w, h) : mouthWidth * 2.7;
+
+            const ratio = mouthHeight / Math.max(1, mouthWidth);
+            const centerRatio = centerHeight / Math.max(1, mouthWidth);
+
+            const smileL = getBlendshapeScore(blendshapeCategories, "mouthSmileLeft");
+            const smileR = getBlendshapeScore(blendshapeCategories, "mouthSmileRight");
+            const smileAvg = clamp((smileL + smileR) * 0.5, 0, 1);
+            const smileAsym = Math.abs(smileL - smileR);
+            const jawOpen = getBlendshapeScore(blendshapeCategories, "jawOpen");
+            const mouthOpenY = getMouthOpenYBlendshape(blendshapeCategories);
+
+            const cornerTilt = Math.abs(left.y - right.y) * h / Math.max(1, faceWidth);
+            const asymmetry = clamp(smileAsym * 1.1 + cornerTilt * 1.6, 0, 1.5);
+
+            const dt = prevEvalAt > 0 ? Math.max(0.001, (now - prevEvalAt) / 1000) : 0.001;
+            const smileVelocity = prevSmile == null ? 0 : (smileAvg - prevSmile) / dt;
+            prevSmile = smileAvg;
+            prevEvalAt = now;
+
+            let stage2Score = 0;
+            let stage2Popup = "좋아요";
+
+            if (mouthOpenY >= 0.12) {
+                stage2Popup = "조금만 더 다물어보세요";
+                stage2Score = 100 - mouthOpenY * 2000;
+            } else if (mouthOpenY > 0.01) {
+                stage2Score = 100;
+                stage2Popup = "조금만 더 다물어보세요";
+            } else {
+                stage2Score = 0;
+            }
+            stage2Score = clamp(stage2Score, 0, 100);
+
+            if (currentStage === 1) {
+                return {
+                    score: stage2Score,
+                    popup: stage2Popup,
+                    mouthOpenY
+                };
+            }
+
+            const targetSmile = 0.10;
+            const smilePenalty = clamp(Math.abs(smileAvg - targetSmile) / 0.18, 0, 1);
+            const forcedSmilePenalty = clamp(
+                clamp(Math.max(0, smileAvg - 0.24) / 0.25, 0, 1) * 0.55 +
+                clamp(Math.abs(smileVelocity) / 1.4, 0, 1) * clamp(smileAvg / 0.18, 0, 1) * 0.45,
+                0,
+                1
+            );
+            const asymPenalty = clamp(Math.max(0, asymmetry - 0.08) / 0.30, 0, 1);
+            const openPenalty = clamp(Math.max(Math.max(0, ratio - 0.16) / 0.10, Math.max(0, jawOpen - 0.10) / 0.22), 0, 1);
+
+            let stage1Score = 0;
+            stage1Score = smileAvg * 1000;
+            /*
+            stage1Score -= smilePenalty * 45;
+            stage1Score -= forcedSmilePenalty * 30;
+            stage1Score -= asymPenalty * 25;
+            stage1Score -= openPenalty * 20;
+            */
+            stage1Score = clamp(stage1Score, 0, 100);
+
+            let stage1Popup = "좋아요";
+            const maxPenalty = Math.max(smilePenalty, forcedSmilePenalty, asymPenalty, openPenalty);
+
+            if (maxPenalty === forcedSmilePenalty && forcedSmilePenalty > 0.38) {
+                stage1Popup = "억지 웃음 완화";
+            } else if (maxPenalty === asymPenalty && asymPenalty > 0.32) {
+                stage1Popup = "좌우 입꼬리 균형";
+            } else if (maxPenalty === openPenalty && openPenalty > 0.28) {
+                stage1Popup = "입술은 닫고 유지";
+            } else if (maxPenalty === smilePenalty && smilePenalty > 0.34) {
+                stage1Popup = smileAvg < targetSmile ? "조금 더 자연스럽게 미소" : "입꼬리 힘만 조금 빼기";
+            }
+
+            if (currentStage === 2) {
+                const score = clamp((stage1Score + stage2Score) * 0.5, 0, 100);
+                const popup = stage1Score <= stage2Score ? stage1Popup : stage2Popup;
+                return {
+                    score,
+                    popup,
+                    mouthOpenY
+                };
+            }
+
+            return {
+                score: stage1Score,
+                popup: stage1Popup
+            };
+        }
+
+        function updateBoxes(faceLandmarks) {
+            const left = faceLandmarks[MOUTH_LEFT];
+            const right = faceLandmarks[MOUTH_RIGHT];
+            const top = faceLandmarks[MOUTH_TOP];
+            const bottom = faceLandmarks[MOUTH_BOTTOM];
+
+            const x = ((left.x + right.x) * 0.5) * 100;
+            const y = ((top.y + bottom.y) * 0.5) * 100;
+
+            const w = clamp(Math.abs(right.x - left.x) * 135, 18, 36);
+            const h = clamp(Math.abs(bottom.y - top.y) * 165, 8, 28);
+
+            userMouthBox.style.display = "block";
+            userMouthBox.style.left = `${100 - x}%`;
+            userMouthBox.style.top = `${y}%`;
+            userMouthBox.style.width = `${w}px`;
+            userMouthBox.style.height = `${h}px`;
+
+            guideBox.style.display = "block";
+        }
+
+        function finishTraining() {
+            running = false;
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
+
+            const stageAverageScore = stageScoreCount > 0 ? (stageScoreSum / stageScoreCount) : currentScore;
+            const score = Math.round(stageAverageScore);
+            const result = getStageResult();
+            result.score = score;
+            result.grade = getGrade(score);
+            result.cleared = score >= 60;
+
+            // 현재 단계의 실시간 점수 누적합/카운트를 전역 변수에 따로 저장
+            globalStageScoreSums[currentLevel][currentStage] = stageScoreSum;
+            globalStageScoreCounts[currentLevel][currentStage] = stageScoreCount;
+
+            updateResultCard(score, `${currentStage + 1}단계 평균`);
+            renderSummary();
+            renderLevelCards();
+
+            retryBtn.classList.remove("hidden");
+            startBtn.classList.add("hidden");
+
+            const level = getCurrentLevelDef();
+            const isLastStage = currentStage >= level.stages.length - 1;
+            nextBtn.classList.toggle("hidden", isLastStage);
+
+            guideBox.style.display = "none";
+            userMouthBox.style.display = "none";
+            scoreMini.classList.remove("show");
+            setGazeEyeVisible(false);
+            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
+            centerGazeEye();
+            controlNote.textContent = "측정이 끝났습니다. 다시하기로 재측정하거나 다음 단계로 이동하세요.";
+        }
+
+        function loop() {
+            if (!running) return;
+
+            const now = performance.now();
+            const remainMs = Math.max(0, trainingEndsAt - now);
+            timerNum.textContent = String(Math.ceil(remainMs / 1000));
+
+            if (video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+
+                const results = faceLandmarker.detectForVideo(video, now);
+                const faceLandmarks = results.faceLandmarks?.[0];
+                const blendshapeCategories = results.faceBlendshapes?.[0]?.categories ?? [];
+
+                if (faceLandmarks) {
+                    const evalResult = evaluateFace(faceLandmarks, blendshapeCategories, video.videoWidth, video.videoHeight, now);
+                    const gaze = estimateGaze(faceLandmarks);
+                    currentScore = lerp(currentScore, evalResult.score, 0.22);
+
+                    // 현재 단계 점수 누적 평균용 집계
+                    stageScoreSum += evalResult.score;
+                    stageScoreCount += 1;
+
+                    scoreMini.classList.add("show");
+                    scoreMiniValue.textContent = String(Math.round(currentScore));
+
+                    if (gaze) {
+                        smoothedGazeX = lerp(smoothedGazeX, gaze.x, 0.28);
+                        smoothedGazeY = lerp(smoothedGazeY, gaze.y, 0.28);
+                        const eyeCenter = getEyeCenterPoint(faceLandmarks);
+                        const hudCenterX = eyeCenter ? eyeCenter.x * gazeOverlay.width : null;
+                        moveGazeEye(smoothedGazeX, smoothedGazeY, hudCenterX, true);
+                        drawGazeHUD(faceLandmarks, gaze);
+                    } else {
+                        setGazeEyeVisible(false);
+                        gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
+                    }
+
+                    updateBoxes(faceLandmarks);
+                    coachMini.textContent = getCoachMessage(currentScore);
+                    gradeValue.textContent = getGrade(currentScore);
+                    setStars(resultStars, getStarCount(currentScore));
+
+                    showPopup(evalResult.popup);
+                } else {
+                    setGazeEyeVisible(false);
+                    gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
+                }
+            }
+
+            if (remainMs <= 0) {
+                finishTraining();
+                return;
+            }
+
+            rafId = requestAnimationFrame(loop);
+        }
+
+        async function startTraining() {
+            try {
+                await setupCamera();
+                await setupModel();
+
+
+                window.speechSynthesis?.cancel();
+                introLayer.classList.add("hidden");
+                startBtn.classList.add("hidden");
+                retryBtn.classList.add("hidden");
+                nextBtn.classList.add("hidden");
+
+                const cameraFallback = document.getElementById('cameraFallback');
+                cameraFallback.style.display = 'block'; // 🔥 focus1 표시
+
+                scoreMini.classList.add("show");
+                scoreMiniValue.textContent = "0";
+
+                resultBadge.textContent = "측정중";
+                controlNote.textContent = "측정 중입니다. 기준 측정 없이 바로 자연스러운 미소와 좌우 균형을 평가합니다.";
+
+                currentScore = 100;
+                stageScoreSum = 0;
+                stageScoreCount = 0;
+                timerNum.textContent = "10";
+                guideBox.style.display = "block";
+                userMouthBox.style.display = "block";
+
+                resetEvalState();
+                centerGazeEye();
+                running = true;
+                const startNow = performance.now();
+                trainingEndsAt = startNow + TRAINING_DURATION;
+
+                if (rafId) cancelAnimationFrame(rafId);
+                loop();
+            } catch (err) {
+                console.error(err);
+                alert("카메라 또는 모델을 불러오지 못했습니다.");
+            }
+        }
+
+        function speakGuide() {
+            const text = getCurrentStageDef().coach;
+            coachText.textContent = text;
+
+            if (!("speechSynthesis" in window)) return;
+            window.speechSynthesis.cancel();
+
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = "ko-KR";
+            utter.rate = 1.02;
+            window.speechSynthesis.speak(utter);
+        }
+
+        function goNextStage() {
+            const level = getCurrentLevelDef();
+
+            if (currentStage < level.stages.length - 1) {
+                currentStage += 1;
+            } else if (currentLevel < levels.length - 1) {
+                currentLevel += 1;
+                currentStage = 0;
+            }
+
+            syncUIFromSelection();
+        }
+
+        startBtn.addEventListener("click", startTraining);
+        retryBtn.addEventListener("click", startTraining);
+        nextBtn.addEventListener("click", goNextStage);
+        guideBtn.addEventListener("click", speakGuide);
+
+        createLevelCards();
+        syncUIFromSelection();
+
+        const slider = document.getElementById('subSlider');
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('dragging');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('dragging');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('dragging');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.2; // 민감도
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    </script>
+</body>
+</html>
