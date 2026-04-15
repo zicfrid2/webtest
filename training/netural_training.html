@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>시선 트레이닝</title>
+    <title>무표정 안정화 트레이닝</title>
     <style>
         :root {
             --bg-1: #f6faff;
@@ -106,7 +106,7 @@
 
         .page-title {
             margin: 0;
-            font-size: keepRange(22px, 6vw, 31px);
+            font-size: clamp(22px, 6vw, 31px);
             line-height: 1.1;
             letter-spacing: -0.08em;
             font-weight: 900;
@@ -224,24 +224,13 @@
         }
 
         #webcam {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
             transform: scaleX(-1);
-            display: block;
-            opacity: 0.1;
-            z-index: 1;
+            display: none;
         }
 
         #cameraFallback {
-            position: absolute;
-            inset: 0;
-            background: url('./images/focus1.png') center center / cover no-repeat;
-            z-index: 3;
-            pointer-events: none;
-            display: none; /* 🔥 추가 */
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(18,30,55,0.14)), url('./images/user-neutral-main.png') center center / cover no-repeat, linear-gradient(135deg, #eef3fa, #d7e4f8);
+            transition: background-image .25s ease;
         }
 
         .live-pill {
@@ -358,8 +347,39 @@
                 letter-spacing: -0.05em;
             }
 
+        .guide-mouth-box {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 118px;
+            height: 46px;
+            border: 3px dashed rgba(182,255,224,0.92);
+            border-radius: 999px;
+            background: rgba(126,215,192,0.10);
+            box-shadow: 0 0 0 10px rgba(126,215,192,0.05);
+            z-index: 4;
+            display: none;
+            pointer-events: none;
+        }
+
+        #userMouthBox {
+            position: absolute;
+            left: 50%;
+            top: 58%;
+            transform: translate(-50%, -50%);
+            width: 96px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid rgba(255,255,255,0.55);
+            background: linear-gradient(180deg, rgba(223,145,155,0.20), rgba(205,116,129,0.28));
+            box-shadow: 0 0 0 1px rgba(208,116,128,0.15);
+            z-index: 4;
+            display: none;
+            pointer-events: none;
+        }
+
         .mouth-popup {
-            display: none !important;
             position: absolute;
             left: 50%;
             top: 56%;
@@ -891,162 +911,6 @@
         .sub-slider {
             cursor: grab;
         }
-
-
-        #gazeOverlay {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            transform: scaleX(-1);
-        }
-
-        .gaze-eye {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 54px;
-            height: 54px;
-            margin-left: -27px;
-            margin-top: -27px;
-            z-index: 4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(15,23,42,0.72);
-            border: 1px solid rgba(255,255,255,0.22);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.28);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transform: translate3d(0, 0, 0);
-            transition: transform 0.08s linear, opacity 0.15s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-            .gaze-eye.visible {
-                opacity: 1;
-            }
-
-            .gaze-eye .eye-icon {
-                font-size: 25px;
-                line-height: 1;
-                filter: drop-shadow(0 2px 8px rgba(0,0,0,0.28));
-            }
-
-        .gaze-target {
-            position: absolute;
-            left: 50%;
-            top: calc(22% + 100px);
-            width: 58px;
-            height: 58px;
-            margin-left: -29px;
-            margin-top: -29px;
-            z-index: 4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.98) 0 16%, rgba(255,90,90,0.96) 17% 23%, rgba(255,255,255,0.98) 24% 40%, rgba(255,90,90,0.96) 41% 48%, rgba(255,255,255,0.28) 49% 100%);
-            border: 2px solid rgba(255,255,255,0.9);
-            box-shadow: 0 10px 26px rgba(0,0,0,0.18);
-            pointer-events: none;
-        }
-
-            .gaze-target::before,
-            .gaze-target::after {
-                content: "";
-                position: absolute;
-                background: rgba(255,255,255,0.92);
-            }
-
-            .gaze-target::before {
-                width: 2px;
-                height: 76%;
-                left: 50%;
-                top: 12%;
-                transform: translateX(-50%);
-            }
-
-            .gaze-target::after {
-                height: 2px;
-                width: 76%;
-                top: 50%;
-                left: 12%;
-                transform: translateY(-50%);
-            }
-
-        .focus-status {
-            position: absolute;
-            left: 50%;
-            top: calc(22% + 26px);
-            transform: translateX(-50%);
-            z-index: 7;
-            min-width: 132px;
-            max-width: 78%;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.96);
-            color: var(--blue);
-            text-align: center;
-            font-size: 14px;
-            font-weight: 900;
-            box-shadow: var(--shadow-md);
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-            .focus-status.excellent {
-                background: rgba(232,255,244,0.96);
-                color: #0f8f5f;
-                border: 1px solid rgba(15,143,95,0.18);
-            }
-
-            .focus-status.good {
-                color: #2f7cff;
-            }
-
-            .focus-status.bad {
-                color: #d94a4a;
-            }
-
-        .warning-stack {
-            position: absolute;
-            left: 50%;
-            bottom: 18px;
-            transform: translateX(-50%);
-            z-index: 8;
-            width: calc(100% - 28px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .warning-chip {
-            display: none;
-            max-width: 100%;
-            padding: 9px 14px;
-            border-radius: 999px;
-            background: rgba(211, 47, 47, 0.94);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 900;
-            line-height: 1.2;
-            box-shadow: 0 12px 24px rgba(170, 32, 32, 0.28);
-            text-align: center;
-            word-break: keep-all;
-        }
-
-            .warning-chip.show {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-            }
     </style>
 </head>
 <body>
@@ -1055,7 +919,7 @@
             <header class="topbar">
                 <button class="icon-btn" aria-label="뒤로가기">‹</button>
                 <div class="title-wrap">
-                    <h1 class="page-title">시선 트레이닝</h1>
+                    <h1 class="page-title">친근한 무표정 트레이닝</h1>
                 </div>
                 <button class="icon-btn" aria-label="설정">⚙</button>
             </header>
@@ -1079,18 +943,9 @@
                             <span class="value" id="scoreMiniValue">0</span>
                         </div>
 
-                        <!--
                         <div class="guide-mouth-box" id="guideBox"></div>
-                        <div id="userMouthBox"></div> -->
-
+                        <div id="userMouthBox"></div>
                         <div id="mouthPopup" class="mouth-popup"></div>
-                        <canvas id="gazeOverlay"></canvas>
-                        <div class="gaze-eye" id="gazeEye" aria-hidden="true">
-                            <div class="eye-icon">👁️</div>
-                        </div>
-
-                        <div class="gaze-target" id="gazeTarget" aria-hidden="true"></div>
-                        <div class="focus-status neutral" id="focusStatus"></div>
                     </div>
 
                     <div class="intro-layer" id="introLayer">
@@ -1201,21 +1056,6 @@
         const FACE_LEFT = 234;
         const FACE_RIGHT = 454;
         const TRAINING_DURATION = 10000;
-
-        /*
-        window.addEventListener("DOMContentLoaded", () => {
-            const userStr = localStorage.getItem("loginUser");
-
-            if (!userStr) {
-                alert("로그인 정보 없음");
-                return;
-            }
-
-            const user = JSON.parse(userStr);
-
-            alert("로그인 ID: " + user.id);
-        });
-        */
 
         const levels = [
             {
@@ -1359,11 +1199,6 @@
         const guideBox = document.getElementById("guideBox");
         const userMouthBox = document.getElementById("userMouthBox");
         const mouthPopup = document.getElementById("mouthPopup");
-        const gazeOverlay = document.getElementById("gazeOverlay");
-        const gazeCtx = gazeOverlay.getContext("2d");
-        const gazeEye = document.getElementById("gazeEye");
-        const gazeTarget = document.getElementById("gazeTarget");
-        const focusStatus = document.getElementById("focusStatus");
 
         const coachText = document.getElementById("coachText");
         const coachMini = document.getElementById("coachMini");
@@ -1412,72 +1247,8 @@
         let lastPopupAt = 0;
         let prevSmile = null;
         let prevEvalAt = 0;
-        let smoothedGazeX = 0;
-        let smoothedGazeY = 0;
-        let smoothedMoveX = 0;
-        let smoothedMoveY = 0;
-        let gazeCenterOffsetX = 0;
-        let gazeCenterOffsetY = -280;
-        let latestFocusLabel = "";
-        let latestBrowOveractive = false;
-        let latestGazeOut = false;
-        let browGapBaseline = null;
-        let lastBrowGap = null;
-        let browMotionEma = 0;
-        let browActivitySmooth = 0;
-        let browBadFrames = 0;
-        let lastMessageTime = 0;
-        const MESSAGE_HOLD_MS = 500;
 
-        async function saveTrainingResultToDb() {
-            try {
-                const userStr = localStorage.getItem("loginUser");
-                if (!userStr) {
-                    console.warn("loginUser 없음");
-                    return;
-                }
-
-                const user = JSON.parse(userStr);
-                if (!user || !user.id) {
-                    console.warn("user.id 없음", user);
-                    return;
-                }
-
-                const avgScore = stageScoreCount > 0
-                    ? Math.round(stageScoreSum / stageScoreCount)
-                    : 0;
-
-                const payload = {
-                    user_id: user.id,
-                    training_type: "gaze",
-                    level_no: currentLevel + 1,
-                    stage_no: currentStage + 1,
-                    score1: avgScore,
-                    grade: getGrade(avgScore),
-                    score2: currentScore
-                };
-
-                const response = await fetch("/api/training-results", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json().catch(() => ({}));
-
-                if (!response.ok || !data.ok) {
-                    throw new Error(data.error || "training_result_save_failed");
-                }
-
-                console.log("훈련 결과 저장 완료:", data);
-            } catch (error) {
-                console.error("훈련 결과 저장 실패:", error);
-            }
-        }
-
-        function keepRange(v, min, max) {
+        function clamp(v, min, max) {
             return Math.max(min, Math.min(max, v));
         }
 
@@ -1491,264 +1262,9 @@
             return a + (b - a) * t;
         }
 
-        function avgPoint(landmarks, ids) {
-            let x = 0;
-            let y = 0;
-            for (const id of ids) {
-                x += landmarks[id].x;
-                y += landmarks[id].y;
-            }
-            return { x: x / ids.length, y: y / ids.length };
-        }
-
-        function resizeGazeOverlay() {
-            const rect = video.getBoundingClientRect();
-            gazeOverlay.width = rect.width || video.clientWidth || 0;
-            gazeOverlay.height = rect.height || video.clientHeight || 0;
-        }
-
-        function setGazeEyeVisible(visible) {
-            gazeEye.classList.toggle("visible", visible);
-        }
-
-        function moveGazeEye(nx, ny, hudCenterX = null, visible = true) {
-            const MOVE_SCALE = 2500;
-            const SMOOTHING = 0.05;
-            const stageRect = video.getBoundingClientRect();
-            const eyeSize = 54;
-            const halfEye = eyeSize / 2;
-
-            const maxMoveY = Math.max(0, ((stageRect.height / 2) - halfEye) * 2);
-            const targetX = 0;
-            const targetY = keepRange(keepRange(ny, -1, 1) * -MOVE_SCALE + gazeCenterOffsetY, -maxMoveY, maxMoveY);
-
-            smoothedMoveX += (targetX - smoothedMoveX) * SMOOTHING;
-            smoothedMoveY += (targetY - smoothedMoveY) * SMOOTHING;
-
-            gazeEye.style.transform = `translate3d(${smoothedMoveX}px, ${smoothedMoveY}px, 0)`;
-            setGazeEyeVisible(visible);
-        }
-
-        function centerGazeEye() {
-            smoothedGazeX = 0;
-            smoothedGazeY = 0;
-            smoothedMoveX = 0;
-            smoothedMoveY = 0;
-            moveGazeEye(0, 0, false);
-            updateFocusStatus("", true);
-        }
-
-        function updateFocusStatus(label, force = false) {
-            const now = performance.now();
-            if (!force && now - lastMessageTime < MESSAGE_HOLD_MS) return;
-
-            lastMessageTime = now;
-            latestFocusLabel = label || "";
-            focusStatus.textContent = latestFocusLabel;
-            focusStatus.classList.remove("excellent", "good", "bad", "neutral");
-
-            if (latestFocusLabel === "Excellent!!") {
-                focusStatus.classList.add("excellent");
-            } else if (latestFocusLabel === "Good!") {
-                focusStatus.classList.add("good");
-            } else if (latestFocusLabel === "시선 이탈" || latestFocusLabel === "눈썹의 움직임을 줄이세요") {
-                focusStatus.classList.add("bad");
-            } else {
-                focusStatus.classList.add("neutral");
-            }
-        }
-
-        function computeBrowActivity(landmarks, categories) {
-            let activity = 0;
-
-            if (landmarks && landmarks.length > 466) {
-                const leftBrow = avgPoint(landmarks, [70, 63, 105, 66, 107]);
-                const rightBrow = avgPoint(landmarks, [336, 296, 334, 293, 300]);
-                const leftEyeTop = avgPoint(landmarks, [159, 158, 160, 161]);
-                const rightEyeTop = avgPoint(landmarks, [386, 385, 387, 388]);
-                const leftEyeBottom = avgPoint(landmarks, [145, 153, 144]);
-                const rightEyeBottom = avgPoint(landmarks, [374, 380, 373]);
-
-                if (leftBrow && rightBrow && leftEyeTop && rightEyeTop && leftEyeBottom && rightEyeBottom) {
-                    const leftEyeH = Math.max(0.00001, Math.abs(leftEyeBottom.y - leftEyeTop.y));
-                    const rightEyeH = Math.max(0.00001, Math.abs(rightEyeBottom.y - rightEyeTop.y));
-
-                    const leftGap = (leftEyeTop.y - leftBrow.y) / leftEyeH;
-                    const rightGap = (rightEyeTop.y - rightBrow.y) / rightEyeH;
-                    const avgGap = (leftGap + rightGap) * 0.5;
-
-                    if (browGapBaseline === null) browGapBaseline = avgGap;
-                    browGapBaseline = browGapBaseline * 0.975 + avgGap * 0.025;
-
-                    const gapDelta = Math.abs(avgGap - browGapBaseline);
-
-                    if (lastBrowGap === null) lastBrowGap = avgGap;
-                    const motion = Math.abs(avgGap - lastBrowGap);
-                    lastBrowGap = avgGap;
-
-                    browMotionEma = browMotionEma * 0.82 + motion * 0.18;
-
-                    const asymmetry = Math.abs(leftGap - rightGap);
-
-                    const landmarkActivity =
-                        keepRange(gapDelta * 0.22 + browMotionEma * 0.28, 0, 1.5);
-
-                    const asymActivity = keepRange((asymmetry - 0.12) / 0.22, 0, 1);
-
-                    activity = Math.max(activity, landmarkActivity, asymActivity);
-                }
-            }
-
-            const up =
-                getBlendshapeScore(categories, "browInnerUp") +
-                getBlendshapeScore(categories, "browOuterUpLeft") +
-                getBlendshapeScore(categories, "browOuterUpRight");
-
-            const down =
-                getBlendshapeScore(categories, "browDownLeft") +
-                getBlendshapeScore(categories, "browDownRight");
-
-            const blendshapeActivity = Math.max(
-                keepRange((up - 0.28) / 0.58, 0, 1),
-                keepRange((down - 0.20) / 0.42, 0, 1)
-            );
-
-            const rawActivity = Math.max(activity, blendshapeActivity);
-            browActivitySmooth = browActivitySmooth * 0.82 + rawActivity * 0.18;
-            return browActivitySmooth;
-        }
-
-        function getFocusScoreAndLabel(gaze, landmarks) {
-            if (!gaze || !landmarks) {
-                return { score: 0, label: "", distance: 999, yDistance: 999 };
-            }
-
-            const stageRect = video.getBoundingClientRect();
-            const targetRect = gazeTarget.getBoundingClientRect();
-
-            const eyeCenterX = stageRect.left + stageRect.width * 0.5 + smoothedMoveX;
-            const eyeCenterY = stageRect.top + stageRect.height * 0.5 + smoothedMoveY;
-
-            const targetCenterX = targetRect.left + (targetRect.width * 0.5);
-            const targetCenterY = targetRect.top + (targetRect.height * 0.5);
-
-            const dx = eyeCenterX - targetCenterX;
-            const dy = eyeCenterY - targetCenterY;
-            const distance = Math.hypot(dx, dy);
-            const yDistance = Math.abs(dy);
-
-            let score = 100;
-            if (yDistance > 5) {
-                score = Math.round(100 - ((yDistance - 5) * 2));
-            }
-            score = keepRange(score, 0, 100);
-
-            let label = "";
-            if (score >= 90) label = "Excellent!!";
-            else if (score >= 70) label = "Good!";
-
-            return { score, label, distance, yDistance };
-        }
-
-        function updateWarnings(gazeOut, browOveractive) {
-            latestGazeOut = gazeOut;
-            latestBrowOveractive = browOveractive;
-
-            if (gazeOut) {
-                updateFocusStatus("시선 이탈");
-            } else if (browOveractive) {
-                updateFocusStatus("눈썹의 움직임을 줄이세요");
-            }
-        }
-
-        function mapIrisToNormalized(landmarks, isLeftEye) {
-            const irisIds = isLeftEye ? [468, 469, 470, 471, 472] : [473, 474, 475, 476, 477];
-            const cornerOuter = isLeftEye ? 33 : 362;
-            const cornerInner = isLeftEye ? 133 : 263;
-            const lidTopIds = isLeftEye ? [159, 158] : [386, 385];
-            const lidBottomIds = isLeftEye ? [145, 153] : [374, 380];
-
-            const iris = avgPoint(landmarks, irisIds);
-            const top = avgPoint(landmarks, lidTopIds);
-            const bottom = avgPoint(landmarks, lidBottomIds);
-            const outer = landmarks[cornerOuter];
-            const inner = landmarks[cornerInner];
-            if (!iris || !top || !bottom || !outer || !inner) return null;
-
-            const cx = (outer.x + inner.x) * 0.5;
-            const cy = (top.y + bottom.y) * 0.5;
-            const halfW = Math.abs(inner.x - outer.x) * 0.5 || 0.00001;
-            const halfH = Math.abs(bottom.y - top.y) * 0.5 || 0.00001;
-
-            let nx = (iris.x - cx) / halfW;
-            let ny = (iris.y - cy) / halfH;
-
-            nx = -nx;
-
-            return {
-                x: keepRange(nx, -1.5, 1.5),
-                y: keepRange(ny, -1.5, 1.5)
-            };
-        }
-
-        function estimateGaze(landmarks) {
-            if (!landmarks || landmarks.length < 478) return null;
-
-            const left = mapIrisToNormalized(landmarks, true);
-            const right = mapIrisToNormalized(landmarks, false);
-            if (!left || !right) return null;
-
-            return {
-                x: keepRange((left.x + right.x) * 0.5, -1, 1),
-                y: keepRange((left.y + right.y) * 0.5, -1, 1)
-            };
-        }
-
-        function computeGazeOut(landmarks, gaze) {
-            if (!landmarks || landmarks.length < 478 || !gaze) return false;
-
-            const left = mapIrisToNormalized(landmarks, true);
-            const right = mapIrisToNormalized(landmarks, false);
-            if (!left || !right) return false;
-
-            const avgAbsX = (Math.abs(left.x) + Math.abs(right.x)) * 0.5;
-            const oneEyeFarOut = Math.abs(left.x) > 0.16 || Math.abs(right.x) > 0.16;
-            const bothOffCenter = avgAbsX > 0.13;
-            const gazeOffCenter = Math.abs(gaze.x) > 0.12;
-
-            return oneEyeFarOut || bothOffCenter || gazeOffCenter;
-        }
-
-        function getEyeCenterPoint(landmarks) {
-            if (!landmarks) return null;
-
-            const leftIris = avgPoint(landmarks, [468, 469, 470, 471, 472]);
-            const rightIris = avgPoint(landmarks, [473, 474, 475, 476, 477]);
-            if (!leftIris || !rightIris) return null;
-
-            return {
-                x: (leftIris.x + rightIris.x) * 0.5,
-                y: (leftIris.y + rightIris.y) * 0.5
-            };
-        }
-
-        function drawGazeHUD(landmarks, gaze) {
-            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
-        }
-
         function resetEvalState() {
             prevSmile = null;
             prevEvalAt = 0;
-            latestFocusLabel = "";
-            latestBrowOveractive = false;
-            latestGazeOut = false;
-            browGapBaseline = null;
-            lastBrowGap = null;
-            browMotionEma = 0;
-            browActivitySmooth = 0;
-            browBadFrames = 0;
-            lastMessageTime = 0;
-            updateFocusStatus("", true);
         }
 
         function getCurrentLevelDef() {
@@ -1762,11 +1278,6 @@
         function getStageResult(levelIdx = currentLevel, stageIdx = currentStage) {
             return levelResults[levelIdx].stages[stageIdx];
         }
-
-        window.addEventListener("resize", () => {
-            resizeGazeOverlay();
-            moveGazeEye(smoothedGazeX, smoothedGazeY, null, running);
-        });
 
         function getStageAverageScore(levelIdx = currentLevel, stageIdx = currentStage) {
             const sum = globalStageScoreSums[levelIdx][stageIdx];
@@ -1790,10 +1301,10 @@
         }
 
         function getCoachMessage(score) {
-            if (score >= 90) return "좋아요. 자연스럽게 유지해보세요.";
-            if (score >= 75) return "꽤 안정적이에요. 조금 더 힘을 줘 보세요.";
-            if (score >= 60) return "조금만 더 눈동자에 힘을 내 보세요.";
-            return "눈썹을 움직이지 말고, 눈동자를 움직이세요.";
+            if (score >= 90) return "좋아요. 지금처럼 힘을 빼고 자연스럽게 유지해보세요.";
+            if (score >= 75) return "꽤 안정적이에요. 입술 힘만 조금 더 빼보세요.";
+            if (score >= 60) return "조금만 더 편안하게 다물면 훨씬 좋아져요.";
+            return "입술과 턱에 들어간 힘을 조금 더 풀어보세요.";
         }
 
         function setStars(stars, count) {
@@ -1803,7 +1314,15 @@
         }
 
         function showPopup(text) {
-            return;
+            const now = performance.now();
+            if (text === lastPopupText && now - lastPopupAt < 900) return;
+
+            lastPopupText = text;
+            lastPopupAt = now;
+            mouthPopup.textContent = text;
+            mouthPopup.classList.remove("show");
+            void mouthPopup.offsetWidth;
+            mouthPopup.classList.add("show");
         }
 
         function createLevelCards() {
@@ -1827,13 +1346,13 @@
                 }).join("");
 
                 btn.innerHTML = `
-                                                        <div class="sub-thumb">
-                                                            <img src="${level.image}" alt="${level.title}">
-                                                            <div class="sub-badge">${level.level}</div>
-                                                        </div>
-                                                        <div class="sub-name">${level.title}</div>
-                                                        <div class="sub-stage-dots">${dotsHtml}</div>
-                                                    `;
+                                        <div class="sub-thumb">
+                                            <img src="${level.image}" alt="${level.title}">
+                                            <div class="sub-badge">${level.level}</div>
+                                        </div>
+                                        <div class="sub-name">${level.title}</div>
+                                        <div class="sub-stage-dots">${dotsHtml}</div>
+                                    `;
 
                 btn.addEventListener("click", () => {
                     currentLevel = levelIdx;
@@ -1879,17 +1398,17 @@
                 const card = document.createElement("div");
                 card.className = "summary-card";
                 card.innerHTML = `
-                                                        <div class="summary-label">${idx + 1}단계</div>
-                                                        <div class="summary-score">${result.score}<small>점</small></div>
-                                                        <div class="star-row">
-                                                            ${[0, 1, 2].map(i => `
-                                                                <span class="star ${i < getStarCount(result.score) ? "filled" : ""}">
-                                                                    <svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg>
-                                                                </span>
-                                                            `).join("")}
-                                                        </div>
-                                                        <div class="summary-grade">${result.grade}</div>
-                                                    `;
+                                        <div class="summary-label">${idx + 1}단계</div>
+                                        <div class="summary-score">${result.score}<small>점</small></div>
+                                        <div class="star-row">
+                                            ${[0, 1, 2].map(i => `
+                                                <span class="star ${i < getStarCount(result.score) ? "filled" : ""}">
+                                                    <svg viewBox="0 0 24 24"><path d="M12 2.3l2.88 5.84 6.45.94-4.67 4.55 1.1 6.42L12 17.02 6.24 20.05l1.1-6.42L2.67 9.08l6.45-.94L12 2.3z" /></svg>
+                                                </span>
+                                            `).join("")}
+                                        </div>
+                                        <div class="summary-grade">${result.grade}</div>
+                                    `;
                 summaryGrid.appendChild(card);
             });
         }
@@ -1952,18 +1471,13 @@
 
         function stopTrainingUIOnly() {
             running = false;
-
             if (rafId) {
                 cancelAnimationFrame(rafId);
                 rafId = 0;
             }
-
-            //await saveTrainingResultToDb();
-
+            guideBox.style.display = "none";
+            userMouthBox.style.display = "none";
             scoreMini.classList.remove("show");
-            setGazeEyeVisible(false);
-            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
-            centerGazeEye();
             resetEvalState();
         }
 
@@ -1983,8 +1497,6 @@
             await video.play();
             video.style.display = "block";
             fallback.style.display = "none";
-            resizeGazeOverlay();
-            centerGazeEye();
         }
 
         async function setupModel() {
@@ -2007,11 +1519,11 @@
         function getBlendshapeScore(categories, name) {
             if (!categories) return 0;
             const found = categories.find(category => category.categoryName === name);
-            return found ? keepRange(found.score ?? 0, 0, 1) : 0;
+            return found ? clamp(found.score ?? 0, 0, 1) : 0;
         }
 
         function getMouthOpenYBlendshape(categories) {
-            return keepRange(
+            return clamp(
                 Math.max(
                     getBlendshapeScore(categories, "mouthOpen"),
                     getBlendshapeScore(categories, "mouthOpenY"),
@@ -2022,58 +1534,133 @@
             );
         }
 
-        function evaluateFace(faceLandmarks, blendshapeCategories, w, h, now, gaze = null) {
+        function evaluateFace(faceLandmarks, blendshapeCategories, w, h, now) {
+            const left = faceLandmarks[MOUTH_LEFT];
+            const right = faceLandmarks[MOUTH_RIGHT];
+            const top = faceLandmarks[MOUTH_TOP];
+            const bottom = faceLandmarks[MOUTH_BOTTOM];
+            const centerTop = faceLandmarks[MOUTH_CENTER_TOP];
+            const centerBottom = faceLandmarks[MOUTH_CENTER_BOTTOM];
+            const faceLeft = faceLandmarks[FACE_LEFT];
+            const faceRight = faceLandmarks[FACE_RIGHT];
+
+            const mouthWidth = dist(left, right, w, h);
+            const mouthHeight = dist(top, bottom, w, h);
+            const centerHeight = dist(centerTop, centerBottom, w, h);
+            const faceWidth = faceLeft && faceRight ? dist(faceLeft, faceRight, w, h) : mouthWidth * 2.7;
+
+            const ratio = mouthHeight / Math.max(1, mouthWidth);
+            const centerRatio = centerHeight / Math.max(1, mouthWidth);
+
+            const smileL = getBlendshapeScore(blendshapeCategories, "mouthSmileLeft");
+            const smileR = getBlendshapeScore(blendshapeCategories, "mouthSmileRight");
+            const smileAvg = clamp((smileL + smileR) * 0.5, 0, 1);
+            const smileAsym = Math.abs(smileL - smileR);
+            const jawOpen = getBlendshapeScore(blendshapeCategories, "jawOpen");
+            const mouthOpenY = getMouthOpenYBlendshape(blendshapeCategories);
+
+            const cornerTilt = Math.abs(left.y - right.y) * h / Math.max(1, faceWidth);
+            const asymmetry = clamp(smileAsym * 1.1 + cornerTilt * 1.6, 0, 1.5);
+
+            const dt = prevEvalAt > 0 ? Math.max(0.001, (now - prevEvalAt) / 1000) : 0.001;
+            const smileVelocity = prevSmile == null ? 0 : (smileAvg - prevSmile) / dt;
+            prevSmile = smileAvg;
+            prevEvalAt = now;
 
             let stage2Score = 0;
             let stage2Popup = "좋아요";
 
-            let stage1Score = 0;
-            stage1Score = 0;
-            stage1Score = keepRange(stage1Score, 0, 100);
-
-            let stage1Popup = "좋아요";
-
-            const focus = getFocusScoreAndLabel(gaze, faceLandmarks);
-            const browActivity = computeBrowActivity(faceLandmarks, blendshapeCategories);
-            if (browActivity > 0.10) browBadFrames += 1;
-            else browBadFrames = 0;
-            const browOveractive = browBadFrames >= 5;
-            const gazeOut = computeGazeOut(faceLandmarks, gaze);
-
-            let finalScore;
-            let finalPopup;
-
-            if (currentLevel === 1) {
-                finalScore = focus.score;
-                finalPopup = focus.label === "Excellent!!" ? "Excellent!!" : (focus.label === "Good!" ? "Good!" : "가운데 과녁을 보세요");
-            } else if (currentStage === 2) {
-                finalScore = keepRange((stage1Score + stage2Score) * 0.5, 0, 100);
-                finalPopup = stage1Score <= stage2Score ? stage1Popup : stage2Popup;
+            if (mouthOpenY >= 0.12) {
+                stage2Popup = "조금만 더 다물어보세요";
+                stage2Score = 100 - mouthOpenY * 2000;
+            } else if (mouthOpenY > 0.01) {
+                stage2Score = 100;
+                stage2Popup = "조금만 더 다물어보세요";
             } else {
-                finalScore = stage1Score;
-                finalPopup = stage1Popup;
+                stage2Score = 0;
+            }
+            stage2Score = clamp(stage2Score, 0, 100);
+
+            if (currentStage === 1) {
+                return {
+                    score: stage2Score,
+                    popup: stage2Popup,
+                    mouthOpenY
+                };
             }
 
-            if (currentLevel === 1) {
-                if (gazeOut) finalScore -= 28;
-                if (browOveractive) finalScore -= 12;
-                finalScore = keepRange(finalScore, 0, 100);
+            const targetSmile = 0.10;
+            const smilePenalty = clamp(Math.abs(smileAvg - targetSmile) / 0.18, 0, 1);
+            const forcedSmilePenalty = clamp(
+                clamp(Math.max(0, smileAvg - 0.24) / 0.25, 0, 1) * 0.55 +
+                clamp(Math.abs(smileVelocity) / 1.4, 0, 1) * clamp(smileAvg / 0.18, 0, 1) * 0.45,
+                0,
+                1
+            );
+            const asymPenalty = clamp(Math.max(0, asymmetry - 0.08) / 0.30, 0, 1);
+            const openPenalty = clamp(Math.max(Math.max(0, ratio - 0.16) / 0.10, Math.max(0, jawOpen - 0.10) / 0.22), 0, 1);
+
+            let stage1Score = 0;
+            stage1Score = smileAvg * 1000;
+            /*
+            stage1Score -= smilePenalty * 45;
+            stage1Score -= forcedSmilePenalty * 30;
+            stage1Score -= asymPenalty * 25;
+            stage1Score -= openPenalty * 20;
+            */
+            stage1Score = clamp(stage1Score, 0, 100);
+
+            let stage1Popup = "좋아요";
+            const maxPenalty = Math.max(smilePenalty, forcedSmilePenalty, asymPenalty, openPenalty);
+
+            if (maxPenalty === forcedSmilePenalty && forcedSmilePenalty > 0.38) {
+                stage1Popup = "억지 웃음 완화";
+            } else if (maxPenalty === asymPenalty && asymPenalty > 0.32) {
+                stage1Popup = "좌우 입꼬리 균형";
+            } else if (maxPenalty === openPenalty && openPenalty > 0.28) {
+                stage1Popup = "입술은 닫고 유지";
+            } else if (maxPenalty === smilePenalty && smilePenalty > 0.34) {
+                stage1Popup = smileAvg < targetSmile ? "조금 더 자연스럽게 미소" : "입꼬리 힘만 조금 빼기";
+            }
+
+            if (currentStage === 2) {
+                const score = clamp((stage1Score + stage2Score) * 0.5, 0, 100);
+                const popup = stage1Score <= stage2Score ? stage1Popup : stage2Popup;
+                return {
+                    score,
+                    popup,
+                    mouthOpenY
+                };
             }
 
             return {
-                score: finalScore,
-                popup: finalPopup,
-                focusLabel: focus.label,
-                browOveractive,
-                gazeOut
+                score: stage1Score,
+                popup: stage1Popup
             };
         }
 
         function updateBoxes(faceLandmarks) {
-            return;
+            const left = faceLandmarks[MOUTH_LEFT];
+            const right = faceLandmarks[MOUTH_RIGHT];
+            const top = faceLandmarks[MOUTH_TOP];
+            const bottom = faceLandmarks[MOUTH_BOTTOM];
+
+            const x = ((left.x + right.x) * 0.5) * 100;
+            const y = ((top.y + bottom.y) * 0.5) * 100;
+
+            const w = clamp(Math.abs(right.x - left.x) * 135, 18, 36);
+            const h = clamp(Math.abs(bottom.y - top.y) * 165, 8, 28);
+
+            userMouthBox.style.display = "block";
+            userMouthBox.style.left = `${100 - x}%`;
+            userMouthBox.style.top = `${y}%`;
+            userMouthBox.style.width = `${w}px`;
+            userMouthBox.style.height = `${h}px`;
+
+            guideBox.style.display = "block";
         }
 
-        async function finishTraining() {
+        function finishTraining() {
             running = false;
             if (rafId) {
                 cancelAnimationFrame(rafId);
@@ -2091,8 +1678,6 @@
             globalStageScoreSums[currentLevel][currentStage] = stageScoreSum;
             globalStageScoreCounts[currentLevel][currentStage] = stageScoreCount;
 
-            await saveTrainingResultToDb();
-
             updateResultCard(score, `${currentStage + 1}단계 평균`);
             renderSummary();
             renderLevelCards();
@@ -2104,10 +1689,9 @@
             const isLastStage = currentStage >= level.stages.length - 1;
             nextBtn.classList.toggle("hidden", isLastStage);
 
+            guideBox.style.display = "none";
+            userMouthBox.style.display = "none";
             scoreMini.classList.remove("show");
-            setGazeEyeVisible(false);
-            gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
-            centerGazeEye();
             controlNote.textContent = "측정이 끝났습니다. 다시하기로 재측정하거나 다음 단계로 이동하세요.";
         }
 
@@ -2117,7 +1701,6 @@
             const now = performance.now();
             const remainMs = Math.max(0, trainingEndsAt - now);
             timerNum.textContent = String(Math.ceil(remainMs / 1000));
-            scoreMini.classList.add("show");
 
             if (video.currentTime !== lastVideoTime) {
                 lastVideoTime = video.currentTime;
@@ -2127,57 +1710,22 @@
                 const blendshapeCategories = results.faceBlendshapes?.[0]?.categories ?? [];
 
                 if (faceLandmarks) {
-                    const gaze = estimateGaze(faceLandmarks);
-                    const evalResult = evaluateFace(faceLandmarks, blendshapeCategories, video.videoWidth, video.videoHeight, now, gaze);
+                    const evalResult = evaluateFace(faceLandmarks, blendshapeCategories, video.videoWidth, video.videoHeight, now);
+                    currentScore = lerp(currentScore, evalResult.score, 0.22);
 
-                    const focus = getFocusScoreAndLabel(gaze, faceLandmarks);
-                    // 점수
-                    currentScore = focus.score;
-                    // 누적
-                    stageScoreSum += currentScore;
+                    // 현재 단계 점수 누적 평균용 집계
+                    stageScoreSum += evalResult.score;
                     stageScoreCount += 1;
-                    // 🔥 우상단 점수 표시
+
                     scoreMini.classList.add("show");
                     scoreMiniValue.textContent = String(Math.round(currentScore));
 
-                    //currentScore = lerp(currentScore, evalResult.score, 0.22);
-                    //stageScoreSum += evalResult.score;
-
-                    scoreMini.classList.add("show");
-                    //scoreMiniValue.textContent = String(Math.round(evalResult.score));
-
-
-                    if (gaze) {
-                        smoothedGazeX = lerp(smoothedGazeX, gaze.x, 0.28);
-                        smoothedGazeY = lerp(smoothedGazeY, gaze.y, 0.28);
-                        moveGazeEye(0, smoothedGazeY, null, true);
-                        drawGazeHUD(faceLandmarks, gaze);
-                    } else {
-                        setGazeEyeVisible(false);
-                        gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
-                    }
-
-                    
-                    updateWarnings(!!evalResult.gazeOut, !!evalResult.browOveractive);
-                    if (!evalResult.gazeOut && !evalResult.browOveractive) {
-                        updateFocusStatus(evalResult.focusLabel || "");
-                    }
-                    
-
                     updateBoxes(faceLandmarks);
-
                     coachMini.textContent = getCoachMessage(currentScore);
                     gradeValue.textContent = getGrade(currentScore);
                     setStars(resultStars, getStarCount(currentScore));
 
-                    //resultBadge.textContent = evalResult.focusLabel || "측정중";
-
-                    //showPopup(evalResult.popup);
-                } else {
-                    setGazeEyeVisible(false);
-                    gazeCtx.clearRect(0, 0, gazeOverlay.width, gazeOverlay.height);
-                    updateFocusStatus("", true);
-                    updateWarnings(false, false);
+                    showPopup(evalResult.popup);
                 }
             }
 
@@ -2194,15 +1742,12 @@
                 await setupCamera();
                 await setupModel();
 
-
                 window.speechSynthesis?.cancel();
+
                 introLayer.classList.add("hidden");
                 startBtn.classList.add("hidden");
                 retryBtn.classList.add("hidden");
                 nextBtn.classList.add("hidden");
-
-                const cameraFallback = document.getElementById('cameraFallback');
-                cameraFallback.style.display = 'block'; // 🔥 focus1 표시
 
                 scoreMini.classList.add("show");
                 scoreMiniValue.textContent = "0";
@@ -2210,13 +1755,14 @@
                 resultBadge.textContent = "측정중";
                 controlNote.textContent = "측정 중입니다. 기준 측정 없이 바로 자연스러운 미소와 좌우 균형을 평가합니다.";
 
-                currentScore = 0;
+                currentScore = 100;
                 stageScoreSum = 0;
                 stageScoreCount = 0;
                 timerNum.textContent = "10";
+                guideBox.style.display = "block";
+                userMouthBox.style.display = "block";
 
                 resetEvalState();
-                centerGazeEye();
                 running = true;
                 const startNow = performance.now();
                 trainingEndsAt = startNow + TRAINING_DURATION;
