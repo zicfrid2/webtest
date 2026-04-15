@@ -12,6 +12,8 @@ const processRouter = require("./api/process");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//const trainingRoutes = require("./api/trainingRoutes");
+
 // -------------------- 필수 환경변수 체크 --------------------
 if (!process.env.OPENAI_API_KEY) {
     console.error("[ENV ERROR] OPENAI_API_KEY 가 .env에 없습니다.");
@@ -46,6 +48,7 @@ app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true, limit: "30mb" }));
 app.use(express.static(path.resolve(".")));
 app.use("/uploads", express.static(path.resolve("uploads")));
+//app.use(trainingRoutes);
 
 fs.mkdirSync("uploads", { recursive: true });
 
@@ -315,10 +318,76 @@ app.post("/api/transcribe", upload.single("audio"), async (req, res) => {
     }
 });
 
+/////////////
+app.post("/api/training-results", async (req, res) => {
+    try {
+        const {
+            user_id,
+            training_type,
+            level_no,
+            stage_no,
+            score1,
+            grade,
+            score2
+        } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({
+                success: false,
+                message: "user_id 없음"
+            });
+        }
+
+        const query = `
+            INSERT INTO training_results
+            (user_id, training_type, level_no, stage_no, score1, grade, score2)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `;
+
+        await pool.query(query, [
+            user_id,
+            training_type,
+            level_no,
+            stage_no,
+            score1,
+            grade,
+            score2
+        ]);
+
+        return res.json({ ok: true });
+    } catch (error) {
+        console.error("training-results 저장 오류:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+const forwardingStore = new Map();
+
+function parseTotalAIScoreFromResult(text) {
+    if (!text) return 0;
+
+    const patterns = [
+        /점수\s*[:：]?\s*(\d+(?:\.\d+)?)\s*점/i
+    ];
+
+    for (const pattern of patterns) {
+        const match = String(text).match(pattern);
+        if (match && match[1] != null) {
+            return Number(match[1]) || 0;
+        }
+    }
+
+    return 0;
+}
+
 // -------------------- 분석 --------------------
 app.post("/api/analyze", async (req, res) => {
+    //console.log("[SERVER] /api/analyze 진입");
     try {
-        const { prompt, transcript, speechInsightsText, speechInsights } = req.body;
+        const { prompt, transcript, speechInsightsText, speechInsights, forwardingId } = req.body;
 
         if (!prompt) {
             return res.status(400).json({ error: "missing_prompt" });
@@ -329,12 +398,6 @@ ${prompt}
 
 [면접 답변 텍스트]
 ${transcript || "없음"}
-
-[음성 인사이트 요약]
-${speechInsightsText || "없음"}
-
-[음성 인사이트 JSON]
-${speechInsights ? JSON.stringify(speechInsights, null, 2) : "null"}
 `;
 
         const response = await client.responses.create({
@@ -342,12 +405,35 @@ ${speechInsights ? JSON.stringify(speechInsights, null, 2) : "null"}
             input: inputText
         });
 
+        let resultText = response.output_text || "";
+
+        // 🔥 핵심: 줄바꿈을 아예 <br>로 바꿔서 보낸다
+        resultText = resultText.replace(/\n/g, "<br>");
+
+        // 🔥 여기 추가 (메모리 저장)
+        if (forwardingId && forwardingStore) {
+            forwardingStore.set(forwardingId, {
+                ok: true,
+                result: resultText
+            });
+        }
+
         return res.json({
             ok: true,
-            result: response.output_text || ""
+            result: resultText
         });
+
     } catch (error) {
         console.error("Analyze error:", error);
+
+        // 🔥 실패도 저장 (선택)
+        if (req.body.forwardingId && forwardingStore) {
+            forwardingStore.set(req.body.forwardingId, {
+                ok: false,
+                result: ""
+            });
+        }
+
         return res.status(500).json({
             ok: false,
             error: "analyze_failed",
