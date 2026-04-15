@@ -1,0 +1,2168 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>면접에서 떨어지는 이유</title>
+    <style>
+        :root {
+            --bg: #eef4ff;
+            --surface: rgba(255,255,255,.92);
+            --primary: #4f7fe4;
+            --primary-deep: #315fc9;
+            --text: #1f2430;
+            --muted: #7f8aa0;
+            --border: #e4ebf8;
+            --shadow: 0 18px 38px rgba(73, 105, 170, 0.12);
+            --shadow-soft: 0 10px 24px rgba(86, 116, 176, 0.10);
+            --danger: #ff5f57;
+            --danger-dark: #e54b45;
+            --success: #2f9e44;
+            --dark-chip: rgba(23, 30, 46, 0.68);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at top left, rgba(120, 165, 255, .22), transparent 26%), radial-gradient(circle at top right, rgba(255, 255, 255, .72), transparent 22%), linear-gradient(180deg, #f7faff 0%, #edf4ff 54%, #e7f0ff 100%);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+        }
+
+
+        .phone {
+            width: 100%;
+            max-width: 430px;
+            min-height: 100vh;
+            border-radius: 34px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(246,250,255,.98));
+            border: 1px solid rgba(220, 231, 248, .95);
+            box-shadow: 0 24px 80px rgba(27, 43, 87, 0.16);
+        }
+
+        .safe-top {
+            height: env(safe-area-inset-top, 0px);
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            padding: 7px 10px 6px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: #233255;
+            background: rgba(248, 251, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(228, 236, 248, 0.8);
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 8px;
+            top: 6px;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255,255,255,.85);
+            color: var(--primary-deep);
+            font-size: 26px;
+            line-height: 1;
+            box-shadow: 0 8px 18px rgba(86,116,176,.12);
+            cursor: pointer;
+        }
+
+        .content {
+            padding: 4px 4px calc(72px + env(safe-area-inset-bottom, 0px));
+        }
+
+        .main-card {
+            background: rgba(255,255,255,.7);
+            border: 1px solid rgba(224, 233, 248, .96);
+            border-radius: 20px;
+            padding: 6px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .intro-card {
+            background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+            border: 1px solid #e1ebfb;
+            border-radius: 18px;
+            padding: 6px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .intro-top {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .q-icon {
+            width: 50px;
+            height: 50px;
+            flex: 0 0 auto;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(180deg, #79a9f3 0%, #4d7fe0 100%);
+            box-shadow: 0 10px 20px rgba(77,127,224,.24);
+        }
+
+        .q-sub {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        .section-card, .camera-panel, .side-panel, .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .section-card {
+            margin-top: 6px;
+            padding: 8px;
+        }
+
+        .interviewer-video {
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #e3ebfa;
+            background: linear-gradient(135deg, #d8e6ff 0%, #edf4ff 38%, #dce7fb 100%);
+            min-height: 104px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .interviewer-video video {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+                background: #dfe8f8;
+            }
+
+        .interviewer-caption {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            z-index: 10;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 900;
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 999px;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(6px);
+            display: none;
+        }
+
+        .interviewer-big-countdown {
+            position: absolute;
+            inset: 0;
+            z-index: 11;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 84px;
+            font-weight: 1000;
+            color: #fff;
+            text-shadow: 0 10px 28px rgba(0,0,0,.38);
+            background: rgba(0,0,0,.18);
+            backdrop-filter: blur(2px);
+            letter-spacing: -0.04em;
+            white-space: pre-line;
+            text-align: center;
+            line-height: 1.2;
+            padding: 20px;
+        }
+
+            .interviewer-big-countdown.show {
+                display: flex;
+            }
+
+        .interviewer-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+            .interviewer-placeholder span {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 10px;
+                border-radius: 999px;
+                background: rgba(27, 35, 52, .58);
+                color: #fff;
+                font-size: 13px;
+                font-weight: 800;
+                backdrop-filter: blur(10px);
+            }
+
+        .interviewer-video.playing .interviewer-placeholder,
+        .interviewer-video.ended .interviewer-placeholder {
+            display: none;
+        }
+
+        .record-status {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            min-height: 18px;
+            color: #7a8598;
+            margin-bottom: 6px;
+        }
+
+            .record-status.recording {
+                color: var(--danger-dark);
+            }
+
+            .record-status.success {
+                color: var(--success);
+            }
+
+        .stage-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(120px, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+            align-items: stretch;
+        }
+
+        .camera-panel, .side-panel {
+            padding: 6px;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+
+        .top-controls {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .mini-btn {
+            border: none;
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.94);
+            color: #4069ba;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 6px 16px rgba(92, 119, 163, 0.14);
+            cursor: pointer;
+        }
+
+            .mini-btn:disabled, .record-btn:disabled, .send-btn:disabled {
+                opacity: .55;
+                cursor: not-allowed;
+            }
+
+        .camera-stage {
+            position: relative;
+            min-height: 208px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f7f9fd 0%, #ecf2f9 100%);
+            border: 1px solid #e3eaf5;
+        }
+
+        .media-wrap {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 24%, rgba(132,162,220,.12), transparent 24%), radial-gradient(circle at 70% 78%, rgba(132,162,220,.10), transparent 24%), linear-gradient(180deg, #fafbfd 0%, #eef2f8 100%);
+        }
+
+        #video, #canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #video {
+            filter: brightness(1.05) contrast(1.02) saturate(1.02);
+        }
+
+        .mirror {
+            transform: scaleX(-1);
+        }
+
+        .camera-head {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            top: 6px;
+            z-index: 6;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .camera-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(27, 35, 52, .58);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-layer {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            bottom: 58px;
+            z-index: 6;
+            display: none !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            pointer-events: none;
+        }
+
+        section[aria-label="실시간 모니터링 텍스트 영역"] {
+            display: none !important;
+        }
+
+        .metric-chip {
+            background: var(--dark-chip);
+            color: #fff;
+            border-radius: 12px;
+            padding: 5px 7px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            box-shadow: 0 8px 16px rgba(21, 28, 42, 0.15);
+        }
+
+            .metric-chip strong {
+                font-size: 10px;
+                color: rgba(255,255,255,0.78);
+                font-weight: 800;
+                letter-spacing: .02em;
+            }
+
+            .metric-chip span {
+                font-size: 12px;
+                font-weight: 900;
+                color: #fff;
+            }
+
+        .video-badge, .countdown-corner {
+            position: absolute;
+            bottom: 8px;
+            z-index: 6;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-badge {
+            left: 8px;
+            padding: 7px 10px;
+            background: rgba(40, 43, 51, 0.48);
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .countdown-corner {
+            right: 8px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,.96);
+            color: var(--primary);
+            font-size: 20px;
+            font-weight: 900;
+            box-shadow: 0 10px 22px rgba(92, 119, 163, 0.18);
+        }
+
+        .camera-stage.camera-off #video,
+        .camera-stage.camera-off #canvas,
+        .camera-stage.camera-off .metric-layer,
+        .camera-stage.camera-off .video-badge {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .record-btn {
+            width: 100%;
+            min-height: 112px;
+            border-radius: 18px;
+            border: none;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            background: radial-gradient(circle at 35% 30%, #ff7f72 0%, var(--danger) 62%, #ff4f45 100%);
+            box-shadow: 0 0 0 10px rgba(255, 95, 87, 0.10), 0 12px 28px rgba(255, 95, 87, 0.24), inset 0 8px 12px rgba(255,255,255,0.2);
+        }
+
+            .record-btn.recording {
+                background: radial-gradient(circle at 35% 30%, #7a93ff 0%, #5a73ff 60%, #4158d9 100%);
+                box-shadow: 0 0 0 14px rgba(90, 115, 255, 0.14), 0 14px 36px rgba(90, 115, 255, 0.30), inset 0 8px 12px rgba(255,255,255,0.18);
+            }
+
+        .record-icon {
+            line-height: 1;
+            display: block;
+        }
+
+        .record-caption {
+            font-size: 13px;
+            color: #ffffff;
+            line-height: 1.25;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .side-input, .textbox {
+            width: 100%;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.55;
+            color: #364154;
+            font-size: 14px;
+            background: #f8fbff;
+            border: 1px solid #e8eefb;
+            border-radius: 18px;
+            padding: 10px;
+            resize: vertical;
+            outline: none;
+        }
+
+        .side-input {
+            min-height: 118px;
+            max-height: 220px;
+            overflow: auto;
+        }
+
+        .card {
+            margin-top: 14px;
+            padding: 10px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #5079c9;
+            margin-bottom: 6px;
+        }
+
+        .monitor-stack {
+            display: grid;
+            gap: 8px;
+        }
+
+        .monitor-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 900;
+            color: #365ea8;
+        }
+
+        .textbox.monitor {
+            min-height: 132px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.52;
+            color: #21304f;
+            background: #f4f8ff;
+            border-color: #d9e5fb;
+        }
+
+        .capture-card {
+            margin-top: 6px;
+            padding: 8px;
+            display: none;
+        }
+
+            .capture-card.visible {
+                display: block;
+            }
+
+        .capture-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .capture-status {
+            font-size: 12px;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+            .capture-status.success {
+                color: var(--success);
+            }
+
+        .capture-preview-wrap {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #e3ebfa;
+            background: linear-gradient(180deg, #eef4ff 0%, #e8f0ff 100%);
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .capture-preview-wrap img {
+                display: block;
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                background: #f7faff;
+            }
+
+        #captureSourceCanvas, #captureWorkCanvas {
+            display: none;
+        }
+
+        .send-btn {
+            margin-top: 8px;
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(180deg, #8b7cff 0%, #6d5cff 100%);
+            box-shadow: 0 10px 22px rgba(109, 92, 255, 0.25);
+            cursor: pointer;
+        }
+
+        @media (max-width: 390px) {
+            .stage-grid {
+                grid-template-columns: minmax(0, 1.65fr) minmax(96px, 1fr);
+                gap: 6px;
+            }
+
+            .camera-stage {
+                min-height: 194px;
+            }
+
+            .countdown-corner {
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
+
+            .interviewer-big-countdown {
+                font-size: 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="safe-top"></div>
+
+        <header class="header">
+            <button class="back-btn" aria-label="뒤로 가기">‹</button>
+            면접에서 떨어지는 이유 3초 안에 확인
+        </header>
+
+        <main class="content">
+            <section class="main-card">
+                <div class="intro-card">
+                    <div class="intro-top">
+                        <div class="q-icon">AI</div>
+                        <div>
+                            <p class="q-sub">먼저 카메라 촬영을 합니다. 카메라를 봐주세요</p>
+                        </div>
+                    </div>
+                    <div id="recordStatus" class="record-status">시작하면 면접관의 눈을 보세요</div>
+
+                    <section class="section-card interviewer-section" aria-label="면접관 화면 영역">
+                        <div id="interviewerVideoWrap" class="interviewer-video">
+                            <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector1.mp4"></video>
+                            <div id="interviewerCaption" class="interviewer-caption">지원 동기를, 간단하게 말씀해 보세요.</div>
+                            <div id="interviewerBigCountdown" class="interviewer-big-countdown">3</div>
+                            <div class="interviewer-placeholder"><span>면접관 동영상 재생 영역</span></div>
+                        </div>
+                    </section>
+
+                    <div class="stage-grid">
+                        <section class="camera-panel" aria-label="카메라 영역">
+                            <div class="top-controls">
+                                <button id="startBtn" class="mini-btn">On</button>
+                                <button id="stopBtn" class="mini-btn" disabled>Off</button>
+                            </div>
+
+                            <div id="cameraStage" class="camera-stage camera-off">
+                                <div class="media-wrap">
+                                    <video id="video" autoplay playsinline muted></video>
+                                    <canvas id="canvas"></canvas>
+                                </div>
+
+                                <div class="camera-head">
+                                    <div class="camera-title">내 화면</div>
+                                </div>
+
+                                <div class="metric-layer">
+                                    <div class="metric-chip"><strong>GazeX</strong><span id="gazeX">0.00</span></div>
+                                    <div class="metric-chip"><strong>GazeY</strong><span id="gazeY">0.00</span></div>
+                                    <div class="metric-chip"><strong>Yaw</strong><span id="yaw">0.0</span></div>
+                                    <div class="metric-chip"><strong>Pitch</strong><span id="pitch">0.0</span></div>
+                                    <div class="metric-chip"><strong>Smile</strong><span id="smile">0.00</span></div>
+                                    <div class="metric-chip"><strong>JawOpen</strong><span id="jaw">0.00</span></div>
+                                    <div class="metric-chip"><strong>Blink</strong><span id="blinkCount">0</span></div>
+                                    <div class="metric-chip"><strong>EyeMove</strong><span id="eyeMoveCount">0</span></div>
+                                </div>
+
+                                <div class="video-badge" id="deviceBadge">대기 중</div>
+                                <div id="countdownCorner" class="countdown-corner">3</div>
+                            </div>
+                        </section>
+
+                        <aside class="side-panel" aria-label="답변 제어 영역">
+                            <button id="recordBtn" class="record-btn" aria-label="녹음 시작" type="button">
+                                <span id="recordIcon" class="record-icon">🎙</span>
+                            </button>
+                            <div id="recordCaption" class="record-caption">녹음 시작</div>
+                            <textarea id="transcriptBox" class="side-input" placeholder="추가 텍스트가 필요하면 여기에 입력"></textarea>
+                            <button id="sendBtn" class="send-btn" type="button" disabled style="display:none;">process.js 호출</button>
+                        </aside>
+                    </div>
+                </div>
+
+                <section id="capturedPreviewSection" class="section-card capture-card" aria-label="자동 캡쳐 이미지 영역">
+                    <div class="capture-title-row">
+                        <div class="monitor-label">캡쳐사진</div>
+                        <div id="captureStatusText" class="capture-status">면접관 영상 재생 4초 후 표시됩니다.</div>
+                    </div>
+                    <div class="capture-preview-wrap">
+                        <img id="capturedPreviewImage" alt="자동 캡쳐 이미지" />
+                    </div>
+                </section>
+
+                <section class="card" aria-label="실시간 모니터링 텍스트 영역">
+                    <div class="card-title">실시간 모니터링</div>
+                    <div class="monitor-stack">
+                        <div>
+                            <div class="monitor-label">텍스트A</div>
+                            <textarea id="textABox" class="textbox monitor" readonly></textarea>
+                        </div>
+                        <div>
+                            <div class="monitor-label">텍스트B</div>
+                            <textarea id="textBBox" class="textbox monitor" readonly></textarea>
+                        </div>
+                        <div>
+                            <div class="monitor-label">텍스트C</div>
+                            <textarea id="textCBox" class="textbox monitor" readonly></textarea>
+                        </div>
+                        <div>
+                            <div class="monitor-label">텍스트E</div>
+                            <textarea id="textEBox" class="textbox monitor" readonly></textarea>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <canvas id="captureSourceCanvas"></canvas>
+    <canvas id="captureWorkCanvas"></canvas>
+
+    <script type="module">
+        import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+        import { analyzeSpeechArtifacts } from "./speechInsights.js";
+
+        const PROCESS_ENDPOINT = "/api/process";
+
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const cameraStage = document.getElementById("cameraStage");
+        const countdownCorner = document.getElementById("countdownCorner");
+        const deviceBadge = document.getElementById("deviceBadge");
+
+        const gazeXEl = document.getElementById("gazeX");
+        const gazeYEl = document.getElementById("gazeY");
+        const yawEl = document.getElementById("yaw");
+        const pitchEl = document.getElementById("pitch");
+        const smileEl = document.getElementById("smile");
+        const jawEl = document.getElementById("jaw");
+        const blinkCountEl = document.getElementById("blinkCount");
+        const eyeMoveCountEl = document.getElementById("eyeMoveCount");
+
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const recordBtn = document.getElementById("recordBtn");
+        const recordIcon = document.getElementById("recordIcon");
+        const recordCaption = document.getElementById("recordCaption");
+        const recordStatus = document.getElementById("recordStatus");
+        const sendBtn = document.getElementById("sendBtn");
+
+        const interviewerVideoWrap = document.getElementById("interviewerVideoWrap");
+        const interviewerVideo = document.getElementById("interviewerVideo");
+        const interviewerCaption = document.getElementById("interviewerCaption");
+        const interviewerBigCountdown = document.getElementById("interviewerBigCountdown");
+        const qSub = document.querySelector(".q-sub");
+
+        const transcriptBox = document.getElementById("transcriptBox");
+        const textABox = document.getElementById("textABox");
+        const textBBox = document.getElementById("textBBox");
+        const textCBox = document.getElementById("textCBox");
+        const textEBox = document.getElementById("textEBox");
+
+        const capturedPreviewSection = document.getElementById("capturedPreviewSection");
+        const capturedPreviewImage = document.getElementById("capturedPreviewImage");
+        const captureStatusText = document.getElementById("captureStatusText");
+        const captureSourceCanvas = document.getElementById("captureSourceCanvas");
+        const captureWorkCanvas = document.getElementById("captureWorkCanvas");
+
+        const IDX_LEFT_EYE_OUTER = 33;
+        const IDX_LEFT_EYE_INNER = 133;
+        const IDX_RIGHT_EYE_INNER = 362;
+        const IDX_RIGHT_EYE_OUTER = 263;
+        const IDX_NOSE_TIP = 1;
+        const IDX_UPPER_LIP = 13;
+        const IDX_LOWER_LIP = 14;
+        const IDX_MOUTH_LEFT = 61;
+        const IDX_MOUTH_RIGHT = 291;
+        const IDX_LEFT_EYE_TOP = 159;
+        const IDX_LEFT_EYE_BOTTOM = 145;
+        const IDX_RIGHT_EYE_TOP = 386;
+        const IDX_RIGHT_EYE_BOTTOM = 374;
+        const IDX_CHIN = 152;
+        const IDX_LEFT_BROW_INNER = 70;
+        const IDX_LEFT_BROW_MID = 63;
+        const IDX_RIGHT_BROW_INNER = 300;
+        const IDX_RIGHT_BROW_MID = 293;
+
+        const TARGET_W = 1104;
+        const TARGET_H = 1653;
+        const TARGET_EYE_TO_CHIN = 650;
+        const TARGET_EYE_INNER_Y = 760;
+        const TARGET_EYE_CENTER_X = 552;
+
+        const MODEL_ASSET_PATH =
+            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+
+        let faceLandmarker = null;
+        let stream = null;
+        let running = false;
+        let rafId = 0;
+        let currentFacingMode = "user";
+
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordedAudioBlob = null;
+        let recordedAudioFileName = "";
+        let isRecording = false;
+        let autoProcessAfterStop = false;
+        let countdownStarted = false;
+
+        let captureTaken = false;
+        let capturedBlob = null;
+        let capturedDataUrl = "";
+
+        let analysisWindowDurationMs = 4000; //4000
+        let captureTimer = null;
+        let countdownTimer = null;
+        let countdownValue = 10;
+
+        let prevTimeMs = 0;
+        let prevGazeX = 0;
+        let prevGazeY = 0;
+        let blinkCount = 0;
+        let eyeMoveCount = 0;
+        let blinkHigh = false;
+        let eyeMoveHigh = false;
+
+        let smileLeftValue = 0;
+        let smileRightValue = 0;
+        let jawOpenValue = 0;
+        let puckerValue = 0;
+        let funnelValue = 0;
+        let jawMoveYValue = 0;
+        let correctedYawDeg = 0;
+        let correctedPitchDeg = 0;
+        let headRollDeg = 0;
+        let browFrownValue = 0;
+        let browFrownHistory = [];
+        let browFrownAvg = 0;
+
+        let metrics = createMetrics();
+        let countdownMetrics = createMetrics();
+
+        let latestFaceLandmarks = [];
+        let latestCapturedRawLandmarks = [];
+        let capturedFaceLandmarks = [];
+        let capturedFaceMeta = null;
+        let latestFaceBlendshapes = [];
+        let latestFacialMatrixes = [];
+
+        let latestAudioAnalysis = null;
+        let latestFillerAnalysis = null;
+        let latestPromptText = "";
+
+        if (qSub) {
+            qSub.textContent = "먼저 카메라 촬영을 합니다. 카메라를 봐주세요";
+        }
+
+        function createMetrics() {
+            return {
+                active: false,
+                startMs: 0,
+                lastMs: 0,
+                bothSmilePositiveMs: 0,
+                gazeYHighMs: 0,
+                gazeEventCount: 0,
+                gazeXAbsEventCount: 0,
+                smileBothCount: 0,
+                smileBothJawYCount: 0,
+                jawOpenMs: 0,
+                jawOpenSmileMs: 0,
+                puckerCount: 0,
+                funnelCount: 0,
+                yawChangeCount: 0,
+                pitchChangeCount: 0,
+                blinkCount: 0,
+                browFrownMs: 0,
+                flags: {
+                    gazeEvent: false,
+                    gazeXAbs: false,
+                    smileBoth: false,
+                    smileBothJawY: false,
+                    jawOpen: false,
+                    jawOpenSmile: false,
+                    pucker: false,
+                    funnel: false,
+                    yaw: false,
+                    pitch: false,
+                    browFrown: false
+                }
+            };
+        }
+
+        function resetMetricsState(target) {
+            const fresh = createMetrics();
+            Object.assign(target, fresh);
+        }
+
+        function setCaptureStatus(text, type = "") {
+            captureStatusText.className = "capture-status";
+            if (type) captureStatusText.classList.add(type);
+            captureStatusText.textContent = text;
+        }
+
+        function setRecordUIIdle() {
+            isRecording = false;
+            recordBtn.classList.remove("recording");
+            recordIcon.textContent = "🎙";
+            recordCaption.textContent = "녹음 시작";
+        }
+
+        function setRecordUIRecording() {
+            isRecording = true;
+            recordBtn.classList.add("recording");
+            recordIcon.textContent = "■";
+            recordCaption.textContent = "녹음종료";
+        }
+
+        function formatCornerValue(value) {
+            const abs = Math.abs(value).toFixed(3);
+            if (value > 0.0005) return `위로 ${abs}`;
+            if (value < -0.0005) return `아래로 ${abs}`;
+            return `중앙 ${abs}`;
+        }
+
+        function formatTextA() {
+            return [
+                `gazeX: ${Number(prevGazeX).toFixed(2)} / gazeY: ${Number(prevGazeY).toFixed(2)}`,
+                `yaw 보정: ${Number(correctedYawDeg).toFixed(1)}°`,
+                `pitch 보정: ${Number(correctedPitchDeg).toFixed(1)}°`,
+                `head roll(기울기): ${Number(headRollDeg).toFixed(1)}°`,
+                `smileLeft: ${Number(smileLeftValue).toFixed(2)} / smileRight: ${Number(smileRightValue).toFixed(2)}`,
+                `pucker: ${Number(puckerValue).toFixed(2)} / funnel: ${Number(funnelValue).toFixed(2)}`,
+                `jawOpen: ${Number(jawOpenValue).toFixed(2)} / jawY: ${Number(jawMoveYValue).toFixed(2)}`,
+                `browFrown: ${Number(browFrownValue).toFixed(2)}`,
+                `왼쪽 입꼬리: ${formatCornerValue(smileLeftValue)}`,
+                `오른쪽 입꼬리: ${formatCornerValue(smileRightValue)}`
+            ].join("\n");
+        }
+
+        function formatTextB() {
+            return [
+                `면접관 동영상 후 4초 카운트: ${metrics.active ? "진행 중" : (metrics.startMs ? "종료" : "대기")}`,
+                `양쪽 smileL과 smileR 값이 모두 0보다 큰 누적 시간: ${(metrics.bothSmilePositiveMs / 1000).toFixed(2)}초`,
+                `gazeY가 0.2보다 컸던 누적 시간: ${(metrics.gazeYHighMs / 1000).toFixed(2)}초`,
+                `blink 횟수: ${metrics.blinkCount}`,
+                `gazeX/Y 0.10 이상 횟수: ${metrics.gazeEventCount}`,
+                `gazeX |값| 0.10 이상 횟수: ${metrics.gazeXAbsEventCount}`,
+                `smileLeft+smileRight 동시 0.10 이상 횟수: ${metrics.smileBothCount}`,
+                `smileLeft+smileRight+jawY 동시 조건 횟수: ${metrics.smileBothJawYCount}`,
+                `jawOpen 0.10 이상 누적 시간: ${(metrics.jawOpenMs / 1000).toFixed(2)}초`,
+                `jawOpen >= 0.5 이며 smile > 0.05 누적 시간: ${(metrics.jawOpenSmileMs / 1000).toFixed(2)}초`,
+                `pucker 횟수: ${metrics.puckerCount}`,
+                `funnel 횟수: ${metrics.funnelCount}`,
+                `yaw |값| 3.0 이상 변화 횟수: ${metrics.yawChangeCount}`,
+                `pitch |값| 3.0 이상 변화 횟수: ${metrics.pitchChangeCount}`,
+                `browFrown time: ${(metrics.browFrownMs / 1000).toFixed(2)}초`,
+                ``,
+                `현재값`,
+                `gazeX=${Number(prevGazeX).toFixed(2)} / gazeY=${Number(prevGazeY).toFixed(2)}`,
+                `smileL=${Number(smileLeftValue).toFixed(2)} / smileR=${Number(smileRightValue).toFixed(2)} / jawY=${Number(jawMoveYValue).toFixed(2)}`,
+                `jawOpen=${Number(jawOpenValue).toFixed(2)} / pucker=${Number(puckerValue).toFixed(2)} / funnel=${Number(funnelValue).toFixed(2)}`,
+                `yaw=${Number(correctedYawDeg).toFixed(1)} / pitch=${Number(correctedPitchDeg).toFixed(1)}`,
+                `browFrown=${Number(browFrownValue).toFixed(2)}`
+            ].join("\n");
+        }
+
+        function formatTextC() {
+            return [
+                `변수 최종 읽기값`,
+                `양쪽 smileL/smileR > 0 누적 시간: ${(metrics.bothSmilePositiveMs / 1000).toFixed(2)}초`,
+                `gazeY 초과 누적 시간: ${(metrics.gazeYHighMs / 1000).toFixed(2)}초`,
+                `gazeX 횟수: ${metrics.gazeXAbsEventCount}`,
+                `smile 횟수: ${metrics.smileBothCount}`,
+                `jawOpen 누적 시간: ${(metrics.jawOpenMs / 1000).toFixed(2)}초`,
+                `pucker 횟수: ${metrics.puckerCount}`,
+                `funnel 횟수: ${metrics.funnelCount}`,
+                `browFrown time: ${(metrics.browFrownMs / 1000).toFixed(2)}초`,
+                `yaw 횟수: ${metrics.yawChangeCount}`,
+                `pitch 횟수: ${metrics.pitchChangeCount}`
+            ].join("\n");
+        }
+
+        function formatTextE() {
+            return [
+                `카운트다운 10초 동안 텍스트B와 같은 로직으로 계산한 값`,
+                `카운트다운 10초: ${countdownMetrics.active ? "진행 중" : (countdownMetrics.startMs ? "종료" : "대기")}`,
+                `양쪽 smileL과 smileR 값이 모두 0보다 큰 누적 시간: ${(countdownMetrics.bothSmilePositiveMs / 1000).toFixed(2)}초`,
+                `gazeY가 0.2보다 컸던 누적 시간: ${(countdownMetrics.gazeYHighMs / 1000).toFixed(2)}초`,
+                `10초 동안 blink 횟수: ${countdownMetrics.blinkCount}`,
+                `gazeX/Y 0.10 이상 횟수: ${countdownMetrics.gazeEventCount}`,
+                `gazeX |값| 0.10 이상 횟수: ${countdownMetrics.gazeXAbsEventCount}`,
+                `smileLeft+smileRight 동시 0.10 이상 횟수: ${countdownMetrics.smileBothCount}`,
+                `smileLeft+smileRight+jawY 동시 조건 횟수: ${countdownMetrics.smileBothJawYCount}`,
+                `jawOpen 0.10 이상 누적 시간: ${(countdownMetrics.jawOpenMs / 1000).toFixed(2)}초`,
+                `jawOpen >= 0.5 이며 smile > 0.05 누적 시간: ${(countdownMetrics.jawOpenSmileMs / 1000).toFixed(2)}초`,
+                `pucker 횟수: ${countdownMetrics.puckerCount}`,
+                `funnel 횟수: ${countdownMetrics.funnelCount}`,
+                `yaw |값| 3.0 이상 변화 횟수: ${countdownMetrics.yawChangeCount}`,
+                `pitch |값| 3.0 이상 변화 횟수: ${countdownMetrics.pitchChangeCount}`,
+                `browFrown time: ${(countdownMetrics.browFrownMs / 1000).toFixed(2)}초`
+            ].join("\n");
+        }
+
+        function updateTextBoxes() {
+            textABox.value = formatTextA();
+            textBBox.value = formatTextB();
+            textCBox.value = formatTextC();
+            textEBox.value = formatTextE();
+        } function getRequestedConstraints() {
+            const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+            if (mobile) {
+                return {
+                    audio: false,
+                    video: {
+                        facingMode: { ideal: "user" },
+                        width: { ideal: 4096 },
+                        height: { ideal: 3072 },
+                        frameRate: { ideal: 30, max: 30 }
+                    }
+                };
+            }
+            return {
+                audio: false,
+                video: {
+                    facingMode: { ideal: "user" },
+                    width: { ideal: 2560 },
+                    height: { ideal: 1440 },
+                    frameRate: { ideal: 30, max: 30 }
+                }
+            };
+        } async function createFaceLandmarker() {
+            if (faceLandmarker) return faceLandmarker;
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+            );
+            faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: MODEL_ASSET_PATH
+                },
+                runningMode: "VIDEO",
+                outputFaceBlendshapes: true,
+                outputFacialTransformationMatrixes: true,
+                numFaces: 1
+            });
+            return faceLandmarker;
+        }
+
+        async function startCamera() {
+            if (stream) {
+                if (!running) {
+                    running = true;
+                    if (!rafId) loop();
+                }
+                return;
+            }
+
+            stream = await navigator.mediaDevices.getUserMedia(getRequestedConstraints());
+            video.srcObject = stream;
+            await video.play();
+
+            currentFacingMode = "user";
+            video.classList.add("mirror");
+            canvas.classList.add("mirror");
+            cameraStage.classList.remove("camera-off");
+            deviceBadge.textContent = "카메라 켜짐";
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+
+            running = true;
+            await createFaceLandmarker();
+            if (!rafId) loop();
+        }
+
+        function stopCamera() {
+            running = false;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = 0;
+
+            if (faceLandmarker) {
+                try { faceLandmarker.close(); } catch (_) { }
+                faceLandmarker = null;
+            }
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            stream = null;
+            video.srcObject = null;
+            cameraStage.classList.add("camera-off");
+            deviceBadge.textContent = "대기 중";
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        function stopMediapipeOnly() {
+            running = false;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = 0;
+
+            if (faceLandmarker) {
+                try { faceLandmarker.close(); } catch (_) { }
+                faceLandmarker = null;
+            }
+
+            deviceBadge.textContent = "미디어파이프 정지";
+        }
+
+        function getLandmark(points, idx) {
+            return points && points[idx] ? points[idx] : { x: 0, y: 0, z: 0 };
+        }
+
+        function distance2D(a, b) {
+            const dx = (a.x || 0) - (b.x || 0);
+            const dy = (a.y || 0) - (b.y || 0);
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function clamp01(v) {
+            return Math.max(0, Math.min(1, v));
+        }
+
+        function clampSigned(v, limit = 1) {
+            return Math.max(-limit, Math.min(limit, v));
+        }
+
+        function getIrisCenter(points, startIdx) {
+            const iris = [];
+            for (let i = 0; i < 5; i += 1) {
+                const pt = points[startIdx + i];
+                if (pt) iris.push(pt);
+            }
+            if (!iris.length) return null;
+
+            const sum = iris.reduce((acc, pt) => {
+                acc.x += pt.x || 0;
+                acc.y += pt.y || 0;
+                return acc;
+            }, { x: 0, y: 0 });
+
+            return {
+                x: sum.x / iris.length,
+                y: sum.y / iris.length
+            };
+        }
+
+        function calcNormalizedEyeGaze(outer, inner, top, bottom, irisCenter) {
+            if (!irisCenter) return { x: 0, y: 0 };
+
+            const eyeWidth = Math.max(0.0001, distance2D(outer, inner));
+            const eyeHeight = Math.max(0.0001, distance2D(top, bottom));
+            const centerX = (outer.x + inner.x) * 0.5;
+            const centerY = (top.y + bottom.y) * 0.5;
+
+            return {
+                x: clampSigned((irisCenter.x - centerX) / (eyeWidth * 0.35), 1),
+                y: clampSigned((centerY - irisCenter.y) / (eyeHeight * 0.35), 1)
+            };
+        }
+
+        function getBlendshapeScore(categories, name) {
+            const found = categories.find(c => c.categoryName === name);
+            return found ? Number(found.score || 0) : 0;
+        }
+
+        function getLandmarkPx(landmarks, index, width, height) {
+            const lm = landmarks[index];
+            return {
+                x: (lm?.x || 0) * width,
+                y: (lm?.y || 0) * height,
+                z: lm?.z || 0
+            };
+        }
+
+        function computeFacePlacement(landmarks, width, height) {
+            const leftEyeOuter = getLandmarkPx(landmarks, IDX_LEFT_EYE_OUTER, width, height);
+            const leftEyeInner = getLandmarkPx(landmarks, IDX_LEFT_EYE_INNER, width, height);
+            const rightEyeInner = getLandmarkPx(landmarks, IDX_RIGHT_EYE_INNER, width, height);
+            const rightEyeOuter = getLandmarkPx(landmarks, IDX_RIGHT_EYE_OUTER, width, height);
+            const chin = getLandmarkPx(landmarks, IDX_CHIN, width, height);
+
+            const eyeInnerY = (leftEyeInner.y + rightEyeInner.y) * 0.5;
+            const leftEyeCenterX = (leftEyeOuter.x + leftEyeInner.x) * 0.5;
+            const rightEyeCenterX = (rightEyeOuter.x + rightEyeInner.x) * 0.5;
+            const eyeCenterX = (leftEyeCenterX + rightEyeCenterX) * 0.5;
+            const eyeToChin = chin.y - eyeInnerY;
+
+            if (!Number.isFinite(eyeToChin) || eyeToChin <= 1) {
+                throw new Error("Invalid eye-to-chin distance");
+            }
+
+            const scale = TARGET_EYE_TO_CHIN / eyeToChin;
+            const drawX = TARGET_EYE_CENTER_X - eyeCenterX * scale;
+            const drawY = TARGET_EYE_INNER_Y - eyeInnerY * scale;
+
+            return {
+                scale,
+                drawX,
+                drawY,
+                eyeToChin,
+                eyeInnerY,
+                eyeCenterX
+            };
+        }
+
+        function transformPointToTarget(pt, placement) {
+            return {
+                x: pt.x * placement.scale + placement.drawX,
+                y: pt.y * placement.scale + placement.drawY,
+                z: pt.z * placement.scale
+            };
+        }
+
+        function buildAlignedLandmarksMeta(landmarks, width, height, placement) {
+            return landmarks.map((_, i) => {
+                const src = getLandmarkPx(landmarks, i, width, height);
+                const dst = transformPointToTarget(src, placement);
+                return {
+                    index: i,
+                    x: Number(dst.x.toFixed(4)),
+                    y: Number(dst.y.toFixed(4)),
+                    z: Number(dst.z.toFixed(4))
+                };
+            });
+        }
+
+        async function processCapturedCanvasToAlignedResult(sourceCanvas, sourceType) {
+            const landmarks = await detectFaceLandmarksOnCanvas(sourceCanvas);
+            const placement = computeFacePlacement(
+                landmarks,
+                sourceCanvas.width,
+                sourceCanvas.height
+            );
+
+            captureWorkCanvas.width = TARGET_W;
+            captureWorkCanvas.height = TARGET_H;
+
+            const wctx = captureWorkCanvas.getContext("2d", { alpha: false });
+            wctx.clearRect(0, 0, TARGET_W, TARGET_H);
+            wctx.imageSmoothingEnabled = true;
+            wctx.imageSmoothingQuality = "high";
+            wctx.drawImage(
+                sourceCanvas,
+                placement.drawX,
+                placement.drawY,
+                sourceCanvas.width * placement.scale,
+                sourceCanvas.height * placement.scale
+            );
+
+            const transformedLandmarks = buildAlignedLandmarksMeta(
+                landmarks,
+                sourceCanvas.width,
+                sourceCanvas.height,
+                placement
+            );
+
+            const blob = await canvasToJpegBlob(captureWorkCanvas, 0.95);
+
+            return {
+                blob,
+                landmarks: transformedLandmarks,
+                meta: {
+                    finalWidth: TARGET_W,
+                    finalHeight: TARGET_H,
+                    landmarkCount: transformedLandmarks.length,
+                    landmarks: transformedLandmarks,
+                    placement: {
+                        scale: Number(placement.scale.toFixed(8)),
+                        drawX: Number(placement.drawX.toFixed(4)),
+                        drawY: Number(placement.drawY.toFixed(4)),
+                        eyeToChin: Number(placement.eyeToChin.toFixed(4)),
+                        eyeInnerY: Number(placement.eyeInnerY.toFixed(4)),
+                        eyeCenterX: Number(placement.eyeCenterX.toFixed(4))
+                    },
+                    source: {
+                        width: sourceCanvas.width,
+                        height: sourceCanvas.height,
+                        mirrored: true,
+                        sourceType
+                    },
+                    createdAt: new Date().toISOString()
+                }
+            };
+        }
+
+        async function canvasToJpegBlob(canvas, quality = 0.95) {
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error("canvas.toBlob failed"));
+                }, "image/jpeg", quality);
+            });
+        }
+
+        async function detectFaceLandmarksOnCanvas(targetCanvas) {
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+            );
+
+            const imageLandmarker = await FaceLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: MODEL_ASSET_PATH
+                },
+                runningMode: "IMAGE",
+                outputFaceBlendshapes: false,
+                outputFacialTransformationMatrixes: false,
+                numFaces: 1,
+                minFaceDetectionConfidence: 0.5,
+                minFacePresenceConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            try {
+                const result = imageLandmarker.detect(targetCanvas);
+                if (!result?.faceLandmarks?.length) {
+                    throw new Error("얼굴이 감지되지 않았습니다.");
+                }
+                return result.faceLandmarks[0];
+            } finally {
+                try { imageLandmarker.close(); } catch (_) { }
+            }
+        }
+
+        function updateEventCounter(flagKey, condition, target, counterKey) {
+            if (condition && !target.flags[flagKey]) {
+                target[counterKey] += 1;
+            }
+            target.flags[flagKey] = condition;
+        }
+
+        function computeBrowFrownValue(points, faceWidth) {
+            const leftBrowInner = getLandmark(points, IDX_LEFT_BROW_INNER);
+            const leftBrowMid = getLandmark(points, IDX_LEFT_BROW_MID);
+            const rightBrowInner = getLandmark(points, IDX_RIGHT_BROW_INNER);
+            const rightBrowMid = getLandmark(points, IDX_RIGHT_BROW_MID);
+            const leftEyeTop = getLandmark(points, IDX_LEFT_EYE_TOP);
+            const rightEyeTop = getLandmark(points, IDX_RIGHT_EYE_TOP);
+            const leftEyeInner = getLandmark(points, IDX_LEFT_EYE_INNER);
+            const rightEyeInner = getLandmark(points, IDX_RIGHT_EYE_INNER);
+
+            if (!leftBrowInner || !leftBrowMid || !rightBrowInner || !rightBrowMid || !leftEyeTop || !rightEyeTop || !leftEyeInner || !rightEyeInner) {
+                return 0;
+            }
+
+            const browY = (leftBrowInner.y + leftBrowMid.y + rightBrowInner.y + rightBrowMid.y) * 0.25;
+            const eyeTopY = (leftEyeTop.y + rightEyeTop.y) * 0.5;
+            const browGap = Math.max(0, eyeTopY - browY);
+
+            const browCenterX = (leftBrowInner.x + rightBrowInner.x) * 0.5;
+            const eyeInnerGap = Math.abs(rightEyeInner.x - leftEyeInner.x);
+            const browInnerGap = Math.abs(rightBrowInner.x - leftBrowInner.x);
+            const browPinch = Math.max(0, (eyeInnerGap - browInnerGap) / Math.max(faceWidth, 0.0001));
+
+            const lowered = Math.max(0, ((0.14 - browGap) / 0.14));
+            const pinched = Math.max(0, Math.min(1, browPinch / 0.12));
+
+            return Math.max(0, Math.min(1, lowered * 0.7 + pinched * 0.3));
+        }
+
+        function updateMetrics(target, nowMs, dtMs) {
+            if (!target.active) return;
+
+            if (smileLeftValue > 0.01 && smileRightValue > 0.01) {
+                target.bothSmilePositiveMs += dtMs;
+            }
+            if (prevGazeY > 0.2) {
+                target.gazeYHighMs += dtMs;
+            }
+
+            updateEventCounter("gazeEvent", Math.abs(prevGazeX) >= 0.10 || Math.abs(prevGazeY) >= 0.10, target, "gazeEventCount");
+            updateEventCounter("gazeXAbs", Math.abs(prevGazeX) >= 0.10, target, "gazeXAbsEventCount");
+            updateEventCounter("smileBoth", (smileLeftValue + smileRightValue) >= 0.10, target, "smileBothCount");
+            updateEventCounter("smileBothJawY", (smileLeftValue + smileRightValue) >= 0.10 && Math.abs(jawMoveYValue) >= 0.10, target, "smileBothJawYCount");
+
+            if (jawOpenValue >= 0.10) {
+                target.jawOpenMs += dtMs;
+            }
+            target.flags.jawOpen = jawOpenValue >= 0.10;
+
+            if (jawOpenValue >= 0.5 && ((smileLeftValue + smileRightValue) / 2) > 0.05) {
+                target.jawOpenSmileMs += dtMs;
+            }
+            target.flags.jawOpenSmile = jawOpenValue >= 0.5 && ((smileLeftValue + smileRightValue) / 2) > 0.05;
+
+            updateEventCounter("pucker", puckerValue >= 0.10, target, "puckerCount");
+            updateEventCounter("funnel", funnelValue >= 0.10, target, "funnelCount");
+
+            //console.log("frown V : " + browFrownValue + ", avg:" +  browFrownAvg);
+            if (browFrownValue - browFrownAvg >= 0.01) {
+                //console.log("got---------------!");
+                target.browFrownMs += dtMs;
+            }
+            target.flags.browFrown = browFrownValue >= 0.03;
+
+            updateEventCounter("yaw", Math.abs(correctedYawDeg) >= 3.0, target, "yawChangeCount");
+            updateEventCounter("pitch", Math.abs(correctedPitchDeg) >= 3.0, target, "pitchChangeCount");
+
+            target.lastMs = nowMs;
+        }
+
+        function processFaceResult(result, nowMs) {
+            if (!result?.faceLandmarks?.length) return;
+
+            latestFaceLandmarks = (result.faceLandmarks[0] || []).map(pt => ({
+                x: canvas.width - Number(pt.x || 0), // 🔥 여기만 수정
+                y: Number(pt.y || 0),
+                z: Number(pt.z || 0)
+            }));
+
+            latestFaceBlendshapes = (result.faceBlendshapes?.[0]?.categories || []).map(c => ({
+                categoryName: c.categoryName,
+                score: Number(c.score || 0)
+            }));
+
+            latestFacialMatrixes = (result.facialTransformationMatrixes || []).map(m => {
+                if (!m?.data) return null;
+                return Array.from(m.data);
+            }).filter(Boolean);
+
+            const points = result.faceLandmarks[0];
+            const blendCategories = result.faceBlendshapes?.[0]?.categories || [];
+
+            const leftOuter = getLandmark(points, IDX_LEFT_EYE_OUTER);
+            const leftInner = getLandmark(points, IDX_LEFT_EYE_INNER);
+            const rightInner = getLandmark(points, IDX_RIGHT_EYE_INNER);
+            const rightOuter = getLandmark(points, IDX_RIGHT_EYE_OUTER);
+            const nose = getLandmark(points, IDX_NOSE_TIP);
+            const upperLip = getLandmark(points, IDX_UPPER_LIP);
+            const lowerLip = getLandmark(points, IDX_LOWER_LIP);
+            const mouthLeft = getLandmark(points, IDX_MOUTH_LEFT);
+            const mouthRight = getLandmark(points, IDX_MOUTH_RIGHT);
+            const leftEyeTop = getLandmark(points, IDX_LEFT_EYE_TOP);
+            const leftEyeBottom = getLandmark(points, IDX_LEFT_EYE_BOTTOM);
+            const rightEyeTop = getLandmark(points, IDX_RIGHT_EYE_TOP);
+            const rightEyeBottom = getLandmark(points, IDX_RIGHT_EYE_BOTTOM);
+
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (const pt of points) {
+                if (!pt) continue;
+                if (pt.x < minX) minX = pt.x;
+                if (pt.x > maxX) maxX = pt.x;
+                if (pt.y < minY) minY = pt.y;
+                if (pt.y > maxY) maxY = pt.y;
+            }
+
+            const faceWidth = Math.max(0.0001, maxX - minX);
+            const faceHeight = Math.max(0.0001, maxY - minY);
+            const mouthWidth = Math.max(0.0001, distance2D(mouthLeft, mouthRight));
+            const mouthOpen = distance2D(upperLip, lowerLip);
+
+            const leftIrisCenter = points.length > 472 ? getIrisCenter(points, 468) : null;
+            const rightIrisCenter = points.length > 477 ? getIrisCenter(points, 473) : null;
+
+            const leftEyeGaze = calcNormalizedEyeGaze(leftOuter, leftInner, leftEyeTop, leftEyeBottom, leftIrisCenter);
+            const rightEyeGaze = calcNormalizedEyeGaze(rightOuter, rightInner, rightEyeTop, rightEyeBottom, rightIrisCenter);
+
+            prevGazeX = clampSigned((leftEyeGaze.x + rightEyeGaze.x) * 0.5, 1);
+            prevGazeY = clampSigned((leftEyeGaze.y + rightEyeGaze.y) * 0.5, 1);
+
+            smileLeftValue = getBlendshapeScore(blendCategories, "mouthSmileLeft");
+            smileRightValue = getBlendshapeScore(blendCategories, "mouthSmileRight");
+            jawOpenValue = getBlendshapeScore(blendCategories, "jawOpen");
+            puckerValue = getBlendshapeScore(blendCategories, "mouthPucker");
+            funnelValue = getBlendshapeScore(blendCategories, "mouthFunnel");
+
+            jawMoveYValue = clampSigned((mouthOpen / mouthWidth - 0.18) / 0.35, 1);
+
+            correctedYawDeg = clampSigned(((nose.x - ((leftOuter.x + rightOuter.x) * 0.5)) / faceWidth) * 90, 30);
+            correctedPitchDeg = clampSigned((((upperLip.y + lowerLip.y) * 0.5 - nose.y) / faceHeight) * 120, 30);
+            browFrownValue = computeBrowFrownValue(points, faceWidth);
+            browFrownHistory.push(browFrownValue);
+
+            // 5개 초과하면 오래된거 제거
+            if (browFrownHistory.length > 5) {
+                browFrownHistory.shift();
+            }
+
+            // 평균 계산
+            let sum = 0;
+            for (let i = 0; i < browFrownHistory.length; i++) {
+                sum += browFrownHistory[i];
+            }
+            browFrownAvg = sum / browFrownHistory.length;
+
+            const eyeLineDx = rightOuter.x - leftOuter.x;
+            const eyeLineDy = rightOuter.y - leftOuter.y;
+            headRollDeg = Math.atan2(eyeLineDy, eyeLineDx) * (180 / Math.PI);
+
+            const leftEyeOpen = Math.max(0.0001, distance2D(leftEyeTop, leftEyeBottom));
+            const rightEyeOpen = Math.max(0.0001, distance2D(rightEyeTop, rightEyeBottom));
+            const eyeWidthL = Math.max(0.0001, distance2D(leftOuter, leftInner));
+            const eyeWidthR = Math.max(0.0001, distance2D(rightOuter, rightInner));
+            const earL = leftEyeOpen / eyeWidthL;
+            const earR = rightEyeOpen / eyeWidthR;
+            const blinkNow = earL < 0.18 && earR < 0.18;
+
+            if (blinkNow && !blinkHigh) {
+                blinkCount += 1;
+                if (metrics.active) metrics.blinkCount += 1;
+                if (countdownMetrics.active) countdownMetrics.blinkCount += 1;
+            }
+            blinkHigh = blinkNow;
+
+            const eyeMoveNow = Math.abs(prevGazeX) > 0.25 || Math.abs(prevGazeY) > 0.25;
+            if (eyeMoveNow && !eyeMoveHigh) {
+                eyeMoveCount += 1;
+            }
+            eyeMoveHigh = eyeMoveNow;
+
+            gazeXEl.textContent = Number(prevGazeX).toFixed(2);
+            gazeYEl.textContent = Number(prevGazeY).toFixed(2);
+            yawEl.textContent = Number(correctedYawDeg).toFixed(1);
+            pitchEl.textContent = Number(correctedPitchDeg).toFixed(1);
+            smileEl.textContent = Number((smileLeftValue + smileRightValue) * 0.5).toFixed(2);
+            jawEl.textContent = Number(jawOpenValue).toFixed(2);
+            blinkCountEl.textContent = String(blinkCount);
+            eyeMoveCountEl.textContent = String(eyeMoveCount);
+
+            const dtMs = prevTimeMs > 0 ? Math.max(0, nowMs - prevTimeMs) : 0;
+            prevTimeMs = nowMs;
+
+            if (dtMs > 0) {
+                updateMetrics(metrics, nowMs, dtMs);
+                updateMetrics(countdownMetrics, nowMs, dtMs);
+            }
+
+            updateTextBoxes();
+        }
+
+        async function loop() {
+            if (!running || !stream || !faceLandmarker) return;
+            const nowMs = performance.now();
+
+            if (video.readyState >= 2) {
+                const result = faceLandmarker.detectForVideo(video, nowMs);
+                processFaceResult(result, nowMs);
+            }
+
+            rafId = requestAnimationFrame(loop);
+        }
+
+        async function analyzeRecordedSpeech() {
+            if (!recordedAudioBlob) {
+                latestAudioAnalysis = null;
+                latestFillerAnalysis = null;
+                latestPromptText = "";
+                return;
+            }
+
+            try {
+                const artifacts = await analyzeSpeechArtifacts({
+                    transcript: transcriptBox.value || "",
+                    audioBlob: recordedAudioBlob
+                });
+
+                /*
+                const lowVoiceTotal = artifacts.audioAnalysis.lowVoiceSegments
+                    .reduce((sum, s) => sum + s.duration, 0);
+
+                const tensionTotal = artifacts.audioAnalysis.tensionSegments
+                    .reduce((sum, s) => sum + s.duration, 0);
+
+                const fadeTotal = artifacts.audioAnalysis.trailingFadeSegments
+                    .reduce((sum, s) => sum + s.duration, 0);
+
+                alert(
+                    `목소리 작은 시간: ${lowVoiceTotal.toFixed(2)}초\n` +
+                    `긴장 시간: ${tensionTotal.toFixed(2)}초\n` +
+                    `말끝 흐림 시간: ${fadeTotal.toFixed(2)}초`
+                );
+                */
+
+                latestAudioAnalysis = artifacts?.audioAnalysis ?? null;
+                latestFillerAnalysis = artifacts?.fillerAnalysis ?? artifacts?.fillers ?? null;
+                latestPromptText = artifacts?.promptText ?? artifacts?.text ?? "";
+            } catch (err) {
+                console.error("analyzeSpeechArtifacts 실패:", err);
+                latestAudioAnalysis = null;
+                latestFillerAnalysis = null;
+                latestPromptText = "";
+            }
+        }
+
+        function getRecorderMimeType() {
+            const candidates = [
+                "audio/webm;codecs=opus",
+                "audio/webm",
+                "audio/mp4",
+                "audio/ogg;codecs=opus"
+            ];
+
+            for (const type of candidates) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported(type)) {
+                    return type;
+                }
+            }
+            return "";
+        }
+
+        async function startAudioRecording() {
+            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            recordedChunks = [];
+            const mimeType = getRecorderMimeType();
+            mediaRecorder = mimeType ? new MediaRecorder(audioStream, { mimeType }) : new MediaRecorder(audioStream);
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                const type = mediaRecorder.mimeType || "audio/webm";
+                recordedAudioBlob = new Blob(recordedChunks, { type });
+                const ext = type.includes("mp4") ? "m4a" : (type.includes("ogg") ? "ogg" : "webm");
+                recordedAudioFileName = `recording_${Date.now()}.${ext}`;
+
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                await analyzeRecordedSpeech();
+                sendBtn.disabled = !(recordedAudioBlob && capturedBlob);
+
+                if (autoProcessAfterStop && recordedAudioBlob && capturedBlob) {
+                    autoProcessAfterStop = false;
+                    await sendToProcessJs();
+                }
+            };
+
+            mediaRecorder.start();
+        }
+
+        function stopAudioRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+            }
+        }
+
+        function startAnalysisWindow() {
+            resetMetricsState(metrics);
+            metrics.active = true;
+            metrics.startMs = performance.now();
+            metrics.lastMs = metrics.startMs;
+            textCBox.value = "4초 측정 진행 중입니다.";
+        }
+
+        function stopAnalysisWindow() {
+            metrics.active = false;
+            textCBox.value = formatTextC();
+        }
+
+        function startCountdownTracking() {
+            resetMetricsState(countdownMetrics);
+            countdownMetrics.active = true;
+            countdownMetrics.startMs = performance.now();
+            countdownMetrics.lastMs = countdownMetrics.startMs;
+        }
+
+        function stopCountdownTracking() {
+            countdownMetrics.active = false;
+            textEBox.value = formatTextE();
+        }
+
+        function stopTimers() {
+            if (captureTimer) clearTimeout(captureTimer);
+            captureTimer = null;
+            if (countdownTimer) clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+
+        function resetCountdown() {
+            countdownValue = 10;
+            countdownStarted = false;
+            countdownCorner.textContent = String(countdownValue);
+            interviewerBigCountdown.classList.remove("show");
+            interviewerBigCountdown.textContent = "";
+        }
+
+        function resetCapture() {
+            captureTaken = false;
+            capturedBlob = null;
+
+            if (capturedDataUrl && capturedDataUrl.startsWith("blob:")) {
+                URL.revokeObjectURL(capturedDataUrl);
+            }
+
+            capturedDataUrl = "";
+            capturedFaceLandmarks = [];
+            capturedFaceMeta = null;
+            latestCapturedRawLandmarks = [];
+            latestFaceBlendshapes = [];
+            latestFacialMatrixes = [];
+            capturedPreviewImage.removeAttribute("src");
+            capturedPreviewSection.classList.remove("visible");
+            setCaptureStatus("면접관 영상 재생 4초 후 표시됩니다.");
+            autoProcessAfterStop = false;
+            sendBtn.disabled = true;
+        }
+
+        function saveFullLandmarksBeforeCapture() {
+            latestCapturedRawLandmarks = latestFaceLandmarks.map((pt, index) => ({
+                index,
+                x: Number(pt.x || 0),
+                y: Number(pt.y || 0),
+                z: Number(pt.z || 0)
+            }));
+        }
+
+        async function beginCountdownAfterCapture() {
+            if (countdownStarted) return;
+            countdownStarted = true;
+
+            await startAudioRecording();
+
+            startCountdownTracking();
+            recordStatus.className = "record-status recording";
+            recordStatus.textContent = "답변 10초 카운트와 측정을 시작합니다.";
+
+            countdownValue = 10;
+            countdownCorner.textContent = String(countdownValue);
+
+            countdownTimer = setInterval(() => {
+                countdownValue -= 1;
+                if (countdownValue < 0) countdownValue = 0;
+                countdownCorner.textContent = String(countdownValue);
+
+                if (countdownValue <= 0) {
+                    autoProcessAfterStop = true;
+                    stopRecording(true);
+                }
+            }, 1000);
+        }
+
+        async function captureStillImage() {
+            if (captureTaken || !video.videoWidth || !video.videoHeight) return;
+            captureTaken = true;
+
+            try {
+                captureSourceCanvas.width = video.videoWidth;
+                captureSourceCanvas.height = video.videoHeight;
+                const sctx = captureSourceCanvas.getContext("2d", { alpha: false });
+                sctx.clearRect(0, 0, captureSourceCanvas.width, captureSourceCanvas.height);
+                sctx.save();
+                sctx.translate(captureSourceCanvas.width, 0);
+                sctx.scale(-1, 1);
+                sctx.drawImage(video, 0, 0, captureSourceCanvas.width, captureSourceCanvas.height);
+                sctx.restore();
+
+                const alignedResult = await processCapturedCanvasToAlignedResult(captureSourceCanvas, "interview-camera");
+
+                capturedFaceLandmarks = alignedResult.landmarks;
+                capturedFaceMeta = {
+                    ...alignedResult.meta,
+                    rawLandmarksBeforeCapture: latestCapturedRawLandmarks
+                };
+                capturedBlob = alignedResult.blob;
+
+                if (capturedDataUrl && capturedDataUrl.startsWith("blob:")) {
+                    URL.revokeObjectURL(capturedDataUrl);
+                }
+                capturedDataUrl = URL.createObjectURL(capturedBlob);
+
+                capturedPreviewImage.src = capturedDataUrl;
+                capturedPreviewSection.classList.add("visible");
+                setCaptureStatus(
+                    `캡쳐 완료 (${capturedFaceMeta.finalWidth}x${capturedFaceMeta.finalHeight}, landmarks ${capturedFaceMeta.landmarkCount}개)`,
+                    "success"
+                );
+                sendBtn.disabled = !(recordedAudioBlob && capturedBlob);
+            } catch (err) {
+                captureTaken = false;
+                capturedBlob = null;
+                capturedFaceLandmarks = [];
+                capturedFaceMeta = null;
+                console.error(err);
+                setCaptureStatus("캡쳐/정렬 실패");
+                throw err;
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function getCapturePoseCheck() {
+            const headTurnBad = Math.abs(correctedYawDeg) > 5.0;
+            const headRollBad = Math.abs(headRollDeg) > 5.0;
+            const headDownBad = correctedPitchDeg < -5.0;
+            const gazeBad = Math.abs(prevGazeX) > 0.25 || Math.abs(prevGazeY) > 0.25;
+            const eyesClosedBad = !!blinkHigh;
+            const noFaceBad = !latestFaceLandmarks || latestFaceLandmarks.length === 0;
+
+            const ok = !(headTurnBad || headRollBad || headDownBad || gazeBad || eyesClosedBad || noFaceBad);
+
+            // 👉 실패 이유 로그
+            if (!ok) {
+                const reasons = [];
+
+                if (headTurnBad) reasons.push(`고개 좌우 회전 (yaw=${correctedYawDeg.toFixed(2)})`);
+                if (headRollBad) reasons.push(`고개 기울기 (roll=${headRollDeg.toFixed(2)})`);
+                if (headDownBad) reasons.push(`고개 숙임 (pitch=${correctedPitchDeg.toFixed(2)})`);
+                if (gazeBad) reasons.push(`시선 이탈 (x=${prevGazeX.toFixed(2)}, y=${prevGazeY.toFixed(2)})`);
+                if (eyesClosedBad) reasons.push(`눈 감김`);
+                if (noFaceBad) reasons.push(`얼굴 인식 없음`);
+
+                console.log("[PoseCheck FAIL]", reasons.join(" | "));
+            }
+
+            return {
+                ok,
+                headTurnBad,
+                headRollBad,
+                headDownBad,
+                gazeBad,
+                eyesClosedBad,
+                noFaceBad
+            };
+        }
+
+        async function showBadPoseWarningAndRetry() {
+            interviewerCaption.style.display = "none";
+            interviewerBigCountdown.classList.add("show");
+            interviewerBigCountdown.style.fontSize = "35px";
+            interviewerBigCountdown.textContent = "카메라를 보고 자세를 잡아주세요";
+
+            recordStatus.className = "record-status recording";
+            recordStatus.textContent = "자세가 맞지 않아 다시 카운트합니다.";
+
+            await sleep(1500);
+
+            interviewerBigCountdown.classList.remove("show");
+            interviewerBigCountdown.textContent = "";
+            interviewerBigCountdown.style.fontSize = "84px";
+        }
+
+        async function runPreCaptureSequence() {
+            if (qSub) {
+                qSub.textContent = "먼저 카메라 촬영을 합니다. 카메라를 봐주세요";
+            }
+
+            interviewerVideo.pause();
+            interviewerVideo.currentTime = 0;
+            interviewerVideoWrap.classList.remove("playing");
+            interviewerVideoWrap.classList.remove("ended");
+
+            recordStatus.className = "record-status recording";
+            recordStatus.textContent = "촬영 준비 중입니다.";
+
+            await sleep(1000);
+
+            while (true) {
+                interviewerCaption.style.display = "block";
+                interviewerCaption.textContent = "먼저 카메라 촬영을 합니다";
+                interviewerBigCountdown.style.fontSize = "84px";
+                interviewerBigCountdown.classList.add("show");
+
+                for (const n of [3, 2, 1]) {
+                    interviewerBigCountdown.textContent = String(n);
+                    await sleep(1000);
+                }
+
+                const poseCheck = getCapturePoseCheck();
+                if (poseCheck.ok) {
+                    break;
+                }
+
+                await showBadPoseWarningAndRetry();
+            }
+
+            saveFullLandmarksBeforeCapture();
+            stopMediapipeOnly();
+            await captureStillImage();
+
+            interviewerBigCountdown.classList.remove("show");
+            interviewerBigCountdown.textContent = "";
+            interviewerBigCountdown.style.fontSize = "84px";
+            interviewerCaption.style.display = "none";
+
+            if (!faceLandmarker) {
+                await createFaceLandmarker();
+            }
+
+            running = true;
+            if (!rafId) loop();
+            deviceBadge.textContent = "미디어파이프 재시작";
+
+            if (qSub) {
+                qSub.textContent = "면접관의 질문에 답하세요";
+            }
+
+            recordStatus.className = "record-status recording";
+            recordStatus.textContent = "촬영 완료. 면접관 질문을 재생합니다.";
+        }
+
+        async function playInterviewerAndStart() {
+            resetCapture();
+            resetCountdown();
+            stopTimers();
+
+            interviewerVideo.pause();
+            interviewerVideo.currentTime = 0;
+            interviewerVideoWrap.classList.remove("ended");
+            interviewerVideoWrap.classList.remove("playing");
+            interviewerCaption.style.display = "none";
+            interviewerBigCountdown.classList.remove("show");
+            interviewerBigCountdown.textContent = "";
+
+            await runPreCaptureSequence();
+
+            interviewerVideo.pause();
+            interviewerVideo.currentTime = 0;
+            interviewerVideoWrap.classList.remove("ended");
+            interviewerVideoWrap.classList.add("playing");
+
+            interviewerCaption.style.display = "block";
+            interviewerCaption.textContent = "지원하게 된 동기를 10초 안에 간단하게 말씀해 보세요";
+
+            startAnalysisWindow();
+
+            captureTimer = setTimeout(() => {
+                stopAnalysisWindow();
+                recordStatus.className = "record-status recording";
+                recordStatus.textContent = "질문 구간 4초 측정이 완료되었습니다.";
+            }, 4000);
+
+            try {
+                await interviewerVideo.play();
+                recordStatus.className = "record-status recording";
+                recordStatus.textContent = "면접관 질문 재생 중입니다.";
+            } catch (e) {
+                console.error(e);
+                stopAnalysisWindow();
+                recordStatus.textContent = "면접관 동영상 재생 실패";
+                throw e;
+            }
+
+            await new Promise(resolve => {
+                const onEnded = () => {
+                    interviewerVideo.removeEventListener("ended", onEnded);
+                    resolve();
+                };
+                interviewerVideo.addEventListener("ended", onEnded);
+            });
+
+            await sleep(1000);
+            await beginCountdownAfterCapture();
+        }
+
+        async function startRecording() {
+            if (isRecording) return;
+
+            if (qSub) {
+                qSub.textContent = "먼저 카메라 촬영을 합니다. 카메라를 봐주세요";
+            }
+
+            if (!stream) {
+                await startCamera();
+            }
+
+            if (!faceLandmarker) {
+                await createFaceLandmarker();
+                running = true;
+                if (!rafId) loop();
+            }
+
+            setRecordUIRecording();
+            recordStatus.className = "record-status recording";
+            recordStatus.textContent = "촬영 준비를 시작합니다.";
+
+            resetMetricsState(metrics);
+            resetMetricsState(countdownMetrics);
+            blinkCount = 0;
+            eyeMoveCount = 0;
+            latestFaceLandmarks = [];
+            capturedFaceLandmarks = [];
+            latestAudioAnalysis = null;
+            latestFillerAnalysis = null;
+            latestPromptText = "";
+            updateTextBoxes();
+
+            await playInterviewerAndStart();
+        }
+
+        function finalizeRecordingUI() {
+            setRecordUIIdle();
+            recordStatus.className = "record-status success";
+            recordStatus.textContent = "녹음이 완료되었습니다.";
+            interviewerVideoWrap.classList.remove("playing");
+            interviewerVideoWrap.classList.add("ended");
+            interviewerCaption.style.display = "none";
+            interviewerBigCountdown.classList.remove("show");
+            interviewerBigCountdown.textContent = "";
+        }
+
+        function stopRecording(triggerAutoProcess = false) {
+            if (!isRecording) return;
+            if (triggerAutoProcess) autoProcessAfterStop = true;
+
+            stopTimers();
+            stopAudioRecording();
+            stopAnalysisWindow();
+            stopCountdownTracking();
+            finalizeRecordingUI();
+            updateTextBoxes();
+        }
+
+        async function sendToProcessJs() {
+            if (!recordedAudioBlob) {
+                alert("녹음파일이 없습니다.");
+                return;
+            }
+            if (!capturedBlob) {
+                alert("캡쳐사진이 없습니다.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("audio", recordedAudioBlob, recordedAudioFileName || "recording.webm");
+            formData.append("captureImage", capturedBlob, `capture_${Date.now()}.jpg`);
+            formData.append("textA", textABox.value || "");
+            formData.append("textB", textBBox.value || "");
+            formData.append("textC", textCBox.value || "");
+            formData.append("textE", textEBox.value || "");
+            formData.append("transcript", transcriptBox.value || "");
+            formData.append("audioAnalysis", JSON.stringify(latestAudioAnalysis || null));
+            formData.append("fillerAnalysis", JSON.stringify(latestFillerAnalysis || null));
+            formData.append("promptText", latestPromptText || "");
+            formData.append("faceLandmarksJson", JSON.stringify(capturedFaceLandmarks || []));
+            formData.append("faceMetaJson", JSON.stringify(capturedFaceMeta || null));
+            formData.append("faceBlendshapesJson", JSON.stringify(latestFaceBlendshapes || []));
+            formData.append("facialMatrixesJson", JSON.stringify(latestFacialMatrixes || []));
+
+            const textBMetricsPayload = {
+                windowLabel: metrics.active ? "진행 중" : (metrics.startMs ? "종료" : "대기"),
+                bothSmilePositiveSeconds: metrics.bothSmilePositiveMs / 1000,
+                gazeYHighSeconds: metrics.gazeYHighMs / 1000,
+                blinkCount: metrics.blinkCount,
+                gazeEventCount: metrics.gazeEventCount,
+                gazeXAbsEventCount: metrics.gazeXAbsEventCount,
+                smileBothCount: metrics.smileBothCount,
+                smileBothJawYCount: metrics.smileBothJawYCount,
+                jawOpenSeconds: metrics.jawOpenMs / 1000,
+                jawOpenSmileSeconds: metrics.jawOpenSmileMs / 1000,
+                puckerCount: metrics.puckerCount,
+                funnelCount: metrics.funnelCount,
+                yawChangeCount: metrics.yawChangeCount,
+                pitchChangeCount: metrics.pitchChangeCount,
+                browFrownSeconds: metrics.browFrownMs / 1000
+            };
+
+            const textEMetricsPayload = {
+                windowLabel: countdownMetrics.active ? "진행 중" : (countdownMetrics.startMs ? "종료" : "대기"),
+                bothSmilePositiveSeconds: countdownMetrics.bothSmilePositiveMs / 1000,
+                gazeYHighSeconds: countdownMetrics.gazeYHighMs / 1000,
+                blinkCount: countdownMetrics.blinkCount,
+                gazeEventCount: countdownMetrics.gazeEventCount,
+                gazeXAbsEventCount: countdownMetrics.gazeXAbsEventCount,
+                smileBothCount: countdownMetrics.smileBothCount,
+                smileBothJawYCount: countdownMetrics.smileBothJawYCount,
+                jawOpenSeconds: countdownMetrics.jawOpenMs / 1000,
+                jawOpenSmileSeconds: countdownMetrics.jawOpenSmileMs / 1000,
+                puckerCount: countdownMetrics.puckerCount,
+                funnelCount: countdownMetrics.funnelCount,
+                yawChangeCount: countdownMetrics.yawChangeCount,
+                pitchChangeCount: countdownMetrics.pitchChangeCount,
+                browFrownSeconds: countdownMetrics.browFrownMs / 1000
+            };
+
+            formData.append("textB_windowLabel", String(textBMetricsPayload.windowLabel));
+            formData.append("textB_bothSmilePositiveSeconds", String(textBMetricsPayload.bothSmilePositiveSeconds));
+            formData.append("textB_gazeYHighSeconds", String(textBMetricsPayload.gazeYHighSeconds));
+            formData.append("textB_blinkCount", String(textBMetricsPayload.blinkCount));
+            formData.append("textB_gazeEventCount", String(textBMetricsPayload.gazeEventCount));
+            formData.append("textB_gazeXAbsEventCount", String(textBMetricsPayload.gazeXAbsEventCount));
+            formData.append("textB_smileBothCount", String(textBMetricsPayload.smileBothCount));
+            formData.append("textB_smileBothJawYCount", String(textBMetricsPayload.smileBothJawYCount));
+            formData.append("textB_jawOpenSeconds", String(textBMetricsPayload.jawOpenSeconds));
+            formData.append("textB_jawOpenSmileSeconds", String(textBMetricsPayload.jawOpenSmileSeconds));
+            formData.append("textB_puckerCount", String(textBMetricsPayload.puckerCount));
+            formData.append("textB_funnelCount", String(textBMetricsPayload.funnelCount));
+            formData.append("textB_yawChangeCount", String(textBMetricsPayload.yawChangeCount));
+            formData.append("textB_pitchChangeCount", String(textBMetricsPayload.pitchChangeCount));
+            formData.append("textB_browFrownSeconds", String(textBMetricsPayload.browFrownSeconds));
+
+            formData.append("textE_windowLabel", String(textEMetricsPayload.windowLabel));
+            formData.append("textE_bothSmilePositiveSeconds", String(textEMetricsPayload.bothSmilePositiveSeconds));
+            formData.append("textE_gazeYHighSeconds", String(textEMetricsPayload.gazeYHighSeconds));
+            formData.append("textE_blinkCount", String(textEMetricsPayload.blinkCount));
+            formData.append("textE_gazeEventCount", String(textEMetricsPayload.gazeEventCount));
+            formData.append("textE_gazeXAbsEventCount", String(textEMetricsPayload.gazeXAbsEventCount));
+            formData.append("textE_smileBothCount", String(textEMetricsPayload.smileBothCount));
+            formData.append("textE_smileBothJawYCount", String(textEMetricsPayload.smileBothJawYCount));
+            formData.append("textE_jawOpenSeconds", String(textEMetricsPayload.jawOpenSeconds));
+            formData.append("textE_jawOpenSmileSeconds", String(textEMetricsPayload.jawOpenSmileSeconds));
+            formData.append("textE_puckerCount", String(textEMetricsPayload.puckerCount));
+            formData.append("textE_funnelCount", String(textEMetricsPayload.funnelCount));
+            formData.append("textE_yawChangeCount", String(textEMetricsPayload.yawChangeCount));
+            formData.append("textE_pitchChangeCount", String(textEMetricsPayload.pitchChangeCount));
+            formData.append("textE_browFrownSeconds", String(textEMetricsPayload.browFrownSeconds));
+
+            sendBtn.disabled = true;
+            recordStatus.className = "record-status";
+            recordStatus.textContent = "process.js 호출 중입니다...";
+
+            try {
+                //return;
+                const response = await fetch(PROCESS_ENDPOINT, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const raw = await response.text();
+                let data = null;
+                try {
+                    data = raw ? JSON.parse(raw) : null;
+                } catch (_) { }
+
+                if (!response.ok) {
+                    throw new Error(data?.error || raw || `HTTP ${response.status}`);
+                }
+
+                recordStatus.className = "record-status success";
+                if (data?.forwardingUrl) {
+                    recordStatus.textContent = "결과 페이지로 이동합니다.";
+                    setTimeout(() => {
+                        window.location.href = data.forwardingUrl;
+                    }, 500);
+                    return;
+                } else {
+                    recordStatus.textContent = data?.message || "process.js 호출 완료";
+                }
+            } catch (err) {
+                console.error(err);
+                recordStatus.className = "record-status";
+                recordStatus.textContent = `호출 실패: ${err.message}`;
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        startBtn.addEventListener("click", startCamera);
+        stopBtn.addEventListener("click", stopCamera);
+
+        recordBtn.addEventListener("click", () => {
+            if (isRecording) {
+                stopRecording(false);
+            } else {
+                startRecording();
+            }
+        });
+
+        sendBtn.addEventListener("click", sendToProcessJs);
+
+        document.querySelector(".back-btn").addEventListener("click", () => history.back());
+
+        window.addEventListener("load", async () => {
+            updateTextBoxes();
+            try {
+                await startCamera();
+            } catch (err) {
+                console.error(err);
+                recordStatus.textContent = "카메라를 시작하지 못했습니다.";
+            }
+        });
+    </script>
+</body>
+</html>

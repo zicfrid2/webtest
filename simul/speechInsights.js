@@ -272,7 +272,7 @@ function detectTrailingFadeSegments(speechSegments) {
     const fades = [];
 
     for (const seg of speechSegments) {
-        if (!seg.samples || seg.samples.length < 8 || seg.duration < 0.7) continue;
+        if (!seg.samples || seg.samples.length < 6 || seg.duration < 0.45) continue;
 
         const sampleCount = seg.samples.length;
         const tailCount = Math.max(3, Math.floor(sampleCount * 0.2));
@@ -284,8 +284,8 @@ function detectTrailingFadeSegments(speechSegments) {
         const tailPitch = mean(tail.map(s => s.pitch).filter(Boolean));
         const bodyPitch = mean(head.map(s => s.pitch).filter(Boolean));
 
-        const fadeByVolume = bodyRms > 0 && tailRms < bodyRms * 0.55;
-        const fadeByPitch = bodyPitch > 0 && tailPitch > 0 && tailPitch < bodyPitch * 0.82;
+        const fadeByVolume = bodyRms > 0 && tailRms < bodyRms * 0.78;
+        const fadeByPitch = bodyPitch > 0 && tailPitch > 0 && tailPitch < bodyPitch * 0.92;
 
         if (fadeByVolume || fadeByPitch) {
             fades.push({
@@ -298,25 +298,60 @@ function detectTrailingFadeSegments(speechSegments) {
         }
     }
 
-    return mergeCloseSegments(fades, 0.15).filter(s => s.duration >= 0.2);
+    return mergeCloseSegments(fades, 0.12).filter(s => s.duration >= 0.10);
 }
 
-function detectLowVoiceSegments(speechSegments, medianSpeechRms) {
+function detectLowVoiceSegments(frames, silenceThreshold, medianSpeechRms) {
     const lowVoice = [];
+    let current = null;
 
-    for (const seg of speechSegments) {
-        if (seg.avgRms < medianSpeechRms * 0.58) {
+    const ABS_MIN_RMS = 0.01; // 절대 최소 음량
+
+    const lowVoiceThreshold = Math.max(
+      ABS_MIN_RMS,
+      silenceThreshold * 0.8,
+      medianSpeechRms * 0.4
+    );
+
+    for (const f of frames) {
+        const isLowVoice = f.rms > silenceThreshold * 0.95 && f.rms < lowVoiceThreshold;
+
+        if (isLowVoice) {
+            if (!current) {
+                current = { start: f.start, end: f.end, samples: [f] };
+            } else {
+                current.end = f.end;
+                current.samples.push(f);
+            }
+        } else if (current) {
+            const duration = current.end - current.start;
+            if (duration >= 0.08) {
+                lowVoice.push({
+                    start: round(current.start, 2),
+                    end: round(current.end, 2),
+                    duration: round(duration, 3),
+                    avgRms: round(mean(current.samples.map(x => x.rms)), 5),
+                    avgPitch: round(mean(current.samples.map(x => x.pitch).filter(Boolean)), 2)
+                });
+            }
+            current = null;
+        }
+    }
+
+    if (current) {
+        const duration = current.end - current.start;
+        if (duration >= 0.08) {
             lowVoice.push({
-                start: seg.start,
-                end: seg.end,
-                duration: round(seg.duration, 3),
-                avgRms: round(seg.avgRms, 5),
-                avgPitch: round(seg.avgPitch || 0, 2)
+                start: round(current.start, 2),
+                end: round(current.end, 2),
+                duration: round(duration, 3),
+                avgRms: round(mean(current.samples.map(x => x.rms)), 5),
+                avgPitch: round(mean(current.samples.map(x => x.pitch).filter(Boolean)), 2)
             });
         }
     }
 
-    return lowVoice;
+    return mergeCloseSegments(lowVoice, 0.10);
 }
 
 function detectTensionSegments(frames, speechThreshold) {
@@ -333,9 +368,11 @@ function detectTensionSegments(frames, speechThreshold) {
     let current = null;
 
     for (const f of speechFrames) {
-        const pitchHigh = f.pitch >= pitchMean + pitchStd * 1.15;
-        const energyHigh = f.rms >= rmsMean + rmsStd * 0.85;
-        const tense = pitchHigh || (pitchHigh && energyHigh) || (f.pitch >= pitchMean + pitchStd * 0.8 && energyHigh);
+        const pitchHigh = f.pitch >= pitchMean + pitchStd * 0.75;
+        const energyHigh = f.rms >= rmsMean + rmsStd * 0.45;
+        const tense =
+            pitchHigh ||
+            (f.pitch >= pitchMean + pitchStd * 0.55 && energyHigh);
 
         if (tense) {
             if (!current) {
@@ -350,7 +387,7 @@ function detectTensionSegments(frames, speechThreshold) {
             }
         } else if (current) {
             const duration = current.end - current.start;
-            if (duration >= 0.25) {
+            if (duration >= 0.12) {
                 raw.push({
                     start: current.start,
                     end: current.end,
@@ -365,7 +402,7 @@ function detectTensionSegments(frames, speechThreshold) {
 
     if (current) {
         const duration = current.end - current.start;
-        if (duration >= 0.25) {
+        if (duration >= 0.12) {
             raw.push({
                 start: current.start,
                 end: current.end,
@@ -376,7 +413,7 @@ function detectTensionSegments(frames, speechThreshold) {
         }
     }
 
-    return mergeCloseSegments(raw, 0.15);
+    return mergeCloseSegments(raw, 0.12);
 }
 
 function toReadableList(title, segments, extraFormatter = null) {
@@ -397,15 +434,25 @@ export async function analyzeAudioBlob(audioBlob) {
     const rmsValues = frames.map(f => f.rms).filter(v => Number.isFinite(v));
     const noiseFloor = percentile(rmsValues, 0.2);
     const silenceThreshold = Math.max(noiseFloor * 1.35, 0.0035);
-    const speechThreshold = Math.max(noiseFloor * 2.6, 0.009);
+    const speechThreshold = Math.max(noiseFloor * 2.0, 0.0065);
 
     const speechSegments = extractSpeechSegments(frames, speechThreshold);
     const silenceSegments = extractSilenceSegments(frames, silenceThreshold);
     const speechRmsValues = speechSegments.map(s => s.avgRms).filter(Boolean);
     const medianSpeechRms = percentile(speechRmsValues, 0.5) || speechThreshold;
 
+    /*
+    console.log("noiseFloor:", noiseFloor);
+    console.log("silenceThreshold:", silenceThreshold);
+    console.log("speechThreshold:", speechThreshold);
+    console.log("speechSegments.length:", speechSegments.length);
+    console.log("medianSpeechRms:", medianSpeechRms);
+    console.log("speechSegments avgRms:", speechSegments.map(s => s.avgRms));
+    */
+
     const trailingFadeSegments = detectTrailingFadeSegments(speechSegments);
-    const lowVoiceSegments = detectLowVoiceSegments(speechSegments, medianSpeechRms);
+    //const lowVoiceSegments = detectLowVoiceSegments(speechSegments, medianSpeechRms);
+    const lowVoiceSegments = detectLowVoiceSegments(frames, silenceThreshold, medianSpeechRms);
     const tensionSegments = detectTensionSegments(frames, speechThreshold);
 
     const totalSpeechTime = speechSegments.reduce((sum, s) => sum + s.duration, 0);
