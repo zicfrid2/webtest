@@ -1,6 +1,6 @@
 ﻿window.__FACE_FX_DEFAULTS__ = {
     // 4. 콧볼 축소 워프
-    noseWingSlim: 10,
+    noseWingSlim: 5,
     // 5. 코 입체감 보정
     noseDepth: 0,
     // 6. 눈매 강화
@@ -8,7 +8,7 @@
     irisBlack: 100,
 
     // 🔥 추가 (눈 윗라인 리프트)
-    eyeUpperLift: 80,
+    eyeUpperLift: 50,
 
     // 🔥 추가 (입꼬리 올림 워프)
     mouthSmileLift: 50,
@@ -30,10 +30,10 @@
     faceSharpen: 15,
     faceWhiten: 2,
 
-    faceOvalSmooth: 100,
+    faceOvalSmooth: 40,
     faceContourSmoot: 100,
     blemishRemove: 120,
-    eyeLowerLift: 10
+    eyeLowerLift: 0
 
 };
 
@@ -60,6 +60,7 @@ const RIGHT_EYE = [
 const LEFT_EYE_UPPER = [33, 246, 161, 160, 159, 158, 157, 173, 133];
 const RIGHT_EYE_UPPER = [362, 466, 388, 387, 386, 385, 384, 398, 263];
 
+
 const LEFT_EYE_LOWER = [33, 7, 163, 144, 145, 153, 154, 155, 133];
 const RIGHT_EYE_LOWER = [362, 249, 390, 373, 374, 380, 381, 382, 263];
 
@@ -82,6 +83,7 @@ const INNER_LIPS = [
     308, 415, 310, 311, 312, 13, 82, 81, 80, 191
 ];
 */
+const upperLipTopFull = [61, 185, 40, 39, 37, 267, 269, 270, 409];
 
 const OUTER_LIPS = [
     61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
@@ -482,7 +484,7 @@ function applyEyebrowCleanup(ctx, canvas, landmarks, fxData) {
                 x + jitterX,
                 y + jitterY,
                 [targetR, targetG, targetB],
-                finalAlpha * 0.85,
+                finalAlpha * 0.35,
                 angle,
                 length,
                 width
@@ -643,7 +645,7 @@ function applyNoseWingSlimWarp(ctx, canvas, landmarks, fxData) {
     const sigmaX = Math.max(10, noseWidth * 0.42);
     const sigmaY = Math.max(12, noseHeight * 0.34);
 
-    const inwardAmount = noseWidth * (0.06 + strength * 0.16);
+    const inwardAmount = noseWidth * (0.01 + strength * 0.16);
     const liftAmount = noseHeight * (0.01 + strength * 0.04);
 
     const padX = Math.max(24, Math.round(noseWidth * 1.0));
@@ -906,16 +908,29 @@ function applyLipEnhancement(ctx, canvas, landmarks, fxData) {
     const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const px = img.data;
 
-    const lipMask = buildPolygonMask(ctx, canvas, landmarks, OUTER_LIPS, 12).data;
-    const innerMask = buildPolygonMask(ctx, canvas, landmarks, INNER_LIPS, 10).data;
-
     const cx = (left.x + right.x) * 0.5;
     const cy = (upper.y + lower.y) * 0.5;
+
+    // 바깥으로 퍼지지 않도록, outer lip를 중심쪽으로 수축해서 마스크 생성
+    const contractedOuterMask = buildContractedLipMask(
+        ctx,
+        canvas,
+        landmarks,
+        OUTER_LIPS,
+        cx,
+        cy,
+        0.14,   // 수축 비율. 0.10~0.18 정도에서 조절
+        2       // feather
+    ).data;
+
+    // 안쪽 입술은 glow/강조 가중치용
+    const innerMask = buildPolygonMask(ctx, canvas, landmarks, INNER_LIPS, 1).data;
+
     const sx = Math.max(20, Math.abs(right.x - left.x) * 0.22);
-    const sy = Math.max(12, Math.abs(lower.y - upper.y) * 1.25);
+    const sy = Math.max(12, Math.abs(lower.y - upper.y) * 1.10);
 
     for (let i = 0; i < px.length; i += 4) {
-        const outerA = lipMask[i] / 255;
+        const outerA = contractedOuterMask[i] / 255;
         if (outerA <= 0.001) continue;
 
         const idx = i / 4;
@@ -930,13 +945,14 @@ function applyLipEnhancement(ctx, canvas, landmarks, fxData) {
         let b = px[i + 2];
 
         const avg = (r + g + b) / 3;
-        const satBoost = 1 + lipSaturation * (0.45 + innerA * 0.15);
-        const brightnessBoost = lipBrightness * (12 + (avg < 110 ? 10 : 0));
-        const centerBoost = centerGlow * 18;
+
+        const satBoost = 1 + lipSaturation * (0.38 + innerA * 0.12);
+        const brightnessBoost = lipBrightness * (10 + (avg < 110 ? 8 : 0));
+        const centerBoost = centerGlow * 14 * innerA; // glow도 안쪽 중심에만 더 강하게
 
         r = avg + (r - avg) * satBoost + brightnessBoost + centerBoost;
-        g = avg + (g - avg) * (1 + lipSaturation * 0.14) + brightnessBoost * 0.25 + centerBoost * 0.3;
-        b = avg + (b - avg) * (1 + lipSaturation * 0.10) + brightnessBoost * 0.18 + centerBoost * 0.25;
+        g = avg + (g - avg) * (1 + lipSaturation * 0.12) + brightnessBoost * 0.22 + centerBoost * 0.25;
+        b = avg + (b - avg) * (1 + lipSaturation * 0.08) + brightnessBoost * 0.16 + centerBoost * 0.20;
 
         px[i] = clamp(lerp(px[i], r, outerA), 0, 255);
         px[i + 1] = clamp(lerp(px[i + 1], g, outerA), 0, 255);
@@ -944,6 +960,40 @@ function applyLipEnhancement(ctx, canvas, landmarks, fxData) {
     }
 
     ctx.putImageData(img, 0, 0);
+}
+
+function buildContractedLipMask(ctx, canvas, landmarks, indices, cx, cy, shrinkRatio = 0.14, feather = 2) {
+    const maskCanvas = document.createElement("canvas");
+    maskCanvas.width = canvas.width;
+    maskCanvas.height = canvas.height;
+    const mctx = maskCanvas.getContext("2d");
+
+    const pts = indices
+        .map(i => getLm(landmarks, i))
+        .filter(Boolean)
+        .map(p => ({
+            x: cx + (p.x - cx) * (1 - shrinkRatio),
+            y: cy + (p.y - cy) * (1 - shrinkRatio)
+        }));
+
+    if (pts.length < 3) {
+        return mctx.createImageData(canvas.width, canvas.height);
+    }
+
+    mctx.clearRect(0, 0, canvas.width, canvas.height);
+    mctx.beginPath();
+    mctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+        mctx.lineTo(pts[i].x, pts[i].y);
+    }
+    mctx.closePath();
+
+    mctx.fillStyle = "#fff";
+    mctx.shadowColor = "#fff";
+    mctx.shadowBlur = feather;
+    mctx.fill();
+
+    return mctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 function buildPolygonMask(ctx, canvas, landmarks, indices, blurRadius) {
@@ -1021,68 +1071,43 @@ function applyEyeUpperLiftWarp(ctx, canvas, landmarks, fxData) {
     const dstImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const dst = dstImg.data;
 
-    const processEye = (targetIdx, lowerIdx, outerIdx, innerIdx) => {
+    const warpPoint = (targetIdx, outerIdx, innerIdx, forceScale = 1.0) => {
+        const target = getLm(landmarks, targetIdx);
         const outer = getLm(landmarks, outerIdx);
         const inner = getLm(landmarks, innerIdx);
-        if (!outer || !inner) return;
-
-        const lowerCenter = avgPoint(landmarks, lowerIdx);
-        if (!lowerCenter) return;
-
-        const targetPts = targetIdx.map(i => ({
-            idx: i,
-            pt: getLm(landmarks, i)
-        })).filter(v => v.pt);
-
-        if (!targetPts.length) return;
-
-        const centerItem = targetPts.find(v => v.idx === targetIdx[1]) || targetPts[1];
-        if (!centerItem) return;
+        if (!target || !outer || !inner) return;
 
         const eyeWidth = Math.max(12, Math.abs(inner.x - outer.x));
-        const eyeHeight = Math.max(6, Math.abs(lowerCenter.y - centerItem.pt.y));
 
-        const minX = Math.max(0, Math.floor(Math.min(outer.x, inner.x) - eyeWidth * 0.35));
-        const maxX = Math.min(canvas.width - 1, Math.ceil(Math.max(outer.x, inner.x) + eyeWidth * 0.35));
-        const minY = Math.max(0, Math.floor(centerItem.pt.y - eyeHeight * 2.4));
-        const maxY = Math.min(canvas.height - 1, Math.ceil(lowerCenter.y + eyeHeight * 0.25));
+        const minX = Math.max(0, Math.floor(target.x - eyeWidth * 0.75));
+        const maxX = Math.min(canvas.width - 1, Math.ceil(target.x + eyeWidth * 0.75));
+        const minY = Math.max(0, Math.floor(target.y - eyeWidth * 0.45));
+        const maxY = Math.min(canvas.height - 1, Math.ceil(target.y + eyeWidth * 0.22));
 
-        const sigmaX = Math.max(3, eyeWidth * 0.16);
-        const sigmaY = Math.max(1.5, eyeHeight * 0.11);
+        const sigmaX = Math.max(3, eyeWidth * 0.34);
+        const sigmaY = Math.max(2, eyeWidth * 0.09);
 
-        const sideLift = eyeHeight * (0.10 + strength * 0.42);
-        const centerLift = eyeHeight * (0.16 + strength * 0.68);
+        const liftAmount = eyeWidth * (0.02 + strength * 0.3) * forceScale;
 
-        const liftPoints = targetPts.map(({ idx, pt }) => ({
-            pt,
-            lift: (idx === targetIdx[1]) ? centerLift : sideLift
-        }));
+        // 중심은 강하고, 바깥은 더 빨리 약해지게
+        const falloffPower = 2;
 
         for (let y = minY; y <= maxY; y++) {
             for (let x = minX; x <= maxX; x++) {
-                let totalLift = 0;
+                if (y > target.y) continue;
 
-                for (const item of liftPoints) {
-                    const g = gaussian2D(
-                        x - item.pt.x,
-                        y - item.pt.y,
-                        sigmaX,
-                        sigmaY
-                    );
-                    if (g < 0.0008) continue;
-                    totalLift += item.lift * g;
-                }
-
-                if (totalLift <= 0.0001) continue;
-
-                const upperMask = clamp(
-                    (lowerCenter.y - y) / Math.max(4, eyeHeight),
-                    0,
-                    1
+                const g0 = gaussian2D(
+                    x - target.x,
+                    y - target.y,
+                    sigmaX,
+                    sigmaY
                 );
-                if (upperMask <= 0) continue;
 
-                const dy = -(totalLift * upperMask);
+                const g = Math.pow(g0, falloffPower);
+                if (g < 0.0008) continue;
+
+                // 중심 근처일수록 더 위로
+                const dy = -(liftAmount * g);
 
                 const rgba = bilinearSampleImageData(
                     src,
@@ -1096,13 +1121,22 @@ function applyEyeUpperLiftWarp(ctx, canvas, landmarks, fxData) {
                 dst[di] = rgba[0];
                 dst[di + 1] = rgba[1];
                 dst[di + 2] = rgba[2];
-                dst[di + 3] = 255;
+                dst[di + 3] = rgba[3];
             }
         }
     };
 
-    processEye([161, 159, 157], [145, 153], 33, 133);
-    processEye([384, 386, 388], [374, 380], 362, 263);
+    // 왼쪽 눈
+    warpPoint(159, 33, 133, 1.0);
+    warpPoint(160, 33, 133, 0.75);
+    warpPoint(158, 33, 133, 0.55);
+    //warpPoint(246, 33, 133, 1.0);
+
+    // 오른쪽 눈
+    warpPoint(386, 362, 263, 1.0);
+    warpPoint(387, 362, 263, 0.75);
+    warpPoint(385, 362, 263, 0.55);
+    //warpPoint(466, 362, 263, 1.0);
 
     ctx.putImageData(dstImg, 0, 0);
 }
@@ -1262,7 +1296,7 @@ function applyMouthCornerLiftWarp(ctx, canvas, landmarks, fxData) {
 
     // 1) 입꼬리 위 + 바깥
     const upRatio = 0.78;
-    const sideRatio = 0.85;
+    const sideRatio = 0.75;
 
     // 2) 볼/팔자 약하게 바깥 + 살짝 위
     const cheekSideRatio = 0.14;
@@ -1306,7 +1340,7 @@ function applyMouthCornerLiftWarp(ctx, canvas, landmarks, fxData) {
     const rightCheekY = rightCorner.y - mouthWidth * 0.10;
 
     // 입꼬리 2차 lift
-    const strength2 = strength * 0.25;
+    const strength2 = strength * 0.2;
     const movePx2 = mouthWidth * 0.21 * strength2;
     const sigmaX2 = sigmaX * 0.28;
     const sigmaY2 = sigmaY * 0.82;

@@ -56,6 +56,27 @@ function clampScore(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
+function parseTotalAIScoreFromResult(resultText = "") {
+    const text = String(resultText || "");
+    const patterns = [
+        /\b전체\s*평가\s*점수\b\s*[:：]?\s*(\d+(?:\.\d+)?)\s*점/i,
+        /\b평가\s*점수\b\s*[:：]?\s*(\d+(?:\.\d+)?)\s*점/i,
+        /\b점수\b\s*[:：]?\s*(\d+(?:\.\d+)?)\s*점/i,
+        /(\d+(?:\.\d+)?)\s*점\s*\(\s*20\s*점\s*만점\s*\)/i
+    ];
+
+    for (const regex of patterns) {
+        const match = text.match(regex);
+        if (match) {
+            const score = Number(match[1]);
+            if (Number.isFinite(score)) {
+                return Math.max(0, Math.min(20, score));
+            }
+        }
+    }
+    return 0;
+}
+
 function safeJsonParse(value, fallback = null) {
     if (value == null || value === "") return fallback;
     if (typeof value === "object") return value;
@@ -406,7 +427,7 @@ function buildTextFScoreSnapshot(metricsRaw) {
     const m = normalizeMetricsInput(metricsRaw);
     const browFrownPenaltyScore = clampScore(2 + (m.browFrownSeconds * -1), -4, 2);
 
-    let mouthCornerScore = clampScore(m.bothLowSeconds * 0.5, 0, 5);
+    let mouthCornerScore = clampScore(m.bothLowSeconds * 2, 0, 5);
     mouthCornerScore = clampScore(mouthCornerScore + m.jawOpenSmileMs * 2, 0, 5);
 
     const gazeYScore = clampScore(5 - (m.gazeYHighSeconds * 0.5), 0, 5);
@@ -515,13 +536,12 @@ function buildTextGScoreSnapshot(audioAnalysisRaw) {
     const lowVoiceSeconds = getSegmentDurationSeconds(lowVoiceSegments);
 
     const silence2Score = clampScore(5 - silence2Count * 3, 0, 5);
-    const silence3Score = clampScore(5 - silence3Count * 5, 0, 5);
+    const silence3Score = clampScore(silence2Score - silence3Count * 5, 0, 5);
     const trailingFadeScore = clampScore(5 - trailingFadeSeconds * 3, 0, 5);
     const tensionScore = clampScore(5 - tensionSeconds * 3, 0, 5);
     const lowVoiceScore = clampScore(5 - lowVoiceSeconds * 3, 0, 5);
 
     const totalScore =
-        silence2Score +
         silence3Score +
         trailingFadeScore +
         tensionScore +
@@ -607,27 +627,22 @@ function setDefaultPromptText() {
     return `너는 면접 답변 코치다.
 아래 정보를 모두 참고해 한국어로 분석해라.
 
-반드시 함께 고려할 정보:
-1. 면접 질문은 지원동기를 소개하세요
-2. 면접 답변 텍스트
+1. 면접 질문은 지원동기를 말하세요 이다.
+2. 면접 답변은 아래의 [답변 텍스트]를 참고
 
-출력 형식:
-1. 전체 평가 점수(20점 만점)
+출력 형식
+1. 전체 평가 점수 : 20점 (20점 만점)
 2. 감점 요인
 3. 가장 먼저 고칠 1가지
-
 최대한 간결하게 작성해라.`;
 }
 
 function buildAnalyzePrompt({ customPrompt, transcript, speechInsights }) {
     return [
-        String(customPrompt || "").trim() || setDefaultPromptText(),
+        setDefaultPromptText(),
         "",
         "[답변 텍스트]",
-        String(transcript || "").trim() || "(없음)",
-        "",
-        "[음성 인사이트]",
-        String(speechInsights || "").trim() || "(없음)"
+        String(transcript || "").trim() || "(없음)"
     ].join("\n");
 }
 
@@ -700,11 +715,105 @@ async function callOpenAIIfRequested(prompt) {
 /* -------------------------
  * forwarding page
  * ------------------------- */
+
+function toPercentScore(score, max) {
+    const s = Number(score || 0);
+    const m = Number(max || 0);
+    if (!Number.isFinite(s) || !Number.isFinite(m) || m <= 0) return 0;
+    return Math.max(0, Math.min(100, (s / m) * 100));
+}
+
+function formatPercent100(value) {
+    const n = Number(value || 0);
+    const rounded = Math.round(Number.isFinite(n) ? n : 0);
+    const safeScore = Math.max(5, rounded);
+    return `${safeScore}/100`;
+}
+
+function getImpressionComment(type, percent) {
+    if (type === "expression") {
+        if (percent < 50) return "미소 표현이 부족해 보여 표정 호감도를 우선 개선할 필요가 있습니다.";
+        if (percent < 80) return "표정은 무난하지만, 입꼬리와 미소 유지가 더 자연스러워지면 인상이 좋아집니다.";
+        return "자연스러운 미소가 잘 유지되어 호감 있는 표정이 형성되어 있습니다.";
+    }
+
+    if (type === "gaze") {
+        if (percent < 50) return "시선 처리의 흔들림이 커 보여 정면 응시와 눈맞춤 연습이 시급합니다.";
+        if (percent < 80) return "시선 처리는 전반적으로 무난하지만, 흔들림을 조금 더 줄이면 더 안정적으로 보입니다.";
+        return "시선이 안정적이고 자연스러워 신뢰감 있는 인상을 줍니다.";
+    }
+
+    if (type === "stability") {
+        if (percent < 50) return "입습관이나 고개 움직임이 보여 전체 안정감을 우선적으로 보완할 필요가 있습니다.";
+        if (percent < 80) return "전체적으로 무난하지만, 불필요한 움직임을 줄이면 더 차분하고 안정적으로 보입니다.";
+        return "불필요한 움직임이 적어 차분하고 안정감 있는 인상을 잘 주고 있습니다.";
+    }
+
+    return "";
+}
+
+function buildOverallImpressionFeedback(textDScore, textFScore) {
+    const expressionRaw =
+        Number(textDScore?.mouthCornerScore || 0) +
+        Number(textFScore?.mouthCornerScore || 0);
+    const expressionPercent = toPercentScore(expressionRaw, 16);
+
+    const gazeRaw =
+        Number(textDScore?.gazeYScore || 0) +
+        Number(textDScore?.gazeXScore || 0) +
+        Number(textDScore?.blinkScore || 0) +
+        Number(textFScore?.gazeYScore || 0) +
+        Number(textFScore?.gazeXScore || 0) +
+        Number(textFScore?.blinkScore || 0);
+    const gazePercent = toPercentScore(gazeRaw, 28);
+
+    const stabilityRaw =
+        Number(textDScore?.mouthHabitPenaltyScore || 0) +
+        Number(textDScore?.headMovePenaltyScore || 0) +
+        Number(textFScore?.mouthHabitPenaltyScore || 0) +
+        Number(textFScore?.headMovePenaltyScore || 0);
+    const stabilityPercent = toPercentScore(stabilityRaw, 16);
+
+    const items = [
+        {
+            key: "expression",
+            title: "표정 호감도",
+            percent: expressionPercent,
+            display: formatPercent100(expressionPercent),
+            message: getImpressionComment("expression", expressionPercent)
+        },
+        {
+            key: "gaze",
+            title: "시선 처리",
+            percent: gazePercent,
+            display: formatPercent100(gazePercent),
+            message: getImpressionComment("gaze", gazePercent)
+        },
+        {
+            key: "stability",
+            title: "전체 안정감",
+            percent: stabilityPercent,
+            display: formatPercent100(stabilityPercent),
+            message: getImpressionComment("stability", stabilityPercent)
+        }
+    ];
+
+    items.sort((a, b) => a.percent - b.percent);
+
+    return items.map((item, index) => ({
+        ...item,
+        urgent: index === 0
+    }));
+}
+
+
 function renderForwardPage(id, item) {
     const captureImageUrl = String(item?.captureImageUrl || "");
     const textDScore = item?.textDSnapshot || {};
     const textFScore = item?.textFSnapshot || {};
     const textGScore = item?.textGSnapshot || {};
+
+
 
     function toFixedScore(v) {
         const n = Number(v);
@@ -1011,64 +1120,65 @@ function renderForwardPage(id, item) {
     const totalD = Number(textDScore.totalScore || 0);
     const totalF = Number(textFScore.totalScore || 0);
     const totalG = Number(textGScore.totalScore || 0);
-    const overallTotal = totalD + totalF + totalG;
+    let totalAI = Number(item?.totalAI || 0);
+    let overallTotal = totalD + totalF + totalG + totalAI;
 
-    const overallImproveItems = [
-        {
-            sectionTitle: "첫인상분석",
-            totalScore: totalD,
-            totalMax: 40,
-            detail: pickLowestImprovement(firstImpressionItems)
-        },
-        {
-            sectionTitle: "텍스트F",
-            totalScore: totalF,
-            totalMax: 20,
-            detail: pickLowestImprovement(textFItems)
-        },
-        {
-            sectionTitle: "텍스트G",
-            totalScore: totalG,
-            totalMax: 20,
-            detail: pickLowestImprovement(textGItems)
-        }
-    ];
+    const overallImproveItems = buildOverallImpressionFeedback(textDScore, textFScore);
 
     function renderTrainingButton(index) {
         if (index === 0) {
             return `
-              <a href="#" class="train-btn" data-training="smile">스마일 트레이닝</a>
+              <a href="/training/netural_training.html" class="train-btn" data-training="smile">스마일 트레이닝 시작</a>
             `;
         }
         if (index === 1) {
             return `
-              <a href="#" class="train-btn" data-training="gaze">시선 트레이닝</a>
+              <a href="/training/focus_main4.html" class="train-btn" data-training="gaze">시선 교정 연습하기</a>
             `;
         }
         return "";
     }
 
     function renderOverallImproveItem(item, index) {
-        const detail = item.detail || {
-            label: "개선 포인트 없음",
-            score: 0,
-            max: 0,
-            message: "현재 표시할 개선 포인트가 없습니다."
-        };
+        const scoreColorClass =
+            item.percent >= 80
+                ? "score-blue"
+                : item.percent >= 60
+                    ? "score-green"
+                    : "score-red";
+
+        // 🔥 가장 시급
+        const urgentBadge = item.urgent
+            ? `<span class="urgent-badge"> - 🔥 가장 시급</span>`
+            : "";
+
+        // ✔ 우수 (90점 이상)
+        const excellentBadge = item.percent >= 90
+            ? `<span class="excellent-badge"> ✔우수</span>`
+            : "";
 
         return `
-          <div class="overall-improve-item">
-            <div class="overall-improve-head">
-              <div class="overall-improve-section">${escapeHtml(item.sectionTitle)}</div>
-              <div class="overall-improve-total">${toFixedScore(item.totalScore)} / ${toFixedScore(item.totalMax)}</div>
+      <div class="overall-improve-item ${item.urgent ? "urgent-item" : ""}">
+        <div class="overall-improve-main">
+          <div class="overall-improve-head">
+            <div class="overall-improve-label">
+              ${escapeHtml(item.title)}
+              ${urgentBadge}
+              ${excellentBadge}
             </div>
-            <div class="overall-improve-label">${escapeHtml(detail.label)} <span class="overall-improve-penalty">${escapeHtml(formatPenaltyFromMax(detail.score, detail.max))}</span></div>
-            <div class="overall-improve-message">${escapeHtml(detail.message || "")}</div>
-            <div class="overall-improve-actions">
-              ${renderTrainingButton(index)}
+            <div class="overall-improve-score ${scoreColorClass}">
+              ${escapeHtml(item.display)}
             </div>
           </div>
-        `;
+          <div class="overall-improve-message">
+            ${escapeHtml(item.message || "")}
+          </div>
+        </div>
+        <div class="overall-improve-side">
+          ${renderTrainingButton(index)}
+        </div>
+      </div>
+    `;
     }
 
     return `<!DOCTYPE html>
@@ -1123,7 +1233,7 @@ function renderForwardPage(id, item) {
       gap: 16px;
     }
     .hero {
-      padding: 24px 20px;
+      padding: 14px 10px;
       border-radius: var(--radius-2xl);
       color: #fff;
       background: linear-gradient(135deg, #2f73d9 0%, #76adff 55%, #9ec5ff 100%);
@@ -1360,54 +1470,78 @@ function renderForwardPage(id, item) {
       gap: 10px;
     }
     .overall-improve-item {
+      display: grid;
+      grid-template-columns: 7.2fr 2.8fr;
+      gap: 12px;
+      align-items: center;
       padding: 12px 14px;
       border-radius: 16px;
       background: #f8fbff;
       box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
     }
+
+    .overall-improve-main {
+      min-width: 0;
+    }
+
     .overall-improve-head {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 6px;
     }
-    .overall-improve-section {
-      font-size: 13px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--blue);
-    }
-    .overall-improve-total {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+
     .overall-improve-label {
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.35;
       font-weight: 900;
       color: var(--navy);
-      margin-bottom: 6px;
+      margin-bottom: 0;
     }
-    .overall-improve-penalty {
-      color: #e33b3b;
+
+    .overall-improve-score {
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .overall-improve-score.score-blue {
+      color: #0f3d91; /* 진한 파랑 */
+    }
+
+    .overall-improve-score.score-green {
+      color: #176b2c; /* 진한 초록 */
+    }
+
+    .overall-improve-score.score-red {
+      color: #b42318; /* 진한 빨강 */
+    }
+
+    .urgent-badge {
+      color: #b42318;
       font-size: 13px;
       font-weight: 900;
     }
+
     .overall-improve-message {
       font-size: 13px;
       line-height: 1.55;
       font-weight: 800;
       color: var(--text);
     }
-    .overall-improve-actions {
+
+    .overall-improve-side {
       display: flex;
+      align-items: center;
       justify-content: flex-end;
-      margin-top: 10px;
     }
+
+    .overall-improve-actions {
+      display: contents;
+    }
+
     .train-btn {
       display: inline-flex;
       align-items: center;
@@ -1421,6 +1555,7 @@ function renderForwardPage(id, item) {
       font-size: 12px;
       font-weight: 900;
       box-shadow: 0 8px 16px rgba(47,115,217,0.18);
+      white-space: nowrap;
     }
 
     .first-impression-card {
@@ -1553,6 +1688,54 @@ function renderForwardPage(id, item) {
       color: var(--text);
     }
 
+    .weighted-bar-container {
+  display: flex;
+  gap: 8px;
+}
+
+    /* 비중 */
+    .weighted-item.impression { flex: 5; }
+    .weighted-item.voice { flex: 2.5; }
+    .weighted-item.answer { flex: 2.5; }
+
+    .weighted-item {
+      background: #f8fbff;
+      padding: 10px;
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+    }
+
+    .weighted-item .label {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .weighted-item .score {
+      font-size: 14px;
+      font-weight: 900;
+      margin: 4px 0;
+    }
+
+    .bar-track {
+      height: 8px;
+      background: #e0e7f5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .excellent-badge {
+      color: #6b3df0;
+      font-size: 13px;
+      font-weight: 900;
+      margin-left: 4px;
+    }
+
     @media (max-width: 560px) {
       .ba-grid,
       .score-total-row,
@@ -1581,6 +1764,59 @@ function renderForwardPage(id, item) {
       .overall-improve-actions {
         justify-content: flex-start;
       }
+      .overall-improve-item {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .overall-improve-side {
+        justify-content: flex-start;
+      }
+
+    .detail-toggle {
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .detail-summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      padding: 16px 18px;
+      border-radius: var(--radius-2xl);
+      background: rgba(255,255,255,0.96);
+      box-shadow: var(--shadow-lg);
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--navy);
+    }
+
+    .detail-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .detail-toggle[open] .detail-summary {
+      margin-bottom: 12px;
+    }
+
+    .result-label-box {
+      width: 100%;
+      border-radius: 16px;
+      padding: 14px;
+      background: #f7fbff;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+      white-space: pre-line;
+      word-break: keep-all;
+    }
+
+    .hidden-dev-section {
+      display: none !important;
+    }
+
     }
   </style>
 </head>
@@ -1589,40 +1825,57 @@ function renderForwardPage(id, item) {
     <div class="content">
 
       <section class="hero">
-        <h1>종합 분석 결과</h1>
-        <p>부족한 부분은 바로 훈련을 통하여 점수를 높이세요</p>
-        <div class="hero-id">ID: ${escapeHtml(id)}</div>
+        <h1>종합 점수</h1>
+        <!--<p>부족한 부분은 바로 훈련을 통하여 점수를 높이세요</p>
+        <div class="hero-id">ID: ${escapeHtml(id)}</div>-->
       </section>
 
       <section class="overall-summary-card">
-        <div class="overall-summary-title">최종 종합 점수</div>
+        <div class="overall-summary-title">당신의 표정,시선,음성,답변 분석 종합 점수</div>
 
         <div class="overall-summary-top">
-          <div class="overall-summary-score">
-            ${toFixedScore(overallTotal)}점 / 80점
+          <div class="overall-summary-score" id="overallSummaryScore">
+            ${toFixedScore(overallTotal)}점 / 100점
           </div>
           <div class="score-right">
             <div class="score-bar-track">
-              <div class="${overallTotal < 40 ? "score-bar-fill danger" : "score-bar-fill"}" style="width:${clampBar(overallTotal, 80)}%"></div>
+              <div
+                id="overallSummaryBar"
+                class="${overallTotal < 50 ? "score-bar-fill danger" : "score-bar-fill"}"
+                style="width:${clampBar(overallTotal, 100)}%">
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="overall-meta-row">
-          <div class="overall-meta-box">
-            <div class="overall-meta-label">첫인상분석</div>
-            <div class="overall-meta-value">${toFixedScore(totalD)} / 40</div>
-          </div>
-          <div class="overall-meta-box">
-            <div class="overall-meta-label">텍스트F</div>
-            <div class="overall-meta-value">${toFixedScore(totalF)} / 20</div>
-          </div>
-          <div class="overall-meta-box">
-            <div class="overall-meta-label">텍스트G</div>
-            <div class="overall-meta-value">${toFixedScore(totalG)} / 20</div>
+        <div class="weighted-bar-container">
+
+        <div class="weighted-item impression">
+          <div class="label">인상 - 표정/시선/안정감</div>
+          <div class="score" id="impressionScoreText">${toFixedScore(totalD + totalF)} / 60</div>
+          <div class="bar-track">
+            <div class="bar-fill" id="impressionScoreBar" style="width:${((totalD + totalF) / 60) * 100}%"></div>
           </div>
         </div>
 
+        <div class="weighted-item voice">
+          <div class="label">음성</div>
+          <div class="score" id="voiceScoreText">${toFixedScore(totalG)} / 20</div>
+          <div class="bar-track">
+            <div class="bar-fill" id="voiceScoreBar" style="width:${(totalG / 20) * 100}%"></div>
+          </div>
+        </div>
+
+        <div class="weighted-item answer">
+          <div class="label" id="answerSectionLabel">${Number(totalAI) > 0 ? "답변내용" : "답변내용 - 산출중"}</div>
+          <div class="score" id="answerScoreText">${toFixedScore(totalAI)} / 20</div>
+          <div class="bar-track">
+            <div class="bar-fill" id="answerScoreBar" style="width:${(totalAI / 20) * 100}%"></div>
+          </div>
+        </div>
+
+        </div>
+        <br>
         <div class="overall-improve-title">지금 가장 먼저 고칠 개선사항</div>
         <div class="overall-improve-list">
           ${overallImproveItems.map((item, index) => renderOverallImproveItem(item, index)).join("")}
@@ -1636,7 +1889,7 @@ function renderForwardPage(id, item) {
           <div class="ba-card">
             <span class="ba-badge">Before</span>
             <div class="ba-thumb">
-              <canvas id="originalCanvas" width="2208" height="3306"></canvas>
+              <canvas id="originalCanvas" width="1104" height="1653"></canvas>
               ${captureImageUrl
             ? `<img id="beforeSourceImage" src="${escapeAttr(captureImageUrl)}" alt="교정 전 면접 인상" crossorigin="anonymous" />`
             : `<div class="ba-placeholder">클라이언트에서 전달된 before 이미지가 아직 없습니다.</div>`}
@@ -1647,7 +1900,7 @@ function renderForwardPage(id, item) {
           <div class="ba-card">
             <span class="ba-badge orange">After</span>
             <div class="ba-thumb">
-              <canvas id="previewCanvas" width="2208" height="3306"></canvas>
+              <canvas id="previewCanvas" width="1104" height="1653"></canvas>
               <div id="afterPlaceholder" class="ba-placeholder">after 이미지를 비동기로 생성하는 중입니다.</div>
               <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
               <div class="ba-overlay">합격-UP 인상</div>
@@ -1657,50 +1910,57 @@ function renderForwardPage(id, item) {
         </div>
       </section>
 
-      ${renderScoreCard({
-                title: "첫인상 분석 점수",
-                totalScore: totalD,
-                totalMax: 40,
-                scoreItems: firstImpressionItems,
-                dangerThreshold: 15
-            })}
+      <section class="section ai-result-section">
+      <div class="section-title">OpenAI 분석 결과</div>
+      <div id="resultBox" class="result-label-box">${item.result || ""}</div>
+      </section>
 
-      ${renderScoreCard({
-                title: "텍스트F 분석 점수",
-                totalScore: totalF,
-                totalMax: 20,
-                scoreItems: textFItems,
-                dangerThreshold: 8
-            })}
+    <details class="section detail-toggle" id="detailToggle">
+      <summary class="detail-summary">자세한 설명 보기</summary>
 
       ${renderScoreCard({
-                title: "텍스트G 음성 분석 점수",
-                totalScore: totalG,
-                totalMax: 20,
-                scoreItems: textGItems,
-                dangerThreshold: 8
-            })}
+          title: "첫인상 점수",
+          totalScore: totalD,
+          totalMax: 40,
+          scoreItems: firstImpressionItems,
+          dangerThreshold: 15
+      })}
 
-      <section class="section">
-        <div class="section-title">상태</div>
-        <textarea id="status" class="text-box" readonly>페이지 초기화중.</textarea>
-      </section>
+      ${renderScoreCard({
+          title: "답변할 때 인상 점수",
+          totalScore: totalF,
+          totalMax: 20,
+          scoreItems: textFItems,
+          dangerThreshold: 8
+      })}
 
-      <section class="section">
-        <div class="section-title">OpenAI 프롬프트</div>
-        <textarea id="promptBox" class="text-box">${escapeHtml(item.prompt || "")}</textarea>
-      </section>
+      ${renderScoreCard({
+          title: "음성 점수",
+          totalScore: totalG,
+          totalMax: 20,
+          scoreItems: textGItems,
+          dangerThreshold: 8
+      })}
 
-      <section class="section">
-        <div class="section-title">OpenAI 분석 결과</div>
-        <textarea id="resultBox" class="text-box" readonly>${escapeHtml(item.result || "")}</textarea>
-        <button id="analyzeBtn" class="btn-main" type="button">OpenAI 분석 실행</button>
-      </section>
 
-      <section class="section">
-        <div class="section-title">디버그 로그</div>
-        <textarea id="debugBox" class="text-box" readonly>${escapeHtml(item.debugLog || "")}</textarea>
-      </section>
+    </details>
+
+    <section class="section hidden-dev-section" hidden>
+      <div class="section-title">상태</div>
+      <textarea id="status" class="text-box" readonly>페이지 초기화중.</textarea>
+    </section>
+
+    <section class="section hidden-dev-section" hidden>
+      <div class="section-title">OpenAI 프롬프트</div>
+      <textarea id="promptBox" class="text-box">${escapeHtml(item.prompt || "")}</textarea>
+    </section>
+
+    <section class="section hidden-dev-section" hidden>
+      <div class="section-title">디버그 로그</div>
+      <textarea id="debugBox" class="text-box" readonly>${escapeHtml(item.debugLog || "")}</textarea>
+    </section>
+
+    <button id="analyzeBtn" class="btn-main" type="button" hidden>OpenAI 분석 실행</button>
     </div>
   </div>
 
@@ -1738,59 +1998,291 @@ function renderForwardPage(id, item) {
   <script src="/forward/${encodeURIComponent(id)}/afterimg.js"></script>
 
   <script>
+
+    const overallSummaryScoreEl = document.getElementById("overallSummaryScore");
+    const overallSummaryBarEl = document.getElementById("overallSummaryBar");
+    const answerScoreTextEl = document.getElementById("answerScoreText");
+    const answerScoreBarEl = document.getElementById("answerScoreBar");
+    const impressionScoreBarEl = document.getElementById("impressionScoreBar");
+    const voiceScoreBarEl = document.getElementById("voiceScoreBar");
+
+    const totalDValue = ${safeSerializeForInlineScript(totalD)};
+    const totalFValue = ${safeSerializeForInlineScript(totalF)};
+    const totalGValue = ${safeSerializeForInlineScript(totalG)};
+
+    let totalAIValue = ${safeSerializeForInlineScript(totalAI)};
+    let overallTotalValue = totalDValue + totalFValue + totalGValue + totalAIValue;
+
     const analyzeBtn = document.getElementById("analyzeBtn");
     const promptBox = document.getElementById("promptBox");
     const resultBox = document.getElementById("resultBox");
     const statusBox = document.getElementById("status");
     const debugBox = document.getElementById("debugBox");
+    const answerSectionLabelEl = document.getElementById("answerSectionLabel");
 
 
-    analyzeBtn?.addEventListener("click", async () => {
+
+  // 3. HTML 출력
+    //resultBox.innerHTML = startData.result || "";
+
+    function applyBarColor(fillEl) {
+      if (!fillEl) return;
+      const width = parseFloat(fillEl.style.width) || 0;
+
+      if (width < 50) {
+        fillEl.style.background = "#e33b3b";
+      } else if (width < 75) {
+        fillEl.style.background = "#2ecc71";
+      } else {
+        fillEl.style.background = "#2f73d9";
+      }
+    }
+
+     function updateOverallScoreUI() {
+          overallTotalValue = totalDValue + totalFValue + totalGValue + totalAIValue;
+
+          if (overallSummaryScoreEl) {
+            overallSummaryScoreEl.textContent = Math.round(overallTotalValue) + " 점 / 100점";
+          }
+
+          if (overallSummaryBarEl) {
+            overallSummaryBarEl.style.width = Math.max(0, Math.min(100, overallTotalValue)) + "%";
+            overallSummaryBarEl.className = overallTotalValue < 50 ? "score-bar-fill danger" : "score-bar-fill";
+            applyBarColor(overallSummaryBarEl);
+          }
+
+          if (answerScoreTextEl) {
+            answerScoreTextEl.textContent = Math.round(totalAIValue) + " / 20";
+        }
+
+        if (answerScoreBarEl) {
+            answerScoreBarEl.style.width = Math.max(0, Math.min(100, (totalAIValue / 20) * 100)) + "%";
+            applyBarColor(answerScoreBarEl);
+        }
+
+        if (answerSectionLabelEl && totalAIValue > 0) {
+            answerSectionLabelEl.textContent = "답변내용";
+        }
+        recolorWeightedBars();
+    }
+
+
+    function recolorWeightedBars() {
+      document.querySelectorAll(".weighted-item .bar-fill").forEach(applyBarColor);
+    }
+    recolorWeightedBars();
+
+
+
+
+     function parseTotalAIScore(resultText = "") {
+      const text = String(resultText || "");
+
+      let match = text.match(new RegExp(
+        "전체[ ]*평가[ ]*점수[^0-9]*([0-9]+(?:[.][0-9]+)?)",
+        "i"
+      ));
+
+      if (!match) {
+        match = text.match(new RegExp(
+          "점수[^0-9]*([0-9]+(?:[.][0-9]+)?)",
+          "i"
+        ));
+      }
+
+      if (!match) {
+        match = text.match(new RegExp(
+          "([0-9]+(?:[.][0-9]+)?) *점"
+        ));
+      }
+
+      if (!match) {
+        const nums = text.match(new RegExp("[0-9]+(?:[.][0-9]+)?", "g"));
+        console.log("[ALL NUMS]", nums);
+
+        if (nums && nums.length >= 2) {
+          const score = Number(nums[1]);
+          if (Number.isFinite(score)) {
+            return Math.max(0, Math.min(20, score));
+          }
+        }
+      }
+
+      console.log("[MATCH]", match);
+
+      if (match) {
+        const score = Number(match[1]);
+        if (Number.isFinite(score)) {
+          return Math.max(0, Math.min(20, score));
+        }
+      }
+
+      return 0;
+    }
+
+
+
+    let autoAnalyzeStarted = false;
+
+    // 🔥 추가 flag
+    let aiAnalysisInFlight = false;   // 현재 요청 중인지
+    let aiScoreResolved = false;      // 정상 점수 확보했는지
+    let aiRetryCount = 0;             // 재시도 횟수
+    let aiRetryTimer = null;
+
+    const AI_RETRY_MAX = 10;          // 최대 재시도 횟수
+    const AI_RETRY_DELAY = 1200;      // 1.2초
+
+     async function runOpenAIAnalysis({ auto = false } = {}) {
+      if (aiAnalysisInFlight) {
+        console.log("[AI] skip: already in flight");
+        return null;
+      }
+
+      if (aiScoreResolved) {
+        console.log("[AI] skip: score already resolved");
+        return null;
+      }
+
       const prompt = (promptBox?.value || "").trim();
 
       if (!prompt) {
         statusBox.value = "프롬프트를 입력하세요.";
-        promptBox.focus();
-        return;
+        promptBox?.focus();
+        console.log("[AI] stop: prompt empty");
+        return null;
       }
+
+      aiAnalysisInFlight = true;
+      clearTimeout(aiRetryTimer);
 
       try {
         analyzeBtn.disabled = true;
-        statusBox.value = "OpenAI 분석 중입니다.";
-        resultBox.value = "";
+        statusBox.value = auto ? "자동 OpenAI 분석 시작 중입니다." : "OpenAI 분석 시작 중입니다.";
+        if (resultBox) {
+            resultBox.innerHTML = "";
+        }
 
-        const response = await fetch("/api/analyze", {
+        console.log("[AI] POST /api/analyze start");
+
+        const startResponse = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json; charset=UTF-8" },
           body: JSON.stringify({
             prompt,
             transcript: ${safeSerializeForInlineScript(item.transcript || "")},
             speechInsights: ${safeSerializeForInlineScript(item.speechInsights || "")},
-            forwardingId: ${safeSerializeForInlineScript(id)}
+            forwardingId: "${id}"
           })
         });
 
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || "analyze_failed");
+        const startData = await startResponse.json().catch(() => ({}));
+        console.log("[AI] POST /api/analyze response =", startData);
+
+        // 🔥 1. startData.ok true면 바로 처리
+        if (startData.ok) {
+          const parsedScore = Number(parseTotalAIScore(startData.result) || 5);
+
+          totalAIValue = parsedScore;
+          aiScoreResolved = true;
+
+           if (resultBox) {
+                resultBox.innerHTML = startData.result || "";
+            }
+            updateOverallScoreUI();
+
+          statusBox.value = "분석 완료. 답변 점수 " + Math.round(totalAIValue) + "점 반영됨.";
+          return startData;
         }
 
-        resultBox.value = data.result || "";
-        statusBox.value = "분석이 완료되었습니다.";
+        // 🔥 2. ok가 아니면 재귀 재시도 (최대 10회)
+        if (aiRetryCount >= AI_RETRY_MAX) {
+          statusBox.value = "점수 산출 실패 (재시도 초과).";
+          return null;
+        }
+
+        aiRetryCount++;
+
+        statusBox.value = "재시도 중... (" + aiRetryCount + " / " + AI_RETRY_MAX + ")";
+
+        await new Promise(resolve => {
+          aiRetryTimer = setTimeout(resolve, AI_RETRY_DELAY);
+        });
+
+        console.log("[AI] GET /api/analyze/status start");
+
+        const statusResponse = await fetch(
+          "/api/analyze/status?forwardingId=" + encodeURIComponent("${id}"),
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json; charset=UTF-8" }
+          }
+        );
+
+        const statusData = await statusResponse.json().catch(() => ({}));
+        console.log("[AI] GET /api/analyze/status response =", statusData);
+
+        // 🔥 3. status ok true면 동일 처리
+        if (statusData.ok) {
+          const parsedScore = Number(parseTotalAIScoreFromResult(statusData.result) || 0);
+
+          totalAIValue = parsedScore;
+          aiScoreResolved = true;
+
+          if (resultBox) {
+            resultBox.innerHTML = statusData.result || "";
+          }
+
+          updateOverallScoreUI();
+
+          statusBox.value = "분석 완료. 답변 점수 " + totalAIValue.toFixed(1) + "점 반영됨.";
+          return statusData;
+        }
+
+        // 🔥 4. 다시 자기 자신 호출
+        aiAnalysisInFlight = false;
+        return runOpenAIAnalysis({ auto });
+
       } catch (err) {
         statusBox.value = "분석 실패: " + (err.message || "unknown_error");
-        debugBox.value = ${safeSerializeForInlineScript(item.debugLog || "")};
+        console.error("[AI] failed:", err);
+        return null;
+
       } finally {
         analyzeBtn.disabled = false;
+        clearTimeout(aiRetryTimer);
+        console.log("[AI] finally end");
       }
+    }
+
+
+
+    analyzeBtn?.addEventListener("click", () => {
+        runOpenAIAnalysis({ auto: false });
     });
 
-    document.addEventListener("click", (e) => {
-      const link = e.target.closest(".train-btn");
-      if (!link) return;
-      e.preventDefault();
-      alert("트레이닝 링크는 아직 준비중입니다.");
+    window.addEventListener("load", () => {
+        console.log("[AUTO] load event fired");
+
+        if (autoAnalyzeStarted) {
+            console.log("[AUTO] skip: already started");
+            return;
+        }
+
+        const transcript = String(${safeSerializeForInlineScript(item.transcript || "")} || "").trim();
+        console.log("[AUTO] transcript =", transcript);
+        console.log("[AUTO] transcript length =", transcript.length);
+
+        if (!transcript) {
+            console.log("[AUTO] skip: transcript empty");
+            return;
+        }
+
+        autoAnalyzeStarted = true;
+        console.log("[AUTO] runOpenAIAnalysis call");
+        runOpenAIAnalysis({ auto: true });
     });
+
   </script>
 </body>
 </html>`;
@@ -1899,13 +2391,13 @@ router.post(
             if (audioFile) {
                 debugLines.push(`[transcribe] start: ${audioFile.originalname}`);
 
-                /*
+                
                 const transcribeResult = await sendAudioToExternalTranscriber(
                     audioFile.path,
                     audioFile.originalname
                 );
-                */
-                const transcribeResult = "Audio Test";
+                
+                //const transcribeResult = "Audio Test";
 
                 transcript = String(
                     transcribeResult?.text ||
@@ -2051,42 +2543,87 @@ router.post(
  * route: analyze
  * ------------------------- */
 router.post("/api/analyze", async (req, res) => {
-    try {
-        const prompt = String(req.body.prompt || "").trim();
-        const forwardingId = String(req.body.forwardingId || "").trim();
+    console.log("[SERVER] /api/analyze entered");
+    console.log("[SERVER] body =", req.body);
 
-        if (!prompt) {
-            return res.status(400).json({
-                ok: false,
-                error: "prompt_required"
-            });
-        }
+    const prompt = String(req.body.prompt || "").trim();
+    const forwardingId = String(req.body.forwardingId || "").trim();
 
-        const result = await callOpenAIIfRequested(prompt);
+    if (!prompt || !forwardingId) {
+        return res.status(400).json({ ok: false, error: "invalid_request" });
+    }
 
-        if (forwardingId && forwardingStore.has(forwardingId)) {
-            const prev = forwardingStore.get(forwardingId);
-            forwardingStore.set(forwardingId, {
-                ...prev,
-                prompt,
-                result: result.result || ""
-            });
-        }
+    const prev = forwardingStore.get(forwardingId) || {};
 
-        res.set("Content-Type", "application/json; charset=utf-8");
+    // 이미 완료된 결과가 있으면 그대로 반환
+    if (prev.status === "done") {
         return res.json({
             ok: true,
-            result: result.result || "",
-            skipped: !!result.skipped,
-            reason: result.reason || ""
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            ok: false,
-            error: error.message || "analyze_failed"
+            result: prev.result || "",
+            totalAI: prev.totalAI || 0,
+            cached: true
         });
     }
+
+    // 이미 처리중이면 중복 실행 금지
+    if (prev.status === "processing") {
+        return res.json({
+            ok: true,
+            started: false,
+            processing: true
+        });
+    }
+
+    // 처리 시작
+    forwardingStore.set(forwardingId, {
+        ...prev,
+        status: "processing",
+        result: "",
+        totalAI: 0,
+        error: ""
+    });
+
+    (async () => {
+        console.log("[AI-SERVER] IIFE 시작됨", { forwardingId });
+
+        try {
+            const openaiResult = await callOpenAIIfRequested(prompt);
+            const aiResult = openaiResult.result || "";
+            const totalAI = parseTotalAIScoreFromResult(aiResult);
+
+            forwardingStore.set(forwardingId, {
+                ...prev,
+                status: "done",
+                result: aiResult,
+                totalAI,
+                error: ""
+            });
+        } catch (e) {
+            forwardingStore.set(forwardingId, {
+                ...prev,
+                status: "error",
+                result: "",
+                totalAI: 0,
+                error: e?.message || "analyze_failed"
+            });
+        }
+    })();
+
+    return res.json({ ok: true, started: true });
+});
+
+router.get("/api/analyze/status", (req, res) => {
+    const forwardingId = String(req.query.forwardingId || "").trim();
+    const data = forwardingStore.get(forwardingId);
+
+    if (!data) {
+        return res.json({ ok: false, result: "" });
+    }
+
+    return res.json({
+        ok: data.ok ?? true,
+        result: data.result || ""
+    });
 });
 
 module.exports = router;
