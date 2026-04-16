@@ -1123,12 +1123,13 @@ function renderForwardPage(id, item) {
     let totalAI = Number(item?.totalAI || 0);
     let overallTotal = totalD + totalF + totalG + totalAI;
 
+
     const overallImproveItems = buildOverallImpressionFeedback(textDScore, textFScore);
 
     function renderTrainingButton(index) {
         if (index === 0) {
             return `
-              <a href="/training/netural_training.html" class="train-btn" data-training="smile">스마일 트레이닝 시작</a>
+              <a href="/training/netural_training.html" class="train-btn" data-training="smile">10초만에 인상 개선 시작</a>
             `;
         }
         if (index === 1) {
@@ -1158,27 +1159,31 @@ function renderForwardPage(id, item) {
             : "";
 
         return `
-      <div class="overall-improve-item ${item.urgent ? "urgent-item" : ""}">
-        <div class="overall-improve-main">
-          <div class="overall-improve-head">
-            <div class="overall-improve-label">
-              ${escapeHtml(item.title)}
-              ${urgentBadge}
-              ${excellentBadge}
+            <div class="overall-improve-item ${item.urgent ? "urgent-item highlight-item" : ""}">
+              <div class="overall-improve-head">
+                <div class="overall-improve-label">
+                  ${escapeHtml(item.title)}
+                  ${urgentBadge}
+                  ${excellentBadge}
+                </div>
+                <div class="overall-improve-score ${scoreColorClass}">
+                  ${escapeHtml(item.display)}
+                </div>
+              </div>
+
+              <div class="overall-improve-message">
+                ${escapeHtml(item.message || "")}
+              </div>
+
+              ${renderTrainingButton(index)
+                            ? `
+                  <div class="overall-improve-footer">
+                    ${renderTrainingButton(index)}
+                  </div>
+                `
+                            : ""}
             </div>
-            <div class="overall-improve-score ${scoreColorClass}">
-              ${escapeHtml(item.display)}
-            </div>
-          </div>
-          <div class="overall-improve-message">
-            ${escapeHtml(item.message || "")}
-          </div>
-        </div>
-        <div class="overall-improve-side">
-          ${renderTrainingButton(index)}
-        </div>
-      </div>
-    `;
+            `;
     }
 
     return `<!DOCTYPE html>
@@ -1187,656 +1192,961 @@ function renderForwardPage(id, item) {
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
   <title>면접관 관점 분석 페이지</title>
-  <style>
+    <meta property="og:title" content="면접 인상 AI 분석 결과" />
+  <meta property="og:description" content="표정, 시선, 답변 인상을 분석한 결과를 확인하세요." />
+  <meta property="og:image" content="https://sionaai.com/preview.jpg" />
+  <meta property="og:type" content="website" />
+
+ <style>
+  :root {
+    --bg-1: #f7fbff;
+    --bg-2: #e8f2ff;
+    --bg-3: #dcecff;
+    --navy: #162a5f;
+    --blue: #2f73d9;
+    --orange: #ff9b47;
+    --text: #223253;
+    --muted: #6c7a98;
+    --shadow-lg: 0 18px 34px rgba(24,42,92,0.12);
+    --shadow-md: 0 12px 24px rgba(24,42,92,0.09);
+    --shadow-sm: 0 8px 18px rgba(24,42,92,0.07);
+    --radius-2xl: 28px;
+    --radius-xl: 22px;
+    --radius-lg: 18px;
+    --page-max: 640px;
+  }
+
+  * {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3));
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3));
+  }
+
+  .page {
+    width: 100%;
+    min-height: 100dvh;
+    padding:
+      calc(6px + env(safe-area-inset-top))
+      calc(4px + env(safe-area-inset-right))
+      calc(14px + env(safe-area-inset-bottom))
+      calc(4px + env(safe-area-inset-left));
+    display: flex;
+    justify-content: center;
+  }
+
+  .content {
+    width: 100%;
+    max-width: var(--page-max);
+    display: grid;
+    gap: 12px;
+  }
+
+  .hero {
+    padding: 14px 10px;
+    border-radius: var(--radius-2xl);
+    color: #fff;
+    background: linear-gradient(135deg, #2f73d9 0%, #76adff 55%, #9ec5ff 100%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+
+  .hero p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    opacity: 0.96;
+    font-weight: 700;
+  }
+
+  .hero-id {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 800;
+    opacity: 0.9;
+  }
+
+  .section {
+    background: rgba(255,255,255,0.96);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    padding: 14px;
+    overflow: hidden;
+  }
+
+  .section-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    line-height: 1.35;
+    color: var(--navy);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .highlight-item {
+    background: linear-gradient(180deg, #fff4e8 0%, #ffe7cc 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 155, 71, 0.28),
+      0 10px 22px rgba(255, 155, 71, 0.16);
+  }
+
+  .ba-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .ba-card {
+    position: relative;
+    background: transparent;
+    border-radius: 16px;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .ba-thumb {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #eef5ff;
+  }
+
+  .ba-thumb canvas,
+  .ba-thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: transparent;
+  }
+
+  .ba-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(47,115,217,0.12);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .ba-badge.orange {
+    background: rgba(255,155,71,0.14);
+    color: #e46f00;
+  }
+
+  .ba-badge-overlay {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 10;
+    margin: 0;
+    background: rgba(255,255,255,0.94);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .ba-placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    font-weight: 800;
+    background: linear-gradient(180deg, rgba(247,251,255,0.8), rgba(234,242,255,0.8));
+  }
+
+  .ba-overlay {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(22,42,95,0.88);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    backdrop-filter: blur(8px);
+  }
+
+  .info-badge {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.94);
+    color: var(--navy);
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-main {
+    appearance: none;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    min-height: 42px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #76adff 0%, #2f73d9 100%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    box-shadow: 0 12px 22px rgba(47,115,217,0.22);
+  }
+
+  .btn-overlay-bottom {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 11;
+    width: auto;
+    min-width: 110px;
+  }
+
+  .text-box {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+    border: 0;
+    outline: none;
+    border-radius: 16px;
+    padding: 14px;
+    background: #f7fbff;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.65;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+    font-family: inherit;
+  }
+
+  .overall-summary-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    padding: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(47,115,217,0.08);
+  }
+
+  .overall-summary-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    line-height: 1.3;
+    color: var(--navy);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .sub-hero {
+    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, #2f73d9 0%, #76adff 55%, #9ec5ff 100%);
+    box-shadow: var(--shadow-md);
+  }
+
+  .sub-hero h2 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .overall-summary-top {
+    display: grid;
+    grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px 8px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #edf6ff 0%, #e3f0ff 100%);
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+  }
+
+  .overall-summary-score {
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 900;
+    color: var(--navy);
+    white-space: nowrap;
+  }
+
+  .overall-meta-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .overall-meta-box {
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #f8fbff;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+  }
+
+  .overall-meta-label {
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .overall-meta-value {
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 900;
+    color: var(--navy);
+  }
+
+  .overall-improve-title {
+    margin: 6px 0 10px;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 900;
+    color: var(--navy);
+  }
+
+  .overall-improve-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .overall-improve-item {
+    display: grid;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #f8fbff;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+  }
+
+  .overall-improve-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: start;
+  }
+
+  .overall-improve-label {
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 900;
+    color: var(--navy);
+    word-break: keep-all;
+  }
+
+  .overall-improve-score {
+    white-space: nowrap;
+    text-align: right;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  .overall-improve-score.score-blue {
+    color: #0f3d91;
+  }
+
+  .overall-improve-score.score-green {
+    color: #176b2c;
+  }
+
+  .overall-improve-score.score-red {
+    color: #b42318;
+  }
+
+  .urgent-badge {
+    color: #b42318;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .excellent-badge {
+    color: #6b3df0;
+    font-size: 13px;
+    font-weight: 900;
+    margin-left: 4px;
+  }
+
+  .overall-improve-message {
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .overall-improve-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+
+  .overall-improve-actions {
+    display: contents;
+  }
+
+  .overall-improve-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .train-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #76adff 0%, #2f73d9 100%);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 8px 16px rgba(47,115,217,0.18);
+    white-space: nowrap;
+  }
+
+  .first-impression-card {
+    background: rgba(255,255,255,0.96);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-lg);
+    padding: 18px;
+    overflow: hidden;
+  }
+
+  .first-impression-title {
+    margin: 0 0 14px;
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--navy);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .score-total-row {
+    display: grid;
+    grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 14px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f6fbff 0%, #eef6ff 100%);
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+  }
+
+  .score-total-text {
+    font-size: 18px;
+    line-height: 1.35;
+    font-weight: 900;
+    color: var(--navy);
+    white-space: nowrap;
+  }
+
+  .score-right {
+    min-width: 0;
+  }
+
+  .score-bar-track {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: #dfe9f8;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(20,40,80,0.08);
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #76adff 0%, #2f73d9 100%);
+  }
+
+  .score-bar-fill.danger {
+    background: linear-gradient(90deg, #ff8d8d 0%, #e33b3b 100%);
+  }
+
+  .score-compact-list {
+    display: grid;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .score-compact-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f8fbff;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.05);
+  }
+
+  .score-compact-label {
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--navy);
+    word-break: keep-all;
+  }
+
+  .score-compact-value {
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--muted);
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .insight-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .insight-card {
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #f8fbff;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+  }
+
+  .insight-card.low {
+    background: linear-gradient(180deg, #fff6f6 0%, #fff1f1 100%);
+    box-shadow: inset 0 0 0 1px rgba(227,59,59,0.09);
+  }
+
+  .insight-card.high {
+    background: linear-gradient(180deg, #f5fbff 0%, #edf6ff 100%);
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.09);
+  }
+
+  .insight-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: start;
+    margin-bottom: 6px;
+  }
+
+  .insight-label {
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 900;
+    color: var(--navy);
+    word-break: keep-all;
+  }
+
+  .insight-score {
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 900;
+    color: var(--muted);
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .insight-diff {
+    color: #8a97b4;
+  }
+
+  .insight-message {
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .weighted-bar-container {
+    display: flex;
+    gap: 8px;
+  }
+
+  .weighted-item.impression {
+    flex: 5;
+  }
+
+  .weighted-item.voice {
+    flex: 2.5;
+  }
+
+  .weighted-item.answer {
+    flex: 2.5;
+  }
+
+  .weighted-item {
+    background: #f8fbff;
+    padding: 10px;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+  }
+
+  .weighted-item .label {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--muted);
+  }
+
+  .weighted-item .score {
+    font-size: 14px;
+    font-weight: 900;
+    margin: 4px 0;
+  }
+
+  .bar-track {
+    height: 8px;
+    background: #e0e7f5;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  .detail-toggle {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .detail-summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    padding: 16px 18px;
+    border-radius: var(--radius-2xl);
+    background: rgba(255,255,255,0.96);
+    box-shadow: var(--shadow-lg);
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--navy);
+  }
+
+  .detail-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .detail-toggle[open] .detail-summary {
+    margin-bottom: 12px;
+  }
+
+  .result-label-box {
+    width: 100%;
+    border-radius: 16px;
+    padding: 14px;
+    background: #f7fbff;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.7;
+    box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+    white-space: pre-line;
+    word-break: keep-all;
+  }
+
+  .hidden-dev-section {
+    display: none !important;
+  }
+
+  @media (max-width: 560px) {
     :root {
-      --bg-1: #f7fbff;
-      --bg-2: #e8f2ff;
-      --bg-3: #dcecff;
-      --navy: #162a5f;
-      --blue: #2f73d9;
-      --orange: #ff9b47;
-      --text: #223253;
-      --muted: #6c7a98;
-      --shadow-lg: 0 18px 34px rgba(24,42,92,0.12);
-      --shadow-md: 0 12px 24px rgba(24,42,92,0.09);
-      --shadow-sm: 0 8px 18px rgba(24,42,92,0.07);
-      --radius-2xl: 28px;
-      --radius-xl: 22px;
-      --radius-lg: 18px;
-      --page-max: 520px;
+      --page-max: 100vw;
     }
-    * { box-sizing: border-box; min-width: 0; }
-    html {
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-      background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3));
-    }
+
     body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-      color: var(--text);
-      background: linear-gradient(180deg, var(--bg-1), var(--bg-2) 42%, var(--bg-3));
+      overflow-x: hidden;
     }
+
     .page {
-      width: 100%;
-      min-height: 100vh;
-      padding: 20px 14px 32px;
-      display: flex;
-      justify-content: center;
+      padding: 4px 2px 10px;
     }
+
     .content {
-      width: 100%;
-      max-width: var(--page-max);
-      display: grid;
-      gap: 16px;
+      gap: 10px;
     }
-    .hero {
-      padding: 14px 10px;
-      border-radius: var(--radius-2xl);
-      color: #fff;
-      background: linear-gradient(135deg, #2f73d9 0%, #76adff 55%, #9ec5ff 100%);
-      box-shadow: var(--shadow-lg);
-    }
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      line-height: 1.2;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-    }
-    .hero p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.55;
-      opacity: 0.96;
-      font-weight: 700;
-    }
-    .hero-id {
-      margin-top: 12px;
-      font-size: 12px;
-      line-height: 1.4;
-      font-weight: 800;
-      opacity: 0.9;
-    }
+
+    .hero,
+    .overall-summary-card,
+    .first-impression-card,
     .section {
-      background: rgba(255,255,255,0.96);
-      border-radius: var(--radius-2xl);
-      box-shadow: var(--shadow-lg);
-      padding: 18px;
-      overflow: hidden;
-    }
-    .section-title {
-      margin: 0 0 12px;
-      font-size: 18px;
-      line-height: 1.35;
-      color: var(--navy);
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .ba-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    .ba-card {
-      position: relative;
-      background: #f8fbff;
-      border-radius: 22px;
+      border-radius: 16px;
       padding: 12px;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
-    }
-    .ba-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(47,115,217,0.12);
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 900;
-    }
-    .ba-badge.orange {
-      background: rgba(255,155,71,0.14);
-      color: #e46f00;
-    }
-    .ba-thumb {
-      position: relative;
-      aspect-ratio: 2 / 3;
-      border-radius: 16px;
-      overflow: hidden;
-      background: #eef4ff;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
-    }
-    .ba-thumb canvas,
-    .ba-thumb img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      background: #eef4ff;
-    }
-    .ba-placeholder {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 16px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-      font-weight: 800;
-      background: linear-gradient(180deg, rgba(247,251,255,0.8), rgba(234,242,255,0.8));
-    }
-    .ba-overlay {
-      position: absolute;
-      left: 12px;
-      bottom: 12px;
-      z-index: 8;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(22,42,95,0.88);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 900;
-      backdrop-filter: blur(8px);
-    }
-    .info-badge {
-      position: absolute;
-      right: 12px;
-      top: 12px;
-      z-index: 8;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.94);
-      color: var(--navy);
-      font-size: 12px;
-      font-weight: 900;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-main {
-      appearance: none;
-      border: 0;
-      outline: none;
-      cursor: pointer;
-      width: 100%;
-      min-height: 46px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #76adff 0%, #2f73d9 100%);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 900;
-      box-shadow: 0 12px 22px rgba(47,115,217,0.22);
-    }
-    .text-box {
-      width: 100%;
-      min-height: 110px;
-      resize: vertical;
-      border: 0;
-      outline: none;
-      border-radius: 16px;
-      padding: 14px;
-      background: #f7fbff;
-      color: var(--text);
-      font-size: 13px;
-      line-height: 1.65;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
-      font-family: inherit;
     }
 
-    .overall-summary-card {
-      background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
-      border-radius: var(--radius-2xl);
-      box-shadow: var(--shadow-lg);
-      padding: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(47,115,217,0.08);
-    }
-    .overall-summary-title {
-      margin: 0 0 12px;
-      font-size: 20px;
-      line-height: 1.3;
-      color: var(--navy);
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .overall-summary-top {
-      display: grid;
-      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 14px;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #edf6ff 0%, #e3f0ff 100%);
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
-    }
-    .overall-summary-score {
-      font-size: 22px;
-      line-height: 1.3;
-      font-weight: 900;
-      color: var(--navy);
-      white-space: nowrap;
-    }
-    .overall-meta-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .overall-meta-box {
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: #f8fbff;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
-    }
-    .overall-meta-label {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 800;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    .overall-meta-value {
-      font-size: 14px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--navy);
-    }
-    .overall-improve-title {
-      margin: 6px 0 10px;
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--navy);
-    }
-    .overall-improve-list {
-      display: grid;
-      gap: 10px;
-    }
-    .overall-improve-item {
-      display: grid;
-      grid-template-columns: 7.2fr 2.8fr;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #f8fbff;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
-    }
-
-    .overall-improve-main {
-      min-width: 0;
-    }
-
-    .overall-improve-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-
-    .overall-improve-label {
-      font-size: 15px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--navy);
-      margin-bottom: 0;
-    }
-
-    .overall-improve-score {
-      font-size: 16px;
-      line-height: 1.35;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .overall-improve-score.score-blue {
-      color: #0f3d91; /* 진한 파랑 */
-    }
-
-    .overall-improve-score.score-green {
-      color: #176b2c; /* 진한 초록 */
-    }
-
-    .overall-improve-score.score-red {
-      color: #b42318; /* 진한 빨강 */
-    }
-
-    .urgent-badge {
-      color: #b42318;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .overall-improve-message {
-      font-size: 13px;
-      line-height: 1.55;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .overall-improve-side {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
-    .overall-improve-actions {
-      display: contents;
-    }
-
-    .train-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 34px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #76adff 0%, #2f73d9 100%);
-      color: #fff;
-      text-decoration: none;
-      font-size: 12px;
-      font-weight: 900;
-      box-shadow: 0 8px 16px rgba(47,115,217,0.18);
-      white-space: nowrap;
-    }
-
-    .first-impression-card {
-      background: rgba(255,255,255,0.96);
-      border-radius: var(--radius-2xl);
-      box-shadow: var(--shadow-lg);
-      padding: 18px;
-      overflow: hidden;
-    }
+    .section-title,
+    .overall-summary-title,
     .first-impression-title {
-      margin: 0 0 14px;
-      font-size: 20px;
-      line-height: 1.3;
-      color: var(--navy);
-      font-weight: 900;
-      letter-spacing: -0.02em;
+      margin-bottom: 10px;
     }
-    .score-total-row {
-      display: grid;
-      grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #f6fbff 0%, #eef6ff 100%);
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
+
+    .ba-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
     }
-    .score-total-text {
-      font-size: 18px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--navy);
-      white-space: nowrap;
-    }
-    .score-right {
+
+    .ba-card {
+      border-radius: 8px;
+      padding: 0;
       min-width: 0;
     }
-    .score-bar-track {
-      width: 100%;
-      height: 12px;
-      border-radius: 999px;
-      background: #dfe9f8;
-      overflow: hidden;
-      box-shadow: inset 0 1px 2px rgba(20,40,80,0.08);
+
+    .ba-thumb {
+      aspect-ratio: 2 / 3;
+      border-radius: 10px;
     }
-    .score-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #76adff 0%, #2f73d9 100%);
+
+    .ba-badge-overlay {
+      left: 8px;
+      top: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
     }
-    .score-bar-fill.danger {
-      background: linear-gradient(90deg, #ff8d8d 0%, #e33b3b 100%);
+
+    .info-badge {
+      right: 8px;
+      top: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
     }
-    .score-compact-list {
-      display: grid;
-      gap: 6px;
-      margin-top: 2px;
+
+    .ba-overlay {
+      left: 8px;
+      bottom: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
     }
-    .score-compact-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+
+    .btn-overlay-bottom {
+      right: 8px;
+      bottom: 8px;
+      min-width: 88px;
+      min-height: 34px;
       padding: 8px 10px;
-      border-radius: 12px;
-      background: #f8fbff;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.05);
+      font-size: 11px;
     }
-    .score-compact-label {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 800;
-      color: var(--navy);
+
+    .sub-hero {
+      padding: 12px;
+      border-radius: 14px;
     }
-    .score-compact-value {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 800;
-      color: var(--muted);
-      white-space: nowrap;
+
+    .sub-hero h2 {
+      font-size: 15px;
     }
-    .insight-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .insight-card {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #f8fbff;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
-    }
-    .insight-card.low {
-      background: linear-gradient(180deg, #fff6f6 0%, #fff1f1 100%);
-      box-shadow: inset 0 0 0 1px rgba(227,59,59,0.09);
-    }
-    .insight-card.high {
-      background: linear-gradient(180deg, #f5fbff 0%, #edf6ff 100%);
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.09);
-    }
-    .insight-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-    .insight-label {
-      font-size: 13px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--navy);
-    }
-    .insight-score {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: var(--muted);
-      white-space: nowrap;
-      text-align: right;
-    }
-    .insight-diff {
-      color: #8a97b4;
-    }
-    .insight-message {
-      font-size: 13px;
-      line-height: 1.55;
-      font-weight: 800;
-      color: var(--text);
+
+    .score-total-row,
+    .overall-summary-top {
+      grid-template-columns: 1fr;
     }
 
     .weighted-bar-container {
-  display: flex;
-  gap: 8px;
-}
-
-    /* 비중 */
-    .weighted-item.impression { flex: 5; }
-    .weighted-item.voice { flex: 2.5; }
-    .weighted-item.answer { flex: 2.5; }
+      gap: 6px;
+    }
 
     .weighted-item {
-      background: #f8fbff;
-      padding: 10px;
-      border-radius: 14px;
-      box-shadow: inset 0 0 0 1px rgba(47,115,217,0.06);
+      padding: 8px;
     }
 
-    .weighted-item .label {
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--muted);
+    .overall-meta-row {
+      grid-template-columns: 1fr;
     }
 
-    .weighted-item .score {
-      font-size: 14px;
-      font-weight: 900;
-      margin: 4px 0;
+    .score-total-text,
+    .overall-summary-score {
+      white-space: normal;
     }
 
-    .bar-track {
-      height: 8px;
-      background: #e0e7f5;
-      border-radius: 999px;
-      overflow: hidden;
+    .score-compact-row,
+    .insight-head,
+    .overall-improve-head {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
     }
 
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
+    .score-compact-value,
+    .insight-score,
+    .overall-improve-score {
+      margin-top: 0;
+      white-space: nowrap;
+      text-align: right;
     }
 
-    .excellent-badge {
-      color: #6b3df0;
-      font-size: 13px;
-      font-weight: 900;
-      margin-left: 4px;
+    .overall-improve-footer {
+      justify-content: flex-start;
     }
 
-    @media (max-width: 560px) {
-      .ba-grid,
-      .score-total-row,
-      .overall-summary-top {
-        grid-template-columns: 1fr;
-      }
-      .overall-meta-row {
-        grid-template-columns: 1fr;
-      }
-      .score-total-text,
-      .overall-summary-score {
-        white-space: normal;
-      }
-      .score-compact-row,
-      .insight-head,
-      .overall-improve-head {
-        display: block;
-      }
-      .score-compact-value,
-      .insight-score,
-      .overall-improve-total {
-        margin-top: 4px;
-        white-space: normal;
-        text-align: left;
-      }
-      .overall-improve-actions {
-        justify-content: flex-start;
-      }
-      .overall-improve-item {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-      }
-
-      .overall-improve-side {
-        justify-content: flex-start;
-      }
-
-    .detail-toggle {
-      padding: 0;
-      background: transparent;
-      box-shadow: none;
+    .train-btn {
+      white-space: normal;
+      text-align: center;
     }
 
     .detail-summary {
-      list-style: none;
-      cursor: pointer;
-      user-select: none;
-      padding: 16px 18px;
-      border-radius: var(--radius-2xl);
-      background: rgba(255,255,255,0.96);
-      box-shadow: var(--shadow-lg);
-      font-size: 16px;
-      font-weight: 900;
-      color: var(--navy);
-    }
-
-    .detail-summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .detail-toggle[open] .detail-summary {
-      margin-bottom: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-size: 15px;
     }
 
     .result-label-box {
-      width: 100%;
-      border-radius: 16px;
-      padding: 14px;
-      background: #f7fbff;
-      color: var(--text);
       font-size: 13px;
-      line-height: 1.7;
+      line-height: 1.65;
+    }
+
+    .ba-improve-summary {
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f5f9ff, #edf4ff);
       box-shadow: inset 0 0 0 1px rgba(47,115,217,0.08);
-      white-space: pre-line;
+    }
+
+    /* 🔥 핵심 문장 */
+    .ba-improve-main {
+      font-size: 13px;
+      font-weight: 900;
+      color: #162a5f;
+      line-height: 1.35;
+      margin-bottom: 4px;
       word-break: keep-all;
     }
 
-    .hidden-dev-section {
-      display: none !important;
+    /* 서브 */
+    .ba-improve-sub {
+      font-size: 12px;
+      font-weight: 800;
+      color: #5c6f95;
+      line-height: 1.4;
+      word-break: keep-all;
     }
 
+    .overall-summary-interpret {
+      margin-top: 4px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #b42318; /* 빨강 */
+      line-height: 1.3;
     }
-  </style>
+  }
+</style>
+
 </head>
 <body>
   <div class="page">
     <div class="content">
 
       <section class="hero">
-        <h1>종합 점수</h1>
+        <h1>📋 면접관 관점 종합 분석</h1>
         <!--<p>부족한 부분은 바로 훈련을 통하여 점수를 높이세요</p>
         <div class="hero-id">ID: ${escapeHtml(id)}</div>-->
       </section>
 
-      <section class="overall-summary-card">
-        <div class="overall-summary-title">당신의 표정,시선,음성,답변 분석 종합 점수</div>
+        <section class="section">
+          <div class="section-title">Before / After</div>
+          <div class="ba-improve-summary">
+          <div class="ba-improve-main">
+            😊 입꼬리 개선 → 면접관에게 더 호감 있는 인상 (+23%)
+          </div>
+          <div class="ba-improve-sub">
+            ✨ 피부 톤 정돈 → 더 또렷한 인상
+          </div>
+          <div class="ba-improve-sub">
+            ✏ 눈썹 라인 정리 → 깔끔한 인상
+          </div>
+        </div>
+          <div class="ba-grid">
+            <div class="ba-card">
+              <div class="ba-thumb">
+                <span class="ba-badge ba-badge-overlay">Before</span>
 
-        <div class="overall-summary-top">
+                <canvas id="originalCanvas" width="1104" height="1653"></canvas>
+                ${captureImageUrl
+                    ? `<img id="beforeSourceImage" src="${escapeAttr(captureImageUrl)}" alt="교정 전 면접 인상" crossorigin="anonymous" />`
+                    : `<div class="ba-placeholder">클라이언트에서 전달된 before 이미지가 아직 없습니다.</div>`}
+
+                <div class="ba-overlay">현재 인상</div>
+              </div>
+            </div>
+
+            <div class="ba-card">
+              <div class="ba-thumb">
+                <span class="ba-badge orange ba-badge-overlay">After</span>
+
+                <canvas id="previewCanvas" width="1104" height="1653"></canvas>
+                <div id="afterPlaceholder" class="ba-placeholder">after 이미지를 비동기로 생성하는 중입니다.</div>
+                <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
+                <div class="ba-overlay">합격-UP 인상</div>
+
+                <button id="renderBtn" class="btn-main btn-overlay-bottom" type="button">합격 UP!</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <section class="overall-summary-card">
+          <div class="sub-hero">
+            <h2>예상 면접 점수 - 표정/시선/음성/답변내용</h2>
+          </div>
+
+        <div class="overall-summary-top"> 
           <div class="overall-summary-score" id="overallSummaryScore">
             ${toFixedScore(overallTotal)}점 / 100점
           </div>
+          <div class="overall-summary-interpret">
+            ❌ 현재 상태로는 합격 가능성이 낮습니다
+        </div>
           <div class="score-right">
             <div class="score-bar-track">
               <div
@@ -1847,11 +2157,9 @@ function renderForwardPage(id, item) {
             </div>
           </div>
         </div>
-
         <div class="weighted-bar-container">
-
         <div class="weighted-item impression">
-          <div class="label">인상 - 표정/시선/안정감</div>
+          <div class="label">인상</div>
           <div class="score" id="impressionScoreText">${toFixedScore(totalD + totalF)} / 60</div>
           <div class="bar-track">
             <div class="bar-fill" id="impressionScoreBar" style="width:${((totalD + totalF) / 60) * 100}%"></div>
@@ -1873,40 +2181,10 @@ function renderForwardPage(id, item) {
             <div class="bar-fill" id="answerScoreBar" style="width:${(totalAI / 20) * 100}%"></div>
           </div>
         </div>
-
         </div>
-        <br>
         <div class="overall-improve-title">지금 가장 먼저 고칠 개선사항</div>
         <div class="overall-improve-list">
           ${overallImproveItems.map((item, index) => renderOverallImproveItem(item, index)).join("")}
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-title">Before / After</div>
-
-        <div class="ba-grid">
-          <div class="ba-card">
-            <span class="ba-badge">Before</span>
-            <div class="ba-thumb">
-              <canvas id="originalCanvas" width="1104" height="1653"></canvas>
-              ${captureImageUrl
-            ? `<img id="beforeSourceImage" src="${escapeAttr(captureImageUrl)}" alt="교정 전 면접 인상" crossorigin="anonymous" />`
-            : `<div class="ba-placeholder">클라이언트에서 전달된 before 이미지가 아직 없습니다.</div>`}
-              <div class="ba-overlay">현재 인상</div>
-            </div>
-          </div>
-
-          <div class="ba-card">
-            <span class="ba-badge orange">After</span>
-            <div class="ba-thumb">
-              <canvas id="previewCanvas" width="1104" height="1653"></canvas>
-              <div id="afterPlaceholder" class="ba-placeholder">after 이미지를 비동기로 생성하는 중입니다.</div>
-              <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
-              <div class="ba-overlay">합격-UP 인상</div>
-            </div>
-            <button id="renderBtn" class="btn-main" type="button">합격 UP! 인상 확인</button>
-          </div>
         </div>
       </section>
 
@@ -1965,6 +2243,16 @@ function renderForwardPage(id, item) {
   </div>
 
   <script>
+
+      window.firstImpressionScore = ${Number(textDScore.totalScore || 0)};
+      window.speakingImpressionScore = ${Number(textFScore.totalScore || 0)};
+      window.voiceScore = ${Number(textGScore.totalScore || 0)};
+      window.contentScore = ${Number(item?.totalAI || 0)};
+
+      window.textDScore = ${safeSerializeForInlineScript(textDScore)};
+      window.textFScore = ${safeSerializeForInlineScript(textFScore)};
+      window.textGScore = ${safeSerializeForInlineScript(textGScore)};
+
     window.__FORWARDING_ID__ = ${safeSerializeForInlineScript(id)};
     window.__AFTERIMG_DATA__ = ${safeSerializeForInlineScript({
                 forwardingId: id,
@@ -2021,6 +2309,115 @@ function renderForwardPage(id, item) {
     const answerSectionLabelEl = document.getElementById("answerSectionLabel");
 
 
+    async function saveInterviewScoreToDb() {
+        try {
+            const userStr = localStorage.getItem("loginUser");
+            if (!userStr) {
+                console.warn("loginUser 없음");
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+            if (!user || !user.id) {
+                console.warn("user.id 없음", user);
+                return;
+            }
+
+            const num = (v) => {
+                const n = Number(v);
+                return Number.isFinite(n) ? n : 0;
+            };
+
+            // 포워딩페이지 내부 값 기준으로 재계산
+            const firstImpression = num(window.firstImpressionScore);
+            const speakingImpression = num(window.speakingImpressionScore);
+            const voice = num(window.voiceScore);
+            const content = num(window.contentScore);
+
+            const textD = window.textDScore || {};
+            const textF = window.textFScore || {};
+            const textG = window.textGScore || {};
+
+            // 🔥 세부 점수 재계산
+            const impressionExpression =
+                num(textD.mouthCornerScore) +
+                num(textF.mouthCornerScore);
+
+            const impressionGaze =
+                num(textD.gazeYScore) +
+                num(textD.gazeXScore) +
+                num(textD.blinkScore) +
+                num(textF.gazeYScore) +
+                num(textF.gazeXScore) +
+                num(textF.blinkScore);
+
+            const impressionStability =
+                num(textD.mouthHabitPenaltyScore) +
+                num(textD.headMovePenaltyScore) +
+                num(textF.mouthHabitPenaltyScore) +
+                num(textF.headMovePenaltyScore);
+
+            const payload = {
+                user_id: user.id,
+
+                total_score: num(window.totalScore),
+                impression_score: firstImpression + speakingImpression,
+                voice_score: voice,
+                content_score: content,
+
+                first_impression_score: firstImpression,
+                speaking_impression_score: speakingImpression,
+
+                impression_expression_score: impressionExpression,
+                impression_gaze_score: impressionGaze,
+                impression_stability_score: impressionStability,
+
+                // 🔥 텍스트 D (첫인상)
+                first_smile_score: num(textD.mouthCornerScore),
+                first_gaze_y_score: num(textD.gazeYScore),
+                first_gaze_x_score: num(textD.gazeXScore),
+                first_mouth_habit_score: num(textD.mouthHabitPenaltyScore),
+                first_head_move_score: num(textD.headMovePenaltyScore),
+                first_blink_score: num(textD.blinkScore),
+
+                // 🔥 텍스트 F (답변중 인상)
+                speaking_smile_score: num(textF.mouthCornerScore),
+                speaking_gaze_y_score: num(textF.gazeYScore),
+                speaking_gaze_x_score: num(textF.gazeXScore),
+                speaking_mouth_habit_score: num(textF.mouthHabitPenaltyScore),
+                speaking_head_move_score: num(textF.headMovePenaltyScore),
+                speaking_blink_score: num(textF.blinkScore),
+
+                // 🔥 텍스트 G (음성)
+                voice_silence_score: num(textG.silence3Score),
+                voice_trailing_fade_score: num(textG.trailingFadeScore),
+                voice_tension_score: num(textG.tensionScore),
+                voice_low_voice_score: num(textG.lowVoiceScore)
+            };
+
+            console.log("[saveInterviewScoreToDb] payload =", payload);
+
+            const response = await fetch("/api/interview-scores", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json().catch(() => ({}));
+            console.log("[saveInterviewScoreToDb] response =", data);
+
+            if (!response.ok) {
+                console.error("DB 저장 실패", data);
+                return;
+            }
+
+            console.log("DB 저장 성공");
+        } catch (error) {
+            console.error("saveInterviewScoreToDb 오류", error);
+        }
+    }
 
   // 3. HTML 출력
     //resultBox.innerHTML = startData.result || "";
@@ -2038,8 +2435,24 @@ function renderForwardPage(id, item) {
       }
     }
 
+    function updateScoreInterpret(score) {
+      let text = "";
+
+      if (score < 50) text = "❌ 현재 상태로는 합격 가능성이 낮습니다 (하위 35%)";
+      else if (score < 70) text = "⚠️ 개선이 필요합니다 (중위 55%) ";
+      else if (score < 85) text = "🙂 합격 가능성 보통 (상위 85%) ";
+      else text = "✅ 합격권";
+
+      const el = document.querySelector(".overall-summary-interpret");
+      if (el) {
+        el.textContent = text;
+      }
+    }
+
      function updateOverallScoreUI() {
           overallTotalValue = totalDValue + totalFValue + totalGValue + totalAIValue;
+
+          updateScoreInterpret(overallTotalValue);
 
           if (overallSummaryScoreEl) {
             overallSummaryScoreEl.textContent = Math.round(overallTotalValue) + " 점 / 100점";
@@ -2064,6 +2477,17 @@ function renderForwardPage(id, item) {
             answerSectionLabelEl.textContent = "답변내용";
         }
         recolorWeightedBars();
+
+        const userStr = localStorage.getItem("loginUser");
+        if (!userStr) return;
+
+        const user = JSON.parse(userStr);
+        if (!user || !user.id) return;
+
+        window.totalScore = Number(overallTotalValue || 0);
+        window.contentScore = Number(totalAIValue || 0);
+
+        saveInterviewScoreToDb();
     }
 
 
@@ -2538,6 +2962,8 @@ router.post(
         }
     }
 );
+
+
 
 /* -------------------------
  * route: analyze
