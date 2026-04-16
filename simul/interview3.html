@@ -41,7 +41,6 @@
             padding: 0;
         }
 
-
         .phone {
             width: 100%;
             max-width: 430px;
@@ -293,7 +292,9 @@
             cursor: pointer;
         }
 
-            .mini-btn:disabled, .record-btn:disabled, .send-btn:disabled {
+            .mini-btn:disabled,
+            .record-btn:disabled,
+            .send-btn:disabled {
                 opacity: .55;
                 cursor: not-allowed;
             }
@@ -313,12 +314,19 @@
             background: radial-gradient(circle at 30% 24%, rgba(132,162,220,.12), transparent 24%), radial-gradient(circle at 70% 78%, rgba(132,162,220,.10), transparent 24%), linear-gradient(180deg, #fafbfd 0%, #eef2f8 100%);
         }
 
+        .preview-scale {
+            position: absolute;
+            inset: 0;
+            transform: scale(1.0);
+            transform-origin: center center;
+        }
+
         #video, #canvas {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         #video {
@@ -327,6 +335,50 @@
 
         .mirror {
             transform: scaleX(-1);
+        }
+
+        .face-guide {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .face-guide-box {
+            width: 50%;
+            aspect-ratio: 0.78 / 1;
+            border: 2px solid rgba(255,255,255,0.95);
+            border-radius: 999px;
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.18), 0 0 0 6px rgba(255,255,255,0.10) inset;
+            background: transparent;
+        }
+
+        .face-guide-text {
+            position: absolute;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(17, 24, 39, 0.58);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 18px rgba(0,0,0,.15);
+        }
+
+        .face-guide.good .face-guide-box {
+            border-color: rgba(110, 231, 183, 0.98);
+            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.18), 0 0 18px rgba(110, 231, 183, 0.35);
+        }
+
+        .face-guide.good .face-guide-text {
+            background: rgba(21, 128, 61, 0.74);
         }
 
         .camera-head {
@@ -394,7 +446,8 @@
                 color: #fff;
             }
 
-        .video-badge, .countdown-corner {
+        .video-badge,
+        .countdown-corner {
             position: absolute;
             bottom: 8px;
             z-index: 6;
@@ -428,7 +481,8 @@
         .camera-stage.camera-off #video,
         .camera-stage.camera-off #canvas,
         .camera-stage.camera-off .metric-layer,
-        .camera-stage.camera-off .video-badge {
+        .camera-stage.camera-off .video-badge,
+        .camera-stage.camera-off .face-guide {
             opacity: 0;
             pointer-events: none;
         }
@@ -569,7 +623,8 @@
                 background: #f7faff;
             }
 
-        #captureSourceCanvas, #captureWorkCanvas {
+        #captureSourceCanvas,
+        #captureWorkCanvas {
             display: none;
         }
 
@@ -597,6 +652,20 @@
                 min-height: 194px;
             }
 
+            .preview-scale {
+                transform: scale(1.0);
+            }
+
+            .face-guide-box {
+                width: 54%;
+            }
+
+            .face-guide-text {
+                font-size: 11px;
+                bottom: 14px;
+                padding: 6px 10px;
+            }
+
             .countdown-corner {
                 width: 42px;
                 height: 42px;
@@ -615,7 +684,7 @@
 
         <header class="header">
             <button class="back-btn" aria-label="뒤로 가기">‹</button>
-            면접에서 떨어지는 이유 3초 안에 확인
+            면접에서 떨어지는 이유 3초 확인
         </header>
 
         <main class="content">
@@ -647,10 +716,16 @@
 
                             <div id="cameraStage" class="camera-stage camera-off">
                                 <div class="media-wrap">
-                                    <video id="video" autoplay playsinline muted></video>
-                                    <canvas id="canvas"></canvas>
-                                </div>
+                                    <div class="preview-scale" id="previewScale">
+                                        <video id="video" autoplay playsinline muted></video>
+                                        <canvas id="canvas"></canvas>
+                                    </div>
 
+                                    <div class="face-guide" id="faceGuide" aria-hidden="true">
+                                        <div class="face-guide-box"></div>
+                                        <div class="face-guide-text">얼굴을 이 프레임에 맞춰 주세요</div>
+                                    </div>
+                                </div>
                                 <div class="camera-head">
                                     <div class="camera-title">내 화면</div>
                                 </div>
@@ -733,6 +808,8 @@
         const cameraStage = document.getElementById("cameraStage");
         const countdownCorner = document.getElementById("countdownCorner");
         const deviceBadge = document.getElementById("deviceBadge");
+        const previewScale = document.getElementById("previewScale");
+        const faceGuide = document.getElementById("faceGuide");
 
         const gazeXEl = document.getElementById("gazeX");
         const gazeYEl = document.getElementById("gazeY");
@@ -802,6 +879,7 @@
         let running = false;
         let rafId = 0;
         let currentFacingMode = "user";
+        let micPermissionPrimed = false;
 
         let mediaRecorder = null;
         let recordedChunks = [];
@@ -857,6 +935,11 @@
 
         if (qSub) {
             qSub.textContent = "먼저 카메라 촬영을 합니다. 카메라를 봐주세요";
+        }
+
+        function setPreviewZoomOut(isMobile = false) {
+            if (!previewScale) return;
+            previewScale.style.transform = isMobile ? "scale(1.00)" : "scale(1.00)";
         }
 
         function createMetrics() {
@@ -1010,7 +1093,9 @@
             textBBox.value = formatTextB();
             textCBox.value = formatTextC();
             textEBox.value = formatTextE();
-        } function getRequestedConstraints() {
+        }
+
+        function getRequestedConstraints() {
             const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
             if (mobile) {
                 return {
@@ -1032,7 +1117,23 @@
                     frameRate: { ideal: 30, max: 30 }
                 }
             };
-        } async function createFaceLandmarker() {
+        }
+
+        async function primeMicrophonePermission() {
+            if (micPermissionPrimed) return true;
+
+            try {
+                const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                tempStream.getTracks().forEach(track => track.stop());
+                micPermissionPrimed = true;
+                return true;
+            } catch (error) {
+                console.warn("마이크 권한 미리 요청 실패:", error);
+                return false;
+            }
+        }
+
+        async function createFaceLandmarker() {
             if (faceLandmarker) return faceLandmarker;
             const vision = await FilesetResolver.forVisionTasks(
                 "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
@@ -1061,6 +1162,10 @@
             stream = await navigator.mediaDevices.getUserMedia(getRequestedConstraints());
             video.srcObject = stream;
             await video.play();
+            await primeMicrophonePermission();
+
+            const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent || "");
+            setPreviewZoomOut(mobile);
 
             currentFacingMode = "user";
             video.classList.add("mirror");
@@ -1495,7 +1600,7 @@
             const eyeWidthR = Math.max(0.0001, distance2D(rightOuter, rightInner));
             const earL = leftEyeOpen / eyeWidthL;
             const earR = rightEyeOpen / eyeWidthR;
-            const blinkNow = earL < 0.18 && earR < 0.18;
+            const blinkNow = earL < 0.1 && earR < 0.1;
 
             if (blinkNow && !blinkHigh) {
                 blinkCount += 1;
@@ -1784,10 +1889,10 @@
         }
 
         function getCapturePoseCheck() {
-            const headTurnBad = Math.abs(correctedYawDeg) > 5.0;
-            const headRollBad = Math.abs(headRollDeg) > 5.0;
-            const headDownBad = correctedPitchDeg < -5.0;
-            const gazeBad = Math.abs(prevGazeX) > 0.25 || Math.abs(prevGazeY) > 0.25;
+            const headTurnBad = Math.abs(correctedYawDeg) > 8.0;
+            const headRollBad = Math.abs(headRollDeg) > 8.0;
+            const headDownBad = correctedPitchDeg < -8.0;
+            const gazeBad = Math.abs(prevGazeX) > 0.3 || Math.abs(prevGazeY) > 0.3;
             const eyesClosedBad = !!blinkHigh;
             const noFaceBad = !latestFaceLandmarks || latestFaceLandmarks.length === 0;
 
@@ -1797,12 +1902,18 @@
             if (!ok) {
                 const reasons = [];
 
+                interviewerBigCountdown.textContent = "";
+
                 if (headTurnBad) reasons.push(`고개 좌우 회전 (yaw=${correctedYawDeg.toFixed(2)})`);
                 if (headRollBad) reasons.push(`고개 기울기 (roll=${headRollDeg.toFixed(2)})`);
                 if (headDownBad) reasons.push(`고개 숙임 (pitch=${correctedPitchDeg.toFixed(2)})`);
                 if (gazeBad) reasons.push(`시선 이탈 (x=${prevGazeX.toFixed(2)}, y=${prevGazeY.toFixed(2)})`);
                 if (eyesClosedBad) reasons.push(`눈 감김`);
                 if (noFaceBad) reasons.push(`얼굴 인식 없음`);
+
+                // 🔥 추가 (핵심)
+                interviewerBigCountdown.classList.add("show");
+                interviewerBigCountdown.textContent = reasons.join("\n");
 
                 console.log("[PoseCheck FAIL]", reasons.join(" | "));
             }
@@ -1821,8 +1932,8 @@
         async function showBadPoseWarningAndRetry() {
             interviewerCaption.style.display = "none";
             interviewerBigCountdown.classList.add("show");
-            interviewerBigCountdown.style.fontSize = "35px";
-            interviewerBigCountdown.textContent = "카메라를 보고 자세를 잡아주세요";
+            interviewerBigCountdown.style.fontSize = "25px";
+            interviewerBigCountdown.textContent += "\n카메라를 보고 자세를 잡아주세요";
 
             recordStatus.className = "record-status recording";
             recordStatus.textContent = "자세가 맞지 않아 다시 카운트합니다.";
