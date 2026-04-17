@@ -1222,7 +1222,7 @@
                 levelNo: 1,
                 level: "Lv.1",
                 title: "무표정 안정화",
-                image: "./images/neutral-lip.png",
+                image: "./images/train_img1.png",
                 heroImage: "./images/luna1.png",
                 heroVideo: "./movie/netural1.mp4",
                 stages: [
@@ -1247,7 +1247,7 @@
                 levelNo: 2,
                 level: "Lv.2",
                 title: "시선 안정화",
-                image: "./images/neutral-balance.png",
+                image: "./images/train_img2.png",
                 heroImage: "./images/luna2.png",
                 stages: [
                     {
@@ -1271,7 +1271,7 @@
                 levelNo: 3,
                 level: "Lv.3",
                 title: "밝은 미소",
-                image: "./images/neutral-balance.png",
+                image: "./images/train_img3.png",
                 heroImage: "./images/luna3.png",
                 stages: [
                     {
@@ -1295,7 +1295,7 @@
                 levelNo: 4,
                 level: "Lv.4",
                 title: "부드러운 첫인상",
-                image: "./images/neutral-eye.png",
+                image: "./images/train_img4.png",
                 heroImage: "./images/luna3.png",
                 stages: [
                     {
@@ -1319,7 +1319,7 @@
                 levelNo: 5,
                 level: "Lv.5",
                 title: "베스트 인상 유지",
-                image: "./images/neutral-best.png",
+                image: "./images/train_img5.png",
                 heroImage: "./images/luna5.png",
                 stages: [
                     {
@@ -2260,6 +2260,8 @@
         nextBtn.addEventListener("click", goNextStage);
         guideBtn.addEventListener("click", speakGuide);
 
+        currentLevel = 1;   // 👉 Level2 선택
+        currentStage = 0;
         createLevelCards();
         syncUIFromSelection();
 

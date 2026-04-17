@@ -228,10 +228,6 @@
             display: none;
         }
 
-        #cameraFallback {
-            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(18,30,55,0.14)), url('./images/user-neutral-main.png') center center / cover no-repeat, linear-gradient(135deg, #eef3fa, #d7e4f8);
-            transition: background-image .25s ease;
-        }
 
         .live-pill {
             position: absolute;
@@ -919,7 +915,7 @@
             <header class="topbar">
                 <button class="icon-btn" aria-label="뒤로가기">‹</button>
                 <div class="title-wrap">
-                    <h1 class="page-title">친근한 무표정 트레이닝</h1>
+                    <h1 class="page-title">무표정 친근감 트레이닝</h1>
                 </div>
                 <button class="icon-btn" aria-label="설정">⚙</button>
             </header>
@@ -955,7 +951,7 @@
                             </video>
                         </div>
                         <div class="intro-bubble">
-                            <p class="coach-title">AI 강사 루나 🔊</p>
+                            <p class="coach-title">AI 강사 시오나 🔊</p>
                             <p class="coach-text" id="coachText">입을 다문상태에서 최대한 웃어 주세요. 웃음 근육이 발달해야 합니다.</p>
                         </div>
                     </div>
@@ -1012,11 +1008,11 @@
                         </h2>
                         <p class="control-desc" id="stepDesc">거울을 보며 편안한 입모양을 만들어보세요</p>
                     </div>
-                    <button class="sound-btn" id="guideBtn">▶ 설명 재생</button>
+                    <!--<button class="sound-btn" id="guideBtn">▶ 설명 재생</button>-->
                 </div>
 
                 <div class="control-note" id="controlNote">
-                    10초 동안 측정합니다. 카메라 정면을 보고 입술과 턱에 힘을 덜어주세요.
+                    10초 동안 측정합니다. 
                 </div>
             </section>
 
@@ -1056,13 +1052,16 @@
         const FACE_LEFT = 234;
         const FACE_RIGHT = 454;
         const TRAINING_DURATION = 10000;
+        let IS_OPEN = 0;
+        let IS_START = 0;
+        let evalWarmupUntil = 0;
 
         const levels = [
             {
                 levelNo: 1,
                 level: "Lv.1",
                 title: "무표정 안정화",
-                image: "./images/neutral-lip.png",
+                image: "./images/train_img1.png",
                 heroImage: "./images/luna1.png",
                 heroVideo: "./movie/netural1.mp4",
                 stages: [
@@ -1087,7 +1086,7 @@
                 levelNo: 2,
                 level: "Lv.2",
                 title: "시선 안정화",
-                image: "./images/neutral-balance.png",
+                image: "./images/train_img2.png",
                 heroImage: "./images/luna2.png",
                 stages: [
                     {
@@ -1111,7 +1110,7 @@
                 levelNo: 3,
                 level: "Lv.3",
                 title: "밝은 미소",
-                image: "./images/neutral-balance.png",
+                image: "./images/train_img3.png",
                 heroImage: "./images/luna3.png",
                 stages: [
                     {
@@ -1135,7 +1134,7 @@
                 levelNo: 4,
                 level: "Lv.4",
                 title: "부드러운 첫인상",
-                image: "./images/neutral-eye.png",
+                image: "./images/train_img4.png",
                 heroImage: "./images/luna3.png",
                 stages: [
                     {
@@ -1159,7 +1158,7 @@
                 levelNo: 5,
                 level: "Lv.5",
                 title: "베스트 인상 유지",
-                image: "./images/neutral-best.png",
+                image: "./images/train_img5.png",
                 heroImage: "./images/luna5.png",
                 stages: [
                     {
@@ -1211,7 +1210,7 @@
         const startBtn = document.getElementById("startTrainingBtn");
         const retryBtn = document.getElementById("retryBtn");
         const nextBtn = document.getElementById("nextBtn");
-        const guideBtn = document.getElementById("guideBtn");
+        //const guideBtn = document.getElementById("guideBtn");
 
         const stageIndicator = document.getElementById("stageIndicator");
         const timerNum = document.getElementById("timerNum");
@@ -1227,6 +1226,7 @@
         const scoreMiniValue = document.getElementById("scoreMiniValue");
         const resultScore = document.getElementById("resultScore");
         const resultBadge = document.getElementById("resultBadge");
+
         const gradeValue = document.getElementById("gradeValue");
         const resultStars = [...document.querySelectorAll("#resultStars .star")];
 
@@ -1240,6 +1240,9 @@
 
         let currentLevel = 0;
         let currentStage = 0;
+        let heroVideoLoopTimer = null;
+        let heroVideoPauseTimer = null;
+        let heroVideoSegmentHandlerAttached = false;
         let currentScore = 0;
         let stageScoreSum = 0;
         let stageScoreCount = 0;
@@ -1247,6 +1250,54 @@
         let lastPopupAt = 0;
         let prevSmile = null;
         let prevEvalAt = 0;
+
+        async function saveTrainingResultToDb() {
+            try {
+                const userStr = localStorage.getItem("loginUser");
+                if (!userStr) {
+                    console.warn("loginUser 없음");
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                if (!user || !user.id) {
+                    console.warn("user.id 없음", user);
+                    return;
+                }
+
+                const avgScore = stageScoreCount > 0
+                    ? Math.round(stageScoreSum / stageScoreCount)
+                    : 0;
+
+                const payload = {
+                    user_id: user.id,
+                    training_type: "netural",
+                    level_no: currentLevel + 1,
+                    stage_no: currentStage + 1,
+                    score1: avgScore,
+                    grade: getGrade(avgScore),
+                    score2: Math.round(currentScore)
+                };
+
+                const response = await fetch("/api/training-results", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.error || "training_result_save_failed");
+                }
+
+                console.log("훈련 결과 저장 완료:", data);
+            } catch (error) {
+                console.error("훈련 결과 저장 실패:", error);
+            }
+        }
 
         function clamp(v, min, max) {
             return Math.max(min, Math.min(max, v));
@@ -1301,10 +1352,10 @@
         }
 
         function getCoachMessage(score) {
-            if (score >= 90) return "좋아요. 지금처럼 힘을 빼고 자연스럽게 유지해보세요.";
-            if (score >= 75) return "꽤 안정적이에요. 입술 힘만 조금 더 빼보세요.";
-            if (score >= 60) return "조금만 더 편안하게 다물면 훨씬 좋아져요.";
-            return "입술과 턱에 들어간 힘을 조금 더 풀어보세요.";
+            if (score >= 90) return "Excellent!!";
+            if (score >= 75) return "Good!";
+            if (score >= 60) return "조금 더 힘주세요";
+            return "입술 근육에 힘을 주세요.";
         }
 
         function setStars(stars, count) {
@@ -1355,6 +1406,11 @@
                                     `;
 
                 btn.addEventListener("click", () => {
+                    if (levelIdx === 1) {
+                        window.location.href = "./focus_train4.html"; // 이동할 페이지
+                        return;
+                    }
+
                     currentLevel = levelIdx;
                     currentStage = 0;
                     stopTrainingUIOnly();
@@ -1421,6 +1477,127 @@
             setStars(resultStars, getStarCount(score));
         }
 
+        function clearHeroVideoSegmentLoop() {
+            if (heroVideoLoopTimer) {
+                clearInterval(heroVideoLoopTimer);
+                heroVideoLoopTimer = null;
+            }
+
+            if (heroVideoPauseTimer) {
+                clearTimeout(heroVideoPauseTimer);
+                heroVideoPauseTimer = null;
+            }
+
+            if (heroVideoSegmentHandlerAttached) {
+                lunaHeroVideo.removeEventListener("timeupdate", handleHeroVideoSegmentLoop);
+                lunaHeroVideo.removeEventListener("ended", handleHeroVideoEndedLoop);
+                heroVideoSegmentHandlerAttached = false;
+            }
+        }
+
+        function getHeroVideoLoopConfig() {
+            if (currentLevel !== 0) return null; // Level1만 적용
+
+            if (currentStage === 0) {
+                return {
+                    start: 1.5,
+                    end: 3,
+                    pauseMs: 3000,
+                    full: false
+                };
+            }
+
+            if (currentStage === 1) {
+                return {
+                    start: 0,
+                    end: 1.2,
+                    pauseMs: 4000,
+                    full: false
+                };
+            }
+
+            if (currentStage === 2) {
+                return {
+                    start: 0,
+                    end: null,
+                    pauseMs: 3000,
+                    full: true
+                };
+            }
+
+            return null;
+        }
+
+        function handleHeroVideoSegmentLoop() {
+            const config = getHeroVideoLoopConfig();
+            if (!config || config.full) return;
+
+            if (lunaHeroVideo.currentTime >= config.end) {
+                lunaHeroVideo.pause();
+                lunaHeroVideo.removeEventListener("timeupdate", handleHeroVideoSegmentLoop);
+
+                heroVideoPauseTimer = setTimeout(() => {
+                    const latestConfig = getHeroVideoLoopConfig();
+                    if (!latestConfig || latestConfig.full) return;
+
+                    lunaHeroVideo.currentTime = latestConfig.start;
+                    const playPromise = lunaHeroVideo.play();
+                    if (playPromise && typeof playPromise.catch === "function") {
+                        playPromise.catch(() => { });
+                    }
+
+                    lunaHeroVideo.addEventListener("timeupdate", handleHeroVideoSegmentLoop);
+                }, config.pauseMs);
+            }
+        }
+
+        function handleHeroVideoEndedLoop() {
+            const config = getHeroVideoLoopConfig();
+            if (!config || !config.full) return;
+
+            heroVideoPauseTimer = setTimeout(() => {
+                const latestConfig = getHeroVideoLoopConfig();
+                if (!latestConfig || !latestConfig.full) return;
+
+                lunaHeroVideo.currentTime = latestConfig.start;
+                const playPromise = lunaHeroVideo.play();
+                if (playPromise && typeof playPromise.catch === "function") {
+                    playPromise.catch(() => { });
+                }
+            }, config.pauseMs);
+        }
+
+        function setupHeroVideoLoop() {
+            clearHeroVideoSegmentLoop();
+
+            const config = getHeroVideoLoopConfig();
+
+            if (!config) {
+                lunaHeroVideo.loop = true;
+                const playPromise = lunaHeroVideo.play();
+                if (playPromise && typeof playPromise.catch === "function") {
+                    playPromise.catch(() => { });
+                }
+                return;
+            }
+
+            lunaHeroVideo.loop = false;
+            lunaHeroVideo.currentTime = config.start;
+
+            if (config.full) {
+                lunaHeroVideo.addEventListener("ended", handleHeroVideoEndedLoop);
+                heroVideoSegmentHandlerAttached = true;
+            } else {
+                lunaHeroVideo.addEventListener("timeupdate", handleHeroVideoSegmentLoop);
+                heroVideoSegmentHandlerAttached = true;
+            }
+
+            const playPromise = lunaHeroVideo.play();
+            if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(() => { });
+            }
+        }
+
         function syncUIFromSelection() {
             const level = getCurrentLevelDef();
             const stage = getCurrentStageDef();
@@ -1430,7 +1607,7 @@
             stepTitle.textContent = stage.title;
             stepDesc.textContent = stage.desc;
             coachText.textContent = stage.coach;
-            controlNote.textContent = "10초 동안 측정합니다. 카메라 정면을 보고 입술과 턱에 힘을 덜어주세요.";
+            controlNote.textContent = "각 스테이지를 10초 동안 측정합니다. ";
             stageIndicator.textContent = `${level.level} · ${currentStage + 1}/${level.stages.length}`;
 
             if (level.heroVideo) {
@@ -1438,11 +1615,12 @@
                 lunaHeroVideo.style.display = "block";
                 lunaHeroVideo.src = level.heroVideo;
                 lunaHeroVideo.load();
-                const playPromise = lunaHeroVideo.play();
-                if (playPromise && typeof playPromise.catch === "function") {
-                    playPromise.catch(() => { });
-                }
+
+                lunaHeroVideo.onloadedmetadata = () => {
+                    setupHeroVideoLoop();
+                };
             } else {
+                clearHeroVideoSegmentLoop();
                 lunaHero.style.backgroundImage = `url('${level.heroImage}') center center / cover no-repeat`;
                 lunaHeroVideo.pause();
                 lunaHeroVideo.removeAttribute("src");
@@ -1456,6 +1634,7 @@
             updateResultCard(displayScore, displayStatus);
 
             timerNum.textContent = "10";
+            
             scoreMiniValue.textContent = String(saved.score || 0);
             scoreMini.classList.remove("show");
 
@@ -1535,6 +1714,15 @@
         }
 
         function evaluateFace(faceLandmarks, blendshapeCategories, w, h, now) {
+
+            if (currentLevel == 1 && now < evalWarmupUntil) {
+                return {
+                    score: currentScore,
+                    popup: "",
+                    mouthOpenY: 0
+                };
+            }
+
             const left = faceLandmarks[MOUTH_LEFT];
             const right = faceLandmarks[MOUTH_RIGHT];
             const top = faceLandmarks[MOUTH_TOP];
@@ -1570,15 +1758,26 @@
             let stage2Score = 0;
             let stage2Popup = "좋아요";
 
-            if (mouthOpenY >= 0.12) {
-                stage2Popup = "조금만 더 다물어보세요";
+            
+            if (mouthOpenY >= 0.02) {
                 stage2Score = 100 - mouthOpenY * 2000;
+                IS_OPEN = 0;
             } else if (mouthOpenY > 0.01) {
-                stage2Score = 100;
-                stage2Popup = "조금만 더 다물어보세요";
+                if (IS_START == 1) {
+                    IS_OPEN = 1;
+                    stage2Score = 100;
+                }
             } else {
-                stage2Score = 0;
+                if (IS_START == 0) IS_START = 1;
+                if (IS_OPEN == 1) {
+                    stage2Score = 100;
+                }
+                else {
+                    stage2Score = 0;
+                }
             }
+            
+
             stage2Score = clamp(stage2Score, 0, 100);
 
             if (currentStage === 1) {
@@ -1610,17 +1809,17 @@
             */
             stage1Score = clamp(stage1Score, 0, 100);
 
-            let stage1Popup = "좋아요";
+            let stage1Popup = "Good!";
             const maxPenalty = Math.max(smilePenalty, forcedSmilePenalty, asymPenalty, openPenalty);
 
             if (maxPenalty === forcedSmilePenalty && forcedSmilePenalty > 0.38) {
-                stage1Popup = "억지 웃음 완화";
+                stage1Popup = "Excellent!!";
             } else if (maxPenalty === asymPenalty && asymPenalty > 0.32) {
                 stage1Popup = "좌우 입꼬리 균형";
             } else if (maxPenalty === openPenalty && openPenalty > 0.28) {
                 stage1Popup = "입술은 닫고 유지";
             } else if (maxPenalty === smilePenalty && smilePenalty > 0.34) {
-                stage1Popup = smileAvg < targetSmile ? "조금 더 자연스럽게 미소" : "입꼬리 힘만 조금 빼기";
+                stage1Popup = smileAvg < targetSmile ? "조금 더 입꼬리에 힘을" : "Excellent!!!";
             }
 
             if (currentStage === 2) {
@@ -1660,7 +1859,7 @@
             guideBox.style.display = "block";
         }
 
-        function finishTraining() {
+        async function finishTraining() {
             running = false;
             if (rafId) {
                 cancelAnimationFrame(rafId);
@@ -1682,17 +1881,20 @@
             renderSummary();
             renderLevelCards();
 
+            await saveTrainingResultToDb();
+
             retryBtn.classList.remove("hidden");
             startBtn.classList.add("hidden");
 
             const level = getCurrentLevelDef();
             const isLastStage = currentStage >= level.stages.length - 1;
-            nextBtn.classList.toggle("hidden", isLastStage);
 
-            guideBox.style.display = "none";
-            userMouthBox.style.display = "none";
-            scoreMini.classList.remove("show");
-            controlNote.textContent = "측정이 끝났습니다. 다시하기로 재측정하거나 다음 단계로 이동하세요.";
+            if (isLastStage) {
+                nextBtn.textContent = "다음 레벨";
+            } else {
+                nextBtn.textContent = "다음 단계";
+            }
+            nextBtn.classList.remove("hidden");
         }
 
         function loop() {
@@ -1712,7 +1914,7 @@
                 if (faceLandmarks) {
                     const evalResult = evaluateFace(faceLandmarks, blendshapeCategories, video.videoWidth, video.videoHeight, now);
                     currentScore = lerp(currentScore, evalResult.score, 0.22);
-
+                    //currentScore = Math.round(currentScore);
                     // 현재 단계 점수 누적 평균용 집계
                     stageScoreSum += evalResult.score;
                     stageScoreCount += 1;
@@ -1767,6 +1969,11 @@
                 const startNow = performance.now();
                 trainingEndsAt = startNow + TRAINING_DURATION;
 
+                evalWarmupUntil = startNow + 600;
+                IS_OPEN = 0;
+                IS_START = 0;
+
+
                 if (rafId) cancelAnimationFrame(rafId);
                 loop();
             } catch (err) {
@@ -1804,7 +2011,7 @@
         startBtn.addEventListener("click", startTraining);
         retryBtn.addEventListener("click", startTraining);
         nextBtn.addEventListener("click", goNextStage);
-        guideBtn.addEventListener("click", speakGuide);
+        //guideBtn.addEventListener("click", speakGuide);
 
         createLevelCards();
         syncUIFromSelection();
