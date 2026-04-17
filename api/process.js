@@ -11,6 +11,9 @@ const router = express.Router();
 const uploadDir = path.join(__dirname, "..", "uploads");
 const afterImgModulePath = path.join(__dirname, "afterimg.js");
 
+const { renderAfterImage } = require('./afterimg');
+
+
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -627,7 +630,7 @@ function setDefaultPromptText() {
     return `너는 면접 답변 코치다.
 아래 정보를 모두 참고해 한국어로 분석해라.
 
-1. 면접 질문은 지원동기를 말하세요 이다.
+1. 면접 질문은 아래의 [면접 질문]을 참고
 2. 면접 답변은 아래의 [답변 텍스트]를 참고
 
 출력 형식
@@ -637,9 +640,12 @@ function setDefaultPromptText() {
 최대한 간결하게 작성해라.`;
 }
 
-function buildAnalyzePrompt({ customPrompt, transcript, speechInsights }) {
+function buildAnalyzePrompt({ customPrompt, transcript, speechInsights, interviewerCaption }) {
     return [
         setDefaultPromptText(),
+        "",
+        "[면접 질문]",
+        String(interviewerCaption || "").trim() || "(없음)",
         "",
         "[답변 텍스트]",
         String(transcript || "").trim() || "(없음)"
@@ -712,6 +718,37 @@ async function callOpenAIIfRequested(prompt) {
     };
 }
 
+
+
+async function createAfterImageFile({ imageFile, landmarks, blendshapes, facialMatrixes, forwardingId, debugLines }) {
+    if (!imageFile?.path) {
+        debugLines?.push?.("[afterimg] skipped: captureImage missing");
+        return { afterImageUrl: "", afterImagePath: "", afterImageFilename: "" };
+    }
+
+
+    const afterFilename = `${Date.now()}-${Math.random().toString(36).slice(2)}-after.png`;
+    const afterImagePath = path.join(uploadDir, afterFilename);
+
+    debugLines?.push?.(`[afterimg] start: ${path.basename(imageFile.path)} -> ${afterFilename}`);
+
+    const result = await renderAfterImage({
+        beforeImagePath: imageFile.path,
+        landmarks: Array.isArray(landmarks) ? landmarks : [],
+        outputPath: afterImagePath,
+        format: 'png'
+    });
+
+    console.log(result.outputPath, result.width, result.height);
+
+    debugLines?.push?.(`[afterimg] success: ${afterFilename}`);
+
+    return {
+        afterImageUrl: `/uploads/${afterFilename}`,
+        afterImagePath,
+        afterImageFilename: afterFilename
+    };
+}
 /* -------------------------
  * forwarding page
  * ------------------------- */
@@ -809,6 +846,7 @@ function buildOverallImpressionFeedback(textDScore, textFScore) {
 
 function renderForwardPage(id, item) {
     const captureImageUrl = String(item?.captureImageUrl || "");
+    const afterImageUrl = String(item?.afterImageUrl || "");
     const textDScore = item?.textDSnapshot || {};
     const textFScore = item?.textFSnapshot || {};
     const textGScore = item?.textGSnapshot || {};
@@ -2093,19 +2131,20 @@ function renderForwardPage(id, item) {
         <div class="hero-id">ID: ${escapeHtml(id)}</div>-->
       </section>
 
-        <section class="section">
+           <section class="section">
           <div class="section-title">Before / After</div>
           <div class="ba-improve-summary">
-          <div class="ba-improve-main">
-            😊 입꼬리 개선 → 면접관에게 더 호감 있는 인상 (+23%)
+            <div class="ba-improve-main">
+              😊 입꼬리 개선 → 면접관에게 더 호감 있는 인상 (+23%)
+            </div>
+            <div class="ba-improve-sub">
+              ✨ 피부 톤 정돈 → 더 또렷한 인상
+            </div>
+            <div class="ba-improve-sub">
+              ✏ 눈썹 라인 정리 → 깔끔한 인상
+            </div>
           </div>
-          <div class="ba-improve-sub">
-            ✨ 피부 톤 정돈 → 더 또렷한 인상
-          </div>
-          <div class="ba-improve-sub">
-            ✏ 눈썹 라인 정리 → 깔끔한 인상
-          </div>
-        </div>
+
           <div class="ba-grid">
             <div class="ba-card">
               <div class="ba-thumb">
@@ -2113,8 +2152,8 @@ function renderForwardPage(id, item) {
 
                 <canvas id="originalCanvas" width="1104" height="1653"></canvas>
                 ${captureImageUrl
-                    ? `<img id="beforeSourceImage" src="${escapeAttr(captureImageUrl)}" alt="교정 전 면접 인상" crossorigin="anonymous" />`
-                    : `<div class="ba-placeholder">클라이언트에서 전달된 before 이미지가 아직 없습니다.</div>`}
+            ? `<img id="beforeSourceImage" src="${escapeAttr(captureImageUrl)}" alt="교정 전 면접 인상" crossorigin="anonymous" />`
+            : `<div class="ba-placeholder">클라이언트에서 전달된 before 이미지가 아직 없습니다.</div>`}
 
                 <div class="ba-overlay">현재 인상</div>
               </div>
@@ -2124,12 +2163,24 @@ function renderForwardPage(id, item) {
               <div class="ba-thumb">
                 <span class="ba-badge orange ba-badge-overlay">After</span>
 
-                <canvas id="previewCanvas" width="1104" height="1653"></canvas>
-                <div id="afterPlaceholder" class="ba-placeholder">after 이미지를 비동기로 생성하는 중입니다.</div>
-                <div id="infoBadge" class="info-badge">이미지 로딩중.</div>
+                ${afterImageUrl
+            ? `<img id="afterResultImage" src="${escapeAttr(afterImageUrl)}" alt="교정 후 면접 인상" crossorigin="anonymous" />`
+            : `<div id="afterPlaceholder" class="ba-placeholder">after 이미지가 아직 없습니다.</div>`}
+
+                <div id="infoBadge" class="info-badge">
+                  ${afterImageUrl ? "이미지 적용 완료" : "이미지 없음"}
+                </div>
+
                 <div class="ba-overlay">합격-UP 인상</div>
 
-                <button id="renderBtn" class="btn-main btn-overlay-bottom" type="button">합격 UP!</button>
+                <button
+                  id="renderBtn"
+                  class="btn-main btn-overlay-bottom"
+                  type="button"
+                  ${afterImageUrl ? "style=\"display:none;\"" : ""}
+                >
+                  합격 UP!
+                </button>
               </div>
             </div>
           </div>
@@ -2254,36 +2305,8 @@ function renderForwardPage(id, item) {
       window.textGScore = ${safeSerializeForInlineScript(textGScore)};
 
     window.__FORWARDING_ID__ = ${safeSerializeForInlineScript(id)};
-    window.__AFTERIMG_DATA__ = ${safeSerializeForInlineScript({
-                forwardingId: id,
-                captureImageUrl: item.captureImageUrl || "",
-                beforeImageUrl: item.captureImageUrl || "",
-                imageUrl: item.captureImageUrl || "",
-                originalImageUrl: item.captureImageUrl || "",
-                landmarks: item.landmarks || [],
-                faceLandmarks: item.landmarks || [],
-                blendshapes: item.blendshapes || [],
-                faceBlendshapes: item.blendshapes || [],
-                facialMatrixes: item.facialMatrixes || [],
-                facialTransformationMatrixes: item.facialMatrixes || [],
-                debug: {
-                    landmarksCount: Array.isArray(item.landmarks) ? item.landmarks.length : 0,
-                    blendshapesCount: Array.isArray(item.blendshapes) ? item.blendshapes.length : 0,
-                    facialMatrixesCount: Array.isArray(item.facialMatrixes) ? item.facialMatrixes.length : 0
-                }
-            })};
 
-    window.analysisBootstrap = {
-      previewCanvasId: "previewCanvas",
-      originalCanvasId: "originalCanvas",
-      statusId: "status",
-      infoBadgeId: "infoBadge",
-      afterPlaceholderId: "afterPlaceholder",
-      renderBtnId: "renderBtn"
-    };
   </script>
-
-  <script src="/forward/${encodeURIComponent(id)}/afterimg.js"></script>
 
   <script>
 
@@ -2809,37 +2832,38 @@ router.post(
             debugLines.push(`[process] blendshapes=${Array.isArray(blendshapes) ? blendshapes.length : 0}`);
             debugLines.push(`[process] facialMatrixes=${Array.isArray(facialMatrixes) ? facialMatrixes.length : 0}`);
 
-            let transcript = null;
+            let transcript = String(transcriptFromBody || "").trim();
             let transcribeRaw = null;
 
             if (audioFile) {
                 debugLines.push(`[transcribe] start: ${audioFile.originalname}`);
 
-                
-                const transcribeResult = await sendAudioToExternalTranscriber(
-                    audioFile.path,
-                    audioFile.originalname
-                );
-                
-                //const transcribeResult = "Audio Test";
+                // 👉 3글자 이상이면 STT 스킵
+                if (transcript.replace(/\s/g, "").length >= 3) {
+                    debugLines.push(`[transcribe] SKIP (client transcript 사용) length=${transcript.length}`);
+                } else {
+                    const transcribeResult = await sendAudioToExternalTranscriber(
+                        audioFile.path,
+                        audioFile.originalname
+                    );
 
-                transcript = String(
-                    transcribeResult?.text ||
-                    transcribeResult?.transcript ||
-                    transcriptFromBody ||
-                    ""
-                ).trim();
+                    transcript = String(
+                        transcribeResult?.text ||
+                        transcribeResult?.transcript ||
+                        ""
+                    ).trim();
 
-                transcribeRaw = transcribeResult?.raw ?? transcribeResult;
-                debugLines.push(`[transcribe] success length=${transcript.length}`);
+                    transcribeRaw = transcribeResult?.raw ?? transcribeResult;
+                    debugLines.push(`[transcribe] success length=${transcript.length}`);
+                }
             } else {
-                transcript = transcriptFromBody || "";
-                debugLines.push("[transcribe] skipped");
+                debugLines.push("[transcribe] skipped (no audio)");
             }
 
             const speechInsightsBaseText = promptTextFromBody || speechInsightsFromBody;
             const audioAnalysis = safeJsonParse(req.body.audioAnalysis, null) || {};
             const fillerAnalysis = normalizeFillerAnalysisPayload(req.body.fillerAnalysis);
+            const interviewerCaption = req.body.interviewer_caption;
 
             const hasBodyAudioAnalysis = hasMeaningfulAudioAnalysis(audioAnalysis);
 
@@ -2857,12 +2881,24 @@ router.post(
             const finalPrompt = buildAnalyzePrompt({
                 customPrompt,
                 transcript,
-                speechInsights
+                speechInsights,
+                interviewerCaption
             });
 
             const captureImageUrl = imageFile
                 ? `/uploads/${path.basename(imageFile.path)}`
                 : "";
+
+            const forwardingId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+            const afterImageResult = await createAfterImageFile({
+                imageFile,
+                landmarks,
+                blendshapes,
+                facialMatrixes,
+                forwardingId,
+                debugLines
+            });
 
             const debugLog = [
                 debugLines.join("\n"),
@@ -2874,6 +2910,7 @@ router.post(
                         audioAnalysis,
                         fillerAnalysis,
                         captureImageUrl,
+                        afterImageUrl: afterImageResult.afterImageUrl,
                         landmarksCount: Array.isArray(landmarks) ? landmarks.length : 0,
                         blendshapesCount: Array.isArray(blendshapes) ? blendshapes.length : 0,
                         facialMatrixesCount: Array.isArray(facialMatrixes) ? facialMatrixes.length : 0
@@ -2882,8 +2919,6 @@ router.post(
                     2
                 )
             ].join("\n");
-
-            const forwardingId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
             forwardingStore.set(forwardingId, {
                 createdAt: Date.now(),
@@ -2903,6 +2938,8 @@ router.post(
                 debugLog,
                 result: "",
                 captureImageUrl,
+                afterImageUrl: afterImageResult.afterImageUrl,
+                afterImagePath: afterImageResult.afterImagePath,
                 landmarks: landmarks || [],
                 blendshapes: blendshapes || [],
                 facialMatrixes: facialMatrixes || []
@@ -2920,6 +2957,7 @@ router.post(
                 prompt: finalPrompt,
                 debugLog,
                 captureImageUrl,
+                afterImageUrl: afterImageResult.afterImageUrl,
                 landmarks: landmarks || [],
                 blendshapes: blendshapes || [],
                 facialMatrixes: facialMatrixes || [],
@@ -2947,9 +2985,17 @@ router.post(
                             filename: imageFile.filename,
                             url: captureImageUrl
                         }
+                        : null,
+                    afterImage: afterImageResult.afterImageUrl
+                        ? {
+                            originalname: afterImageResult.afterImageFilename,
+                            filename: afterImageResult.afterImageFilename,
+                            url: afterImageResult.afterImageUrl
+                        }
                         : null
                 }
             });
+
         } catch (error) {
             console.error(error);
             debugLines.push(`[error] ${error.message || "unknown_error"}`);

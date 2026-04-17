@@ -1,4 +1,9 @@
-﻿window.__FACE_FX_DEFAULTS__ = {
+﻿const fs = require('fs');
+const fsp = require('fs/promises');
+const path = require('path');
+const { Canvas, Image, loadImage: loadCanvasImage } = require('skia-canvas');
+
+const FACE_FX_DEFAULTS = {
     // 4. 콧볼 축소 워프
     noseWingSlim: 5,
     // 5. 코 입체감 보정
@@ -34,11 +39,21 @@
     faceContourSmoot: 100,
     blemishRemove: 120,
     eyeLowerLift: 0
-
 };
 
+function createCanvas(width = 1, height = 1) {
+    const canvas = new Canvas(Math.max(1, width), Math.max(1, height));
+    canvas.clientWidth = canvas.width;
+    canvas.clientHeight = canvas.height;
+    canvas.getBoundingClientRect = () => ({
+        width: canvas.clientWidth || canvas.width,
+        height: canvas.clientHeight || canvas.height,
+    });
+    return canvas;
+}
 
-const fx = window.__FACE_FX_DEFAULTS__ || {};
+
+const fx = { ...FACE_FX_DEFAULTS };
 
 const LEFT_EYEBROW = [70, 63, 105, 66, 107, 55, 65, 52];
 //const RIGHT_EYEBROW = [336, 296, 334, 293, 300, 285, 295, 282];
@@ -126,9 +141,6 @@ function sleep(ms = 0) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function nextFrame() {
-    return new Promise((resolve) => requestAnimationFrame(resolve));
-}
 
 function gaussian2D(dx, dy, sigmaX, sigmaY) {
     const sx = Math.max(1e-4, sigmaX);
@@ -169,31 +181,37 @@ function bilinearSampleImageData(src, width, height, x, y) {
     return out;
 }
 
-const afterData = window.__AFTERIMG_DATA__ || {};
-const forwardData = window.forwardData || {};
-const bootstrap = window.analysisBootstrap || {};
+function createContextState() {
+    return {
+        afterData: {},
+        forwardData: {},
+        bootstrap: {},
+        originalCanvas: createCanvas(1, 1),
+        previewCanvas: createCanvas(1, 1),
+        workCanvas: createCanvas(1, 1),
+        setStatus() { },
+        setInfo() { },
+    };
+}
 
-const originalCanvas = document.getElementById(bootstrap.originalCanvasId || "originalCanvas");
-const previewCanvas = document.getElementById(bootstrap.previewCanvasId || "previewCanvas");
-const statusEl = document.getElementById(bootstrap.statusId || "status");
-const infoBadge = document.getElementById(bootstrap.infoBadgeId || "infoBadge");
-const afterPlaceholder = document.getElementById(bootstrap.afterPlaceholderId || "afterPlaceholder");
-const renderBtn = document.getElementById(bootstrap.renderBtnId || "renderBtn");
-const workCanvas = ensureHiddenWorkCanvas(bootstrap.workCanvasId || "afterWorkCanvasHidden");
+let currentContext = createContextState();
+
+function setRuntimeContext(ctx) {
+    currentContext = ctx;
+}
+
+function getRuntimeContext() {
+    return currentContext;
+}
 
 function setStatus(message) {
-    if (!statusEl) return;
-    if ("value" in statusEl) statusEl.value = message || "";
-    else statusEl.textContent = message || "";
+    getRuntimeContext().setStatus(message);
 }
 
 function setInfo(message) {
-    if (infoBadge) infoBadge.textContent = message || "";
+    getRuntimeContext().setInfo(message);
 }
 
-function hideAfterPlaceholder() {
-    if (afterPlaceholder) afterPlaceholder.style.display = "none";
-}
 
 function loadImage(url) {
     return new Promise((resolve, reject) => {
@@ -205,25 +223,8 @@ function loadImage(url) {
     });
 }
 
-function ensureHiddenWorkCanvas(id) {
-    let canvas = document.getElementById(id);
-
-    if (!canvas) {
-        canvas = document.createElement("canvas");
-        canvas.id = id;
-        document.body.appendChild(canvas);
-    }
-
-    canvas.style.position = "absolute";
-    canvas.style.left = "-99999px";
-    canvas.style.top = "-99999px";
-    canvas.style.width = "1px";
-    canvas.style.height = "1px";
-    canvas.style.opacity = "0";
-    canvas.style.pointerEvents = "none";
-    canvas.setAttribute("aria-hidden", "true");
-
-    return canvas;
+function ensureHiddenWorkCanvas() {
+    return createCanvas(1, 1);
 }
 
 function getDisplaySize(canvas, fallbackW = 320, fallbackH = 320) {
@@ -237,7 +238,7 @@ function getDisplaySize(canvas, fallbackW = 320, fallbackH = 320) {
 }
 
 function setupDisplayCanvas(canvas, width, height) {
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const dpr = 1;
     const pixelW = Math.max(1, Math.round(width * dpr));
     const pixelH = Math.max(1, Math.round(height * dpr));
 
@@ -377,7 +378,7 @@ function applyEyebrowCleanup(ctx, canvas, landmarks, fxData) {
     const TAIL_LUMA_THRESHOLD = 100;
 
     // 브러시를 위한 오버레이 캔버스
-    const brushCanvas = document.createElement("canvas");
+    const brushCanvas = new Canvas(canvas.width, canvas.height);
     brushCanvas.width = canvas.width;
     brushCanvas.height = canvas.height;
     const bctx = brushCanvas.getContext("2d");
@@ -963,7 +964,7 @@ function applyLipEnhancement(ctx, canvas, landmarks, fxData) {
 }
 
 function buildContractedLipMask(ctx, canvas, landmarks, indices, cx, cy, shrinkRatio = 0.14, feather = 2) {
-    const maskCanvas = document.createElement("canvas");
+    const maskCanvas = new Canvas(canvas.width, canvas.height);
     maskCanvas.width = canvas.width;
     maskCanvas.height = canvas.height;
     const mctx = maskCanvas.getContext("2d");
@@ -997,7 +998,7 @@ function buildContractedLipMask(ctx, canvas, landmarks, indices, cx, cy, shrinkR
 }
 
 function buildPolygonMask(ctx, canvas, landmarks, indices, blurRadius) {
-    const maskCanvas = document.createElement("canvas");
+    const maskCanvas = new Canvas(canvas.width, canvas.height);
     maskCanvas.width = canvas.width;
     maskCanvas.height = canvas.height;
 
@@ -1011,7 +1012,7 @@ function buildPolygonMask(ctx, canvas, landmarks, indices, blurRadius) {
     maskCtx.fill();
 
     if (blurRadius > 0) {
-        const blurredCanvas = document.createElement("canvas");
+        const blurredCanvas = new Canvas(canvas.width, canvas.height);
         blurredCanvas.width = canvas.width;
         blurredCanvas.height = canvas.height;
 
@@ -1034,8 +1035,11 @@ function gaussian2D2(x, y, sx, sy) {
     return Math.exp(-(dx + dy));
 }
 
-function resolveBeforeUrl() {
+function resolveBeforeUrl(options = {}) {
+    const { afterData, forwardData, bootstrap } = getRuntimeContext();
     return (
+        options.beforeImageUrl ||
+        options.imageUrl ||
         afterData.beforeImageUrl ||
         afterData.captureImageUrl ||
         afterData.imageUrl ||
@@ -1052,8 +1056,11 @@ function resolveBeforeUrl() {
     );
 }
 
-function resolveLandmarks() {
+function resolveLandmarks(options = {}) {
+    const { afterData, forwardData } = getRuntimeContext();
     return (
+        options.landmarks ||
+        options.faceLandmarks ||
         afterData.landmarks ||
         afterData.faceLandmarks ||
         forwardData.landmarks ||
@@ -1094,7 +1101,7 @@ function applyEyeUpperLiftWarp(ctx, canvas, landmarks, fxData) {
 
         for (let y = minY; y <= maxY; y++) {
             for (let x = minX; x <= maxX; x++) {
-                if (y > target.y) continue;
+                //if (y > target.y) continue;
 
                 const g0 = gaussian2D(
                     x - target.x,
@@ -1703,7 +1710,8 @@ function applyFaceOvalSmooth(ctx, canvas, landmarks, fxData) {
         //ctx.fill();
     };
 
-    [...LEFT_CHAIN, ...RIGHT_CHAIN].forEach(drawLm);
+    LEFT_CHAIN.forEach(drawLm);
+    RIGHT_CHAIN.forEach(drawLm);
 
     // 빨간 숫자
     ctx.fillStyle = "red";
@@ -2590,134 +2598,206 @@ function applyEyeLowerLiftWarp(ctx, canvas, landmarks, fxData) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function renderAfterFromBefore() {
-    const beforeUrl = resolveBeforeUrl();
+    throw new Error("renderAfterFromBefore is browser-only. Use renderAfterImage(options) on the server.");
+}
 
-    if (!beforeUrl) {
-        setStatus("before 이미지 URL이 없습니다.");
-        setInfo("before 없음");
-        console.log("[afterimg] beforeUrl missing", {
-            afterData,
-            forwardData,
-            bootstrap
-        });
-        return;
+function resetCanvasForServer(canvas, width = 1, height = 1) {
+    canvas.width = Math.max(1, width);
+    canvas.height = Math.max(1, height);
+    canvas.clientWidth = canvas.width;
+    canvas.clientHeight = canvas.height;
+    return canvas;
+}
+
+async function loadImage(source) {
+    if (!source) {
+        throw new Error("before_image_load_failed: empty_source");
     }
 
-    if (!previewCanvas || !originalCanvas) {
-        setStatus("캔버스가 준비되지 않았습니다.");
-        setInfo("캔버스 없음");
-        return;
+    if (Buffer.isBuffer(source) || source instanceof Uint8Array) {
+        const img = new Image();
+        img.src = source;
+        return img;
     }
+
+    if (typeof source === "string") {
+        const trimmed = source.trim();
+        if (!trimmed) throw new Error("before_image_load_failed: empty_string");
+
+        const isRemote = /^https?:\/\//i.test(trimmed);
+        const isDataUrl = /^data:/i.test(trimmed);
+
+        if (isRemote || isDataUrl) {
+            return await loadCanvasImage(trimmed);
+        }
+
+        const absPath = path.isAbsolute(trimmed) ? trimmed : path.resolve(trimmed);
+        if (!fs.existsSync(absPath)) {
+            throw new Error(`before_image_load_failed: ${trimmed}`);
+        }
+        return await loadCanvasImage(absPath);
+    }
+
+    if (source.src || source.width || source.height || source.naturalWidth) {
+        return source;
+    }
+
+    throw new Error("before_image_load_failed: unsupported_source_type");
+}
+
+function resolveInputSource(options = {}) {
+    return (
+        options.imageBuffer ||
+        options.beforeImageBuffer ||
+        options.beforeImagePath ||
+        options.imagePath ||
+        options.beforeImageUrl ||
+        options.imageUrl ||
+        options.beforeImageSource ||
+        options.imageSource ||
+        null
+    );
+}
+
+function createStatusCollector(externalLogger) {
+    const state = { status: "", info: "", steps: [] };
+    return {
+        state,
+        setStatus(message) {
+            state.status = message || "";
+            state.steps.push({ type: "status", value: state.status });
+            if (typeof externalLogger === "function") externalLogger({ type: "status", value: state.status });
+        },
+        setInfo(message) {
+            state.info = message || "";
+            state.steps.push({ type: "info", value: state.info });
+            if (typeof externalLogger === "function") externalLogger({ type: "info", value: state.info });
+        }
+    };
+}
+
+async function renderAfterImage(options = {}) {
+    const status = createStatusCollector(options.onProgress);
+
+    const runtimeContext = {
+        afterData: { ...(options.afterData || {}) },
+        forwardData: { ...(options.forwardData || {}) },
+        bootstrap: { ...(options.bootstrap || {}) },
+        originalCanvas: createCanvas(1, 1),
+        previewCanvas: createCanvas(1, 1),
+        workCanvas: createCanvas(1, 1),
+        setStatus: status.setStatus,
+        setInfo: status.setInfo,
+    };
+
+    setRuntimeContext(runtimeContext);
+
+    if (options.landmarks) {
+        runtimeContext.afterData.landmarks = options.landmarks;
+    } else if (options.faceLandmarks) {
+        runtimeContext.afterData.faceLandmarks = options.faceLandmarks;
+    }
+
+    Object.keys(fx).forEach((k) => delete fx[k]);
+    Object.assign(fx, FACE_FX_DEFAULTS, options.fx || options.fxOverrides || {});
+
+    const inputSource = resolveInputSource(options);
+    const img = await loadImage(inputSource || resolveBeforeUrl(options));
+
+    resetCanvasForServer(runtimeContext.originalCanvas, img.width || img.naturalWidth || 1, img.height || img.naturalHeight || 1);
+    resetCanvasForServer(runtimeContext.previewCanvas, img.width || img.naturalWidth || 1, img.height || img.naturalHeight || 1);
+    resetCanvasForServer(runtimeContext.workCanvas, img.width || img.naturalWidth || 1, img.height || img.naturalHeight || 1);
 
     setStatus("before 이미지를 불러와 after 영역에 로드하는 중입니다.");
     setInfo("after 로딩중");
 
-    const img = await loadImage(beforeUrl);
+    drawCoverFromSourceToCanvas(img, runtimeContext.originalCanvas);
+    drawImageToWorkCanvas(runtimeContext.workCanvas, img);
 
-    drawCoverFromSourceToCanvas(img, originalCanvas);
-    drawImageToWorkCanvas(workCanvas, img);
-
-    const workCtx = workCanvas.getContext("2d");
-
-    hideAfterPlaceholder();
-
+    const workCtx = runtimeContext.workCanvas.getContext("2d");
     const landmarks = normalizeLandmarks(
-        resolveLandmarks(),
-        workCanvas.width,
-        workCanvas.height
+        resolveLandmarks(options),
+        runtimeContext.workCanvas.width,
+        runtimeContext.workCanvas.height
     );
 
     if (!landmarks || !Array.isArray(landmarks) || !landmarks.length) {
-        applyGlobalFinish(workCtx, workCanvas, fx);
-        drawCoverFromSourceToCanvas(workCanvas, previewCanvas);
+        applyGlobalFinish(workCtx, runtimeContext.workCanvas, fx);
+        drawCoverFromSourceToCanvas(runtimeContext.workCanvas, runtimeContext.previewCanvas);
         setStatus("랜드마크가 없어 전체 톤 보정만 적용했습니다.");
         setInfo("랜드마크 없음");
-        return;
+    } else {
+        setStatus("잡티 제거");
+        setInfo("blemish");
+        ApplyBlemish(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("얼굴형 부드럽게 중...");
+        setInfo("face oval");
+        applyFaceOvalSmooth(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("콧볼 축소 워프 적용 중.");
+        setInfo("nose wing");
+        applyNoseWingSlimWarp(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("코 보정 적용 중.");
+        setInfo("nose");
+        applyNoseDepth(workCtx, landmarks, fx);
+
+        setStatus("눈 보정 적용 중.");
+        setInfo("eyes");
+
+        applyEyeUpperLiftWarp(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        applyEyeLowerLiftWarp(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("눈썹 보정 적용 중.");
+        setInfo("brow");
+        applyEyebrowCleanup(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("입술 보정 적용 중.");
+        setInfo("lips");
+        applyLipEnhancement(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        setStatus("입꼬리 보정 적용 중.");
+        setInfo("smile");
+        applyMouthCornerLiftWarp(workCtx, runtimeContext.workCanvas, landmarks, fx);
+
+        applyGlobalFinish(workCtx, runtimeContext.workCanvas, fx);
+        drawCoverFromSourceToCanvas(runtimeContext.workCanvas, runtimeContext.previewCanvas);
+
+        setStatus("after 이미지 렌더링이 완료되었습니다.");
+        setInfo("완료");
     }
 
-    await nextFrame();
-    setStatus("잡티 제거");
-    setInfo("blemish");
-    ApplyBlemish(workCtx, workCanvas, landmarks, fx);
+    const format = String(options.format || "png").toLowerCase();
+    let outputBuffer;
 
-    await nextFrame();
-    setStatus("얼굴형 부드럽게 중...");
-    setInfo("face oval");
-    applyFaceOvalSmooth(workCtx, workCanvas, landmarks, fx);
+    if (format === "jpeg" || format === "jpg") {
+        outputBuffer = await runtimeContext.workCanvas.toBuffer("jpg", { quality: options.quality ?? 0.95 });
+    } else if (format === "webp") {
+        outputBuffer = await runtimeContext.workCanvas.toBuffer("webp", { quality: options.quality ?? 0.95 });
+    } else {
+        outputBuffer = await runtimeContext.workCanvas.toBuffer("png");
+    }
 
-    await nextFrame();
-    setStatus("콧볼 축소 워프 적용 중...");
-    setInfo("nose wing");
-    applyNoseWingSlimWarp(workCtx, workCanvas, landmarks, fx);
+    if (options.outputPath) {
+        await fsp.writeFile(options.outputPath, outputBuffer);
+    }
 
-    await nextFrame();
-    setStatus("코 보정 적용 중...");
-    setInfo("nose");
-    applyNoseDepth(workCtx, landmarks, fx);
-
-    /*
-    await nextFrame();
-    setStatus("눈동자 적용 중...");
-    setInfo("iris");
-    applyIrisBlack(workCtx, workCanvas, landmarks, fx);
-    */
-
-
-    await nextFrame();
-    setStatus("눈 보정 적용 중...");
-    setInfo("eyes");
-    //applyEyeLineEnhance(workCtx, workCanvas, landmarks, fx);
-
-    // 🔥 추가
-    await nextFrame();
-    applyEyeUpperLiftWarp(workCtx, workCanvas, landmarks, fx);
-
-    await nextFrame();
-    applyEyeLowerLiftWarp(workCtx, workCanvas, landmarks, fx);
-
-
-    /*
-    await nextFrame();
-    setStatus("눈 개방감 보정 적용 중...");
-    setInfo("eye open");
-    applyEyeOpenHighlight(workCtx, landmarks, fx);
-    */
-
-    await nextFrame();
-    setStatus("눈썹 보정 적용 중...");
-    setInfo("brow");
-    applyEyebrowCleanup(workCtx, workCanvas, landmarks, fx);
-
-    await nextFrame();
-    setStatus("입술 보정 적용 중...");
-    setInfo("lips");
-    applyLipEnhancement(workCtx, workCanvas, landmarks, fx);
-
-    await nextFrame();
-    setStatus("입꼬리 보정 적용 중.");
-    setInfo("smile");
-    applyMouthCornerLiftWarp(workCtx, workCanvas, landmarks, fx);
-
-    await sleep(0);
-    applyGlobalFinish(workCtx, workCanvas, fx);
-    drawCoverFromSourceToCanvas(workCanvas, previewCanvas);
-
-    setStatus("after 이미지 렌더링이 완료되었습니다.");
-    setInfo("완료");
+    return {
+        buffer: outputBuffer,
+        outputPath: options.outputPath || null,
+        width: runtimeContext.workCanvas.width,
+        height: runtimeContext.workCanvas.height,
+        status: status.state.status,
+        info: status.state.info,
+        steps: status.state.steps,
+        fx: { ...fx }
+    };
 }
 
-if (renderBtn) {
-    renderBtn.addEventListener("click", () => {
-        renderAfterFromBefore().catch((err) => {
-            console.error(err);
-            setStatus("after 이미지 렌더링에 실패했습니다: " + (err.message || "unknown_error"));
-            setInfo("실패");
-        });
-    });
-}
-
-renderAfterFromBefore().catch((err) => {
-    console.error(err);
-    setStatus("after 이미지 초기 로딩에 실패했습니다: " + (err.message || "unknown_error"));
-    setInfo("초기화 실패");
-});
+module.exports = {
+    FACE_FX_DEFAULTS,
+    renderAfterImage,
+    processAfterImage: renderAfterImage
+};
