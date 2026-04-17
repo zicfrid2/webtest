@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>면접에서 떨어지는 이유</title>
+    <title>실전 면접</title>
     <style>
         :root {
             --bg: #eef4ff;
@@ -691,7 +691,7 @@
 
         <header class="header">
             <button class="back-btn" aria-label="뒤로 가기">‹</button>
-            면접에서 떨어지는 이유 3초 확인
+            실전 면접(자유 주제)
         </header>
 
         <main class="content">
@@ -707,8 +707,8 @@
 
                     <section class="section-card interviewer-section" aria-label="면접관 화면 영역">
                         <div id="interviewerVideoWrap" class="interviewer-video">
-                            <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector1.mp4"></video>
-                            <div id="interviewerCaption" class="interviewer-caption">지원 동기를, 간단하게 말씀해 보세요.</div>
+                            <video id="interviewerVideo" playsinline preload="auto" src="./movie/inspector3.mp4"></video>
+                            <div id="interviewerCaption" class="interviewer-caption">인재가 필요한데, 열정이 부족해 보이는군요</div>
                             <div id="interviewerBigCountdown" class="interviewer-big-countdown">3</div>
                             <div class="interviewer-placeholder"><span>면접관 동영상 재생 영역</span></div>
                         </div>
@@ -844,7 +844,7 @@
         const qSub = document.querySelector(".q-sub");
 
         // 🔥 추가
-        const motiveAudio = new Audio("./voice/motive3.mp3");
+        const motiveAudio = new Audio("./voice/passion1.mp3");
         motiveAudio.preload = "auto";
 
         let motivePlayed = false;
@@ -1842,7 +1842,7 @@
         }
 
         function resetCountdown() {
-            countdownValue = 10;
+            countdownValue = 20;
             countdownStarted = false;
             countdownCorner.textContent = String(countdownValue);
             interviewerBigCountdown.classList.remove("show");
@@ -1887,9 +1887,9 @@
 
             startCountdownTracking();
             recordStatus.className = "record-status recording";
-            recordStatus.textContent = "답변 10초 카운트와 측정을 시작합니다.";
+            recordStatus.textContent = "답변 20초 카운트와 측정을 시작합니다.";
 
-            countdownValue = 10;
+            countdownValue = 20;
             countdownCorner.textContent = String(countdownValue);
 
             countdownTimer = setInterval(() => {
@@ -2096,7 +2096,7 @@
             interviewerVideoWrap.classList.add("playing");
 
             interviewerCaption.style.display = "block";
-            interviewerCaption.textContent = "지원하게 된 동기를 10초 안에 간단하게 말씀해 보세요";
+            interviewerCaption.textContent = "인재가 필요한데, 열정이 부족해 보이는군요";
 
             startAnalysisWindow();
 
@@ -2247,6 +2247,7 @@
             formData.append("faceMetaJson", JSON.stringify(capturedFaceMeta || null));
             formData.append("faceBlendshapesJson", JSON.stringify(latestFaceBlendshapes || []));
             formData.append("facialMatrixesJson", JSON.stringify(latestFacialMatrixes || []));
+            formData.append("interviewer_caption", interviewerCaption.textContent || "");
 
             const textBMetricsPayload = {
                 windowLabel: metrics.active ? "진행 중" : (metrics.startMs ? "종료" : "대기"),
